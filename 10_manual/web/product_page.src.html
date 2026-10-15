@@ -1,0 +1,372 @@
+<title>DIY IoT Spirometer</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500;700;800&family=Noto+Sans+Thai:wght@400;500;700&display=swap">
+<style>
+/* Palette: sky-blue device body (matches the model), clinical white, navy ink. Layout: product page — hero render, viewer, live airflow, spec sheet. */
+:root{
+  --bg:#f5f9fd; --panel:#ffffff; --ink:#0e2238; --mute:#566b82; --line:#d9e5f1;
+  --blue:#2a86d4; --blue-soft:#e3f0fb; --deep:#0b3a63; --air:#bfe0f7; --hot:#e0653a; --ok:#1e9d68; --warn:#c98500;
+  --shadow:0 18px 40px -22px rgba(11,58,99,.35);
+  --disp:"Sora","Noto Sans Thai",system-ui,sans-serif; --body:"Noto Sans Thai","Sora",system-ui,sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0a1623; --panel:#112235; --ink:#e8f1fa; --mute:#93a9bf; --line:#22384f;
+  --blue:#5aa9ec; --blue-soft:#12304a; --deep:#a7d2f6; --air:#1f4d73; --hot:#f08a5c; --ok:#4cc790; --warn:#e0b04a;
+  --shadow:0 18px 40px -22px rgba(0,0,0,.7); color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0a1623; --panel:#112235; --ink:#e8f1fa; --mute:#93a9bf; --line:#22384f;
+  --blue:#5aa9ec; --blue-soft:#12304a; --deep:#a7d2f6; --air:#1f4d73; --hot:#f08a5c; --ok:#4cc790; --warn:#e0b04a;
+  --shadow:0 18px 40px -22px rgba(0,0,0,.7); color-scheme:dark}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.65 var(--body);
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.wrap{max-width:1120px;margin:0 auto}
+h1,h2,h3{font-family:var(--disp);line-height:1.15;margin:0;text-wrap:balance;letter-spacing:-.01em}
+h2{font-size:clamp(26px,4vw,38px)} h3{font-size:18px}
+p{margin:0}
+a{color:var(--blue)}
+.eyebrow{font:600 12px/1 var(--disp);letter-spacing:.16em;text-transform:uppercase;color:var(--blue)}
+nav{display:flex;align-items:center;gap:20px;padding-block:18px;flex-wrap:wrap}
+nav b{font:800 17px var(--disp);margin-right:auto;letter-spacing:-.01em}
+nav a{color:var(--mute);text-decoration:none;font-size:14px}
+nav a:hover{color:var(--ink)}
+nav button{font:inherit;background:none;border:1px solid var(--line);color:var(--ink);border-radius:99px;padding:5px 12px;cursor:pointer}
+.hero{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);gap:36px;align-items:center;padding-block:28px 56px}
+.hero h1{font-size:clamp(38px,6vw,68px);font-weight:800;margin-block:14px 16px}
+.hero h1 span{color:var(--blue)}
+.lead{font-size:18px;color:var(--mute);max-width:46ch}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-block:22px}
+.chip{border:1px solid var(--line);background:var(--panel);border-radius:99px;padding:5px 13px;font-size:13px}
+.cta{display:flex;gap:12px;flex-wrap:wrap}
+.btn{display:inline-block;padding:12px 22px;border-radius:12px;background:var(--blue);color:#fff;text-decoration:none;font-weight:700}
+.btn.ghost{background:none;border:1px solid var(--line);color:var(--ink)}
+.stage{background:radial-gradient(120% 90% at 50% 20%,var(--panel),var(--blue-soft));border-radius:28px;box-shadow:var(--shadow);padding:14px;border:1px solid var(--line)}
+.stage img{width:100%;display:block;border-radius:18px}
+section{padding-block:56px;border-top:1px solid var(--line)}
+.sec-h{display:grid;gap:10px;margin-bottom:28px;max-width:62ch}
+.sec-h p{color:var(--mute)}
+/* viewer */
+.viewer{display:grid;grid-template-columns:minmax(0,1fr) 140px;gap:16px}
+.viewer .main{background:var(--panel);border:1px solid var(--line);border-radius:22px;padding:12px;box-shadow:var(--shadow)}
+.viewer .main img{width:100%;border-radius:14px;display:block}
+.viewer .cap{padding:12px 6px 4px;color:var(--mute);font-size:14px;min-height:4.6em}
+.thumbs{display:grid;gap:10px;align-content:start}
+.thumbs button{padding:0;border:2px solid var(--line);border-radius:14px;background:var(--panel);overflow:hidden;cursor:pointer}
+.thumbs button[aria-pressed=true]{border-color:var(--blue)}
+.thumbs img{width:100%;display:block}
+/* features */
+.feat{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:16px}
+.feat article{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:20px}
+.feat h3{margin-bottom:6px}.feat p{color:var(--mute);font-size:15px}
+.feat .k{font:800 26px var(--disp);color:var(--blue);display:block;margin-bottom:6px}
+/* airflow demo */
+.lab{background:var(--panel);border:1px solid var(--line);border-radius:24px;padding:18px;box-shadow:var(--shadow)}
+.lab canvas{width:100%;display:block;border-radius:14px;background:var(--bg)}
+.controls{display:flex;gap:16px;flex-wrap:wrap;align-items:center;margin-block:14px}
+.controls label{display:flex;gap:10px;align-items:center;flex:1 1 280px;font-weight:600}
+.controls input[type=range]{flex:1;accent-color:var(--blue);min-width:120px}
+.controls button{font:inherit;font-weight:700;border:0;border-radius:12px;padding:10px 18px;background:var(--deep);color:var(--bg);cursor:pointer}
+.controls button[disabled]{opacity:.5;cursor:default}
+.readouts{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+.ro{border:1px solid var(--line);border-radius:14px;padding:10px 14px;background:var(--bg)}
+.ro small{display:block;color:var(--mute);font-size:12px}
+.ro b{font:700 24px var(--disp);font-variant-numeric:tabular-nums}
+.ro b i{font:500 13px var(--body);font-style:normal;color:var(--mute)}
+.state{font-weight:700}
+.state.ok{color:var(--ok)}.state.warn{color:var(--warn)}.state.hot{color:var(--hot)}
+.note{font-size:13px;color:var(--mute);margin-top:12px}
+.two{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:16px;margin-top:16px}
+/* chain */
+.chain{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:0;counter-reset:s}
+.chain div{position:relative;padding:18px 18px 18px 18px;border-left:2px solid var(--line)}
+.chain div::before{content:"";position:absolute;left:-7px;top:22px;width:12px;height:12px;border-radius:50%;background:var(--blue)}
+.chain b{display:block;font-family:var(--disp)}
+.chain span{color:var(--mute);font-size:14px}
+/* spec */
+table{width:100%;border-collapse:collapse;background:var(--panel);border:1px solid var(--line);border-radius:16px;overflow:hidden}
+th,td{text-align:left;padding:11px 16px;border-bottom:1px solid var(--line);font-size:15px;vertical-align:top}
+tr:last-child td{border-bottom:0}
+th{width:34%;font-weight:600;color:var(--mute)}
+td em{font-style:normal;font-size:12px;border:1px solid var(--line);border-radius:99px;padding:1px 8px;color:var(--mute);margin-left:6px;white-space:nowrap}
+.tw{overflow-x:auto}
+.status{background:var(--blue-soft);border:1px solid var(--line);border-radius:18px;padding:18px 22px;display:grid;gap:6px}
+footer{padding-block:34px 60px;color:var(--mute);font-size:14px;border-top:1px solid var(--line)}
+@media (max-width:820px){.hero,.two,.viewer{grid-template-columns:1fr}.thumbs{grid-template-columns:repeat(4,1fr)}}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+</style>
+
+<div class="wrap">
+<nav>
+  <b>MEDTHAI · Spirometer</b>
+  <a href="#view">ดูชิ้นงาน</a><a href="#flow">การทำงานของลม</a><a href="#chain">ระบบ IoT</a><a href="#spec">สเปก</a>
+  <button id="themeBtn" aria-label="สลับธีม">◐</button>
+</nav>
+
+<header class="hero">
+  <div>
+    <span class="eyebrow">ต้นแบบ · พิมพ์ 3 มิติ · IoT</span>
+    <h1>DIY IoT <span>Spirometer</span></h1>
+    <p class="lead">เครื่องวัดสมรรถภาพปอดแบบด้ามจับสีฟ้า–ขาว เป่าครั้งเดียวได้ FVC · FEV1 · PEF ส่งขึ้นเว็บทันที ชาร์จบนแท่นแม่เหล็ก ท่อวัดถอดล้างได้</p>
+    <div class="chips">
+      <span class="chip">Bluetooth LE + Wi-Fi</span><span class="chip">LiPo 1000 mAh · ชาร์จบนแท่น</span>
+      <span class="chip">Venturi + Sensirion SDP810</span><span class="chip">จอกลม 1.28″</span>
+    </div>
+    <div class="cta"><a class="btn" href="#flow">ดูลมไหลในเครื่อง</a><a class="btn ghost" href="#view">ดูภายในเครื่อง</a></div>
+  </div>
+  <div class="stage"><img src="{{HERO}}" alt="เครื่อง DIY IoT Spirometer บนแท่นชาร์จ"></div>
+</header>
+
+<section id="view">
+  <div class="sec-h"><span class="eyebrow">ชิ้นงานจริงจากโมเดล CAD</span><h2>ดูได้ทุกด้าน ทั้งนอกและใน</h2>
+  <p>ภาพทั้งหมดเรนเดอร์จากไฟล์ออกแบบที่ใช้พิมพ์จริง ทุกชิ้นประกอบด้วยน็อตฝังทองเหลืองและสกรู M3</p></div>
+  <div class="viewer">
+    <div class="main"><img id="vimg" src="{{HERO}}" alt=""><p class="cap" id="vcap"></p></div>
+    <div class="thumbs" id="thumbs"></div>
+  </div>
+</section>
+
+<section>
+  <div class="sec-h"><span class="eyebrow">จุดเด่น</span><h2>ออกแบบให้ประกอบ ล้าง และใช้ซ้ำได้</h2></div>
+  <div class="feat">
+    <article><span class="k">1 ท่อ</span><h3>ท่อวัดถอดล้างได้</h3><p>ยกฝาแม่เหล็กออก ดึงท่อขึ้น ล้างน้ำได้ทั้งท่อ วงกันเลื่อนสองปลายไม่ให้ท่อขยับขณะเป่า</p></article>
+    <article><span class="k">0 สายหัก</span><h3>บล็อกต่อท่อพิมพ์ในตัว</h3><p>ช่องลมอยู่ในชิ้นงานเดียวกัน เหลือสายซิลิโคนตรงสั้น 2 เส้น ไม่มีจุดงอให้ตัน</p></article>
+    <article><span class="k">400 Hz</span><h3>วัดเร็วพอสำหรับ PEF</h3><p>อ่านความดันต่าง SDP810 ผ่าน I²C 400 Hz คำนวณ FVC / FEV1 / PEF ในเครื่อง</p></article>
+    <article><span class="k">A / C</span><h3>เกรดความซ้ำได้</h3><p>เป่า 3 ครั้ง ต่างกันไม่เกิน 0.15 ลิตร ได้เกรด A ตามแนว ATS/ERS</p></article>
+    <article><span class="k">IoT</span><h3>ผลขึ้นเว็บทันที</h3><p>ส่งผ่าน BLE ถึงมือถือ หรือ Wi-Fi ขึ้นแดชบอร์ด ถ้าออฟไลน์เก็บในเครื่องได้ 20 ครั้ง</p></article>
+    <article><span class="k">Dock</span><h3>ชาร์จบนแท่น</h3><p>หน้าสัมผัสทองเหลืองสองจุด + แม่เหล็กนำทาง วางแล้วชาร์จ ไม่ต้องเสียบสาย</p></article>
+  </div>
+</section>
+
+<section id="flow">
+  <div class="sec-h"><span class="eyebrow">การทำงานของ air flow</span><h2>ลมไหลผ่านเครื่องอย่างไร</h2>
+  <p>ลมที่เป่าไหลผ่านคอคอด (venturi) ความเร็วเพิ่ม ความดันจึงลดลง เซ็นเซอร์วัดความดันต่างระหว่างก่อนคอคอดกับที่คอคอด แล้วเครื่องคำนวณกลับเป็นอัตราไหล ลองเลื่อนดูได้</p></div>
+  <div class="lab">
+    <canvas id="cv" width="1100" height="440" aria-label="ภาพตัดขวางท่อวัดแสดงลมไหลและความดัน"></canvas>
+    <div class="controls">
+      <label>อัตราไหล <input id="q" type="range" min="0" max="18" step="0.1" value="6"><b id="qv" style="min-width:5.5em;text-align:right"></b></label>
+      <button id="run">▶ จำลองการเป่า FVC 6 วินาที</button>
+    </div>
+    <div class="readouts">
+      <div class="ro"><small>อัตราไหล</small><b id="rQ">–</b></div>
+      <div class="ro"><small>ความเร็วที่คอคอด</small><b id="rV">–</b></div>
+      <div class="ro"><small>ความดันต่าง ΔP</small><b id="rP">–</b></div>
+      <div class="ro"><small>โหลดเซ็นเซอร์ (เต็ม 500 Pa)</small><b id="rL">–</b></div>
+      <div class="ro"><small>สถานะ</small><b class="state" id="rS" style="font-size:16px">–</b></div>
+    </div>
+    <p class="note">คำนวณจากเรขาคณิตจริงของท่อ (ท่อ Ø28 · คอคอด Ø23, Cd ≈ 0.97). เป็นแบบจำลองตามทฤษฎี ค่าจริงต้อง calibrate ด้วยกระบอกฉีด 3 ลิตร</p>
+  </div>
+  <div class="two">
+    <div class="lab"><h3 style="margin-bottom:10px">เส้นโค้ง Flow–Volume (จำลอง)</h3><canvas id="fv" width="640" height="330"></canvas></div>
+    <div class="lab"><h3 style="margin-bottom:10px">ผลที่เครื่องรายงาน (จำลอง)</h3>
+      <div class="readouts" style="grid-template-columns:1fr 1fr">
+        <div class="ro"><small>FVC</small><b id="oFVC">–<i> L</i></b></div>
+        <div class="ro"><small>FEV1</small><b id="oFEV">–<i> L</i></b></div>
+        <div class="ro"><small>FEV1/FVC</small><b id="oRAT">–<i> %</i></b></div>
+        <div class="ro"><small>PEF</small><b id="oPEF">–<i> L/s</i></b></div>
+      </div>
+      <p class="note">เป็นการเป่าสมมติเพื่ออธิบายวิธีคำนวณ ไม่ใช่ข้อมูลจากคนจริง FEV1 = ปริมาตรที่เป่าออกใน 1 วินาทีแรก, PEF = อัตราไหลสูงสุด</p></div>
+  </div>
+</section>
+
+<section id="chain">
+  <div class="sec-h"><span class="eyebrow">เส้นทางข้อมูล</span><h2>จากลมหายใจ ถึงหน้าเว็บ</h2></div>
+  <div class="chain">
+    <div><b>1 · ลมเป่า</b><span>ผ่านปากเป่าส่วนตัว เข้าท่อ Ø28 → คอคอด Ø23</span></div>
+    <div><b>2 · ความดันต่าง</b><span>ช่องลมในบล็อกต่อท่อพา 2 จุดวัดไปเซ็นเซอร์</span></div>
+    <div><b>3 · SDP810</b><span>ช่วง ±500 Pa อ่านผ่าน I²C ที่ 400 Hz</span></div>
+    <div><b>4 · XIAO ESP32</b><span>คำนวณ Q = K·√ΔP รวมปริมาตร ตรวจคุณภาพ เกรด A/C</span></div>
+    <div><b>5 · BLE / Wi-Fi</b><span>เส้นโค้งสดทาง BLE ผลสรุปขึ้น Firebase</span></div>
+    <div><b>6 · แดชบอร์ด</b><span>มุมมองผู้ป่วย / ครู-แพทย์ กราฟแนวโน้ม ส่งออก CSV</span></div>
+  </div>
+</section>
+
+<section id="spec">
+  <div class="sec-h"><span class="eyebrow">สเปก</span><h2>ตัวเลขที่ออกแบบและคำนวณไว้</h2>
+  <p>คอลัมน์ท้ายบอกที่มาของแต่ละค่า เพื่อให้แยกได้ว่าอะไรคำนวณ อะไรวัดจริงแล้ว</p></div>
+  <div class="tw"><table>
+    <tr><th>เซ็นเซอร์</th><td>Sensirion SDP810-500Pa, ความดันต่างดิจิทัล <em>datasheet</em></td></tr>
+    <tr><th>ช่วงอัตราไหล</th><td>ถึง ≈ 15.8 ลิตร/วินาที ก่อนอิ่มตัว <em>คำนวณ</em></td></tr>
+    <tr><th>ความแม่นยำที่ลมแรง</th><td>≈ 1.5–3 % ของค่าที่อ่านที่ 1–15 L/s <em>คำนวณจากสเปกเซ็นเซอร์</em></td></tr>
+    <tr><th>ลมเบา</th><td>ต่ำกว่า ≈ 0.3 L/s ไม่แม่น (เครื่องตัดทิ้ง) <em>คำนวณ</em></td></tr>
+    <tr><th>ค่าที่รายงาน</th><td>FVC, FEV1, FEV1/FVC, PEF, คุณภาพการเป่า, เกรดความซ้ำได้ <em>เฟิร์มแวร์</em></td></tr>
+    <tr><th>การเชื่อมต่อ</th><td>Bluetooth LE, Wi-Fi 2.4 GHz, USB-C <em>บอร์ด</em></td></tr>
+    <tr><th>แบตเตอรี่</th><td>LiPo 603450 · 1000 mAh ชาร์จผ่านบอร์ดหรือแท่น <em>ออกแบบ</em></td></tr>
+    <tr><th>ตัวเครื่อง</th><td>พิมพ์ PETG ≈ 470 กรัม (เครื่อง + แท่น) ≈ 27 ชั่วโมงพิมพ์ <em>จากโมเดล</em></td></tr>
+    <tr><th>ขนาด</th><td>เครื่อง ≈ 225 × 90 × 155 มม. (รวมท่อยาว 170 มม.) บนแท่น 175 × 90 มม. <em>จากโมเดล</em></td></tr>
+  </table></div>
+</section>
+
+<section>
+  <div class="status">
+    <h3>สถานะ: ต้นแบบเชิงออกแบบ</h3>
+    <p>โมเดล เฟิร์มแวร์ (คอมไพล์ผ่าน) และแดชบอร์ดเสร็จแล้ว แต่ยังไม่ได้พิมพ์ ประกอบ หรือวัดกับกระบอกฉีดจริง ตัวเลขข้างบนจึงเป็นค่าคำนวณและค่าตาม datasheet เครื่องนี้เป็นอุปกรณ์เพื่อการเรียนรู้และคัดกรองเบื้องต้น ไม่ใช่เครื่องมือแพทย์ที่ผ่านการรับรอง</p>
+  </div>
+</section>
+
+<footer>ทีม MEDTHAI · เตรียมส่ง International Youth Summit (IYS) 2026 · หัวข้อ Health</footer>
+</div>
+
+<script>
+const $=id=>document.getElementById(id);
+const IMG={hero:"{{HERO}}",open:"{{OPEN}}",inside:"{{INSIDE}}",dock:"{{DOCK}}"};
+const SHOTS=[
+ ["hero","ภาพรวม","เครื่องบนแท่นชาร์จ ตัวสีฟ้า ท่อวัดและแท่นสีขาว"],
+ ["open","ฝาเปิด","ยกฝาแม่เหล็กออก เห็นท่อวัดและวงกันเลื่อนสองปลาย"],
+ ["inside","ภายใน","บล็อกต่อท่อ เซ็นเซอร์ จอกลม แบต และบอร์ดอยู่ในครึ่งตัวเครื่อง"],
+ ["dock","แท่นชาร์จ","ช่องวางด้าม หน้าสัมผัส pogo และแม่เหล็กนำทาง"]];
+(function(){
+  const t=$("thumbs");
+  SHOTS.forEach((s,i)=>{const b=document.createElement("button");b.setAttribute("aria-pressed",i===0);
+    b.innerHTML='<img alt="'+s[1]+'" src="'+IMG[s[0]]+'">';
+    b.onclick=()=>{$("vimg").src=IMG[s[0]];$("vimg").alt=s[1];$("vcap").textContent=s[1]+" — "+s[2];
+      [...t.children].forEach(c=>c.setAttribute("aria-pressed",c===b))};t.appendChild(b)});
+  $("vcap").textContent=SHOTS[0][1]+" — "+SHOTS[0][2];
+})();
+document.getElementById("themeBtn").onclick=()=>{const r=document.documentElement;
+  const dark=r.dataset.theme?r.dataset.theme==="dark":matchMedia("(prefers-color-scheme:dark)").matches;
+  r.dataset.theme=dark?"light":"dark"};
+
+/* ---- venturi physics (tube geometry from the CAD model, mm) ---- */
+const K=0.705;                 // L/s per sqrt(Pa)  (Cd .97, beta .82)
+const AT=Math.PI*0.0115*0.0115; // throat area m^2
+const SAT=500, DEAD=0.15;
+const X_THR0=60+(14-11.5)/Math.tan(10.5*Math.PI/180), X_THR1=X_THR0+11.5;
+const X_DIV1=X_THR1+(14-11.5)/Math.tan(7*Math.PI/180);
+function rad(x){ if(x<20)return 15.2; if(x<60)return 14; if(x<X_THR0)return 14-(14-11.5)*(x-60)/(X_THR0-60);
+  if(x<X_THR1)return 11.5; if(x<X_DIV1)return 11.5+(14-11.5)*(x-X_THR1)/(X_DIV1-X_THR1); return 14;}
+const TAP1=54, TAP2=(X_THR0+X_THR1)/2, BARB1=TAP2-8;
+let Q=6, running=false;
+
+/* ---- canvas: airflow ---- */
+const cv=$("cv"),cx=cv.getContext("2d");
+function css(n){return getComputedStyle(document.documentElement).getPropertyValue(n).trim()}
+const W=1100,H=440, X0=70, S=(W-X0-70)/172, AX=150;   // px per mm, tube axis y
+const px=x=>X0+x*S, py=y=>AX+y*S;
+const P=[]; for(let i=0;i<260;i++)P.push({x:Math.random()*170,f:(Math.random()*2-1)*.92});
+let last=performance.now();
+function dpOf(q){return Math.pow(q/K,2)}
+function pressureAt(x,dp){const a0=14*14,a=rad(x)**2,tt=(a0/(11.5*11.5))**2-1;return -dp*(((a0/a)**2-1)/tt)}
+function draw(now){
+  const dt=Math.min(.05,(now-last)/1000);last=now;
+  const dp=dpOf(Q), sat=dp>=SAT;
+  cx.clearRect(0,0,W,H);
+  const air=css("--air"),ink=css("--ink"),mute=css("--mute"),blue=css("--blue"),panel=css("--panel"),hot=css("--hot"),line=css("--line");
+  // tube wall
+  cx.fillStyle=panel; cx.strokeStyle=blue; cx.lineWidth=2;
+  cx.beginPath(); cx.moveTo(px(0),py(-17)); cx.lineTo(px(170),py(-17)); cx.lineTo(px(170),py(17)); cx.lineTo(px(0),py(17)); cx.closePath(); cx.fill();
+  cx.strokeStyle=line; cx.stroke();
+  // stop rings
+  cx.fillStyle=blue; cx.globalAlpha=.25;
+  for(const [a,b] of [[21,25],[150,153]]){cx.fillRect(px(a),py(-21),(b-a)*S,42*S)} cx.globalAlpha=1;
+  // lumen with pressure shading
+  const N=170;
+  for(let i=0;i<N;i++){const x=i,r=rad(x+.5),p=pressureAt(x+.5,Math.min(dp,SAT));
+    const t=Math.min(1,Math.abs(p)/Math.max(SAT,1));
+    cx.fillStyle=air; cx.fillRect(px(x),py(-r),S+.6,2*r*S);
+    cx.globalAlpha=.15+.75*t; cx.fillStyle=hot; cx.fillRect(px(x),py(-r),S+.6,2*r*S); cx.globalAlpha=1;}
+  cx.strokeStyle=blue; cx.lineWidth=2.2; cx.beginPath();
+  for(let x=0;x<=170;x+=1){const r=rad(x);x?cx.lineTo(px(x),py(-r)):cx.moveTo(px(x),py(-r))}
+  for(let x=170;x>=0;x-=1){cx.lineTo(px(x),py(rad(x)))} cx.closePath(); cx.stroke();
+  // particles: speed ~ 1/area
+  const v0=Q/1000/(Math.PI*0.014**2); // m/s in pipe
+  for(const p of P){const r=rad(p.x),v=v0*(14/r)**2;
+    p.x+= v*dt*14;                      // visual scale: 1 m/s -> 14 mm/s on screen
+    if(p.x>170){p.x=0;p.f=(Math.random()*2-1)*.92}
+    const y=py(p.f*rad(p.x));
+    cx.fillStyle=ink;cx.globalAlpha=.55;cx.beginPath();cx.arc(px(p.x),y,2.1,0,7);cx.fill();cx.globalAlpha=1}
+  // exhale arrow + labels
+  cx.fillStyle=mute;cx.font="600 15px "+getComputedStyle(document.body).fontFamily;
+  cx.textAlign="center";
+  cx.fillText("ปากเป่า",px(10),py(-26));
+  cx.fillText("ท่อ Ø28",px(40),py(-26));
+  cx.fillText("คอคอด Ø23",px((X_THR0+X_THR1)/2),py(-26));
+  cx.fillText("ทางออก",px(140),py(-26));
+  cx.strokeStyle=mute;cx.lineWidth=1.5;cx.beginPath();cx.moveTo(px(2),py(-31));cx.lineTo(px(30),py(-31));cx.stroke();
+  cx.beginPath();cx.moveTo(px(30),py(-31));cx.lineTo(px(27),py(-33));cx.moveTo(px(30),py(-31));cx.lineTo(px(27),py(-29));cx.stroke();
+  // pressure taps -> manifold -> sensor
+  const yT=py(17), yCh=py(24), yS=py(40);
+  cx.strokeStyle=ink;cx.lineWidth=2.4;
+  const tapCol=(x,col)=>{cx.strokeStyle=col;cx.beginPath();cx.moveTo(px(x),py(-1)>0?py(rad(x)):yT);cx.lineTo(px(x),yT);cx.stroke()};
+  // block
+  cx.fillStyle=panel;cx.strokeStyle=line;cx.lineWidth=2;cx.fillRect(px(49),yT,(86-49)*S,(26-17)*S+4);cx.strokeRect(px(49),yT,(86-49)*S,(26-17)*S+4);
+  cx.fillStyle=mute;cx.font="12px "+getComputedStyle(document.body).fontFamily;cx.textAlign="left";
+  cx.fillText("บล็อกต่อท่อ (พิมพ์ในตัว)",px(50),py(36));
+  const pHigh=hot, pLow=blue;
+  const ch=(pts,col)=>{cx.strokeStyle=col;cx.lineWidth=3.2;cx.lineJoin="round";cx.beginPath();pts.forEach((q,i)=>i?cx.lineTo(q[0],q[1]):cx.moveTo(q[0],q[1]));cx.stroke()};
+  ch([[px(TAP1),py(14)],[px(TAP1),yCh],[px(BARB1),yCh],[px(BARB1),py(42)]],pHigh);
+  ch([[px(TAP2),py(11.5)],[px(TAP2),py(42)]],pLow);
+  // silicone stubs + sensor
+  cx.fillStyle=css("--deep");cx.globalAlpha=.9;
+  cx.fillRect(px(BARB1)-3,py(42),6,10);cx.fillRect(px(TAP2)-3,py(42),6,10);cx.globalAlpha=1;
+  const sx=px(TAP2-17),sy=py(52),sw=26*S,sh=34;
+  cx.fillStyle=sat?hot:css("--deep");cx.fillRect(sx,sy,sw,sh);
+  cx.fillStyle="#fff";cx.font="700 13px "+getComputedStyle(document.body).fontFamily;cx.textAlign="center";
+  cx.fillText("SDP810",sx+sw/2,sy+21);
+  // sensor load bar
+  const load=Math.min(1,dp/SAT);
+  cx.fillStyle=line;cx.fillRect(sx+sw+14,sy,150,12);cx.fillStyle=sat?hot:blue;cx.fillRect(sx+sw+14,sy,150*load,12);
+  cx.fillStyle=mute;cx.font="12px "+getComputedStyle(document.body).fontFamily;cx.textAlign="left";
+  cx.fillText("ความดันต่าง "+dp.toFixed(1)+" Pa / 500",sx+sw+14,sy+30);
+  // ESP32 box + wifi
+  const ex=sx+sw+220;
+  cx.strokeStyle=blue;cx.lineWidth=2;cx.strokeRect(ex,sy-8,120,50);cx.fillStyle=ink;cx.textAlign="center";cx.font="700 13px "+getComputedStyle(document.body).fontFamily;
+  cx.fillText("XIAO ESP32",ex+60,sy+14);cx.font="12px "+getComputedStyle(document.body).fontFamily;cx.fillStyle=mute;cx.fillText("BLE · Wi-Fi",ex+60,sy+32);
+  cx.strokeStyle=mute;cx.setLineDash([5,5]);cx.beginPath();cx.moveTo(sx+sw,sy+sh/2);cx.lineTo(sx+sw+14,sy+sh/2);cx.stroke();
+  cx.beginPath();cx.moveTo(sx+sw+170,sy+17);cx.lineTo(ex,sy+17);cx.stroke();cx.setLineDash([]);
+  // legend
+  cx.textAlign="left";cx.font="12px "+getComputedStyle(document.body).fontFamily;
+  cx.fillStyle=hot;cx.fillRect(px(2),py(52),12,12);cx.fillStyle=mute;cx.fillText("ความดันสูง (ก่อนคอคอด)",px(2)+18,py(52)+11);
+  cx.fillStyle=blue;cx.fillRect(px(2),py(52)+20,12,12);cx.fillStyle=mute;cx.fillText("ความดันต่ำ (ที่คอคอด)",px(2)+18,py(52)+31);
+  readouts();
+  requestAnimationFrame(draw);
+}
+function readouts(){
+  const dp=dpOf(Q),v=Q/1000/AT;
+  $("rQ").innerHTML=Q.toFixed(1)+"<i> L/s</i>";
+  $("rV").innerHTML=v.toFixed(1)+"<i> m/s</i>";
+  $("rP").innerHTML=Math.min(dp,9999).toFixed(dp<10?2:0)+"<i> Pa</i>";
+  $("rL").innerHTML=Math.min(100,dp/SAT*100).toFixed(0)+"<i> %</i>";
+  const s=$("rS");
+  if(dp>=SAT){s.textContent="อิ่มตัว (ค่าจะถูกตัด)";s.className="state hot"}
+  else if(dp<DEAD){s.textContent="ต่ำกว่า deadband (นับเป็น 0)";s.className="state warn"}
+  else{s.textContent="วัดได้";s.className="state ok"}
+}
+$("q").oninput=e=>{if(!running){Q=+e.target.value;$("qv").textContent=Q.toFixed(1)+" L/s"}};
+$("qv").textContent=Q.toFixed(1)+" L/s";
+
+/* ---- simulated FVC manoeuvre ---- */
+const fv=$("fv"),fx=fv.getContext("2d");
+let curve=[];
+function drawFV(){
+  const w=640,h=330,pl=52,pb=38,pt=14,pr=14; fx.clearRect(0,0,w,h);
+  const mute=css("--mute"),line=css("--line"),blue=css("--blue");
+  fx.strokeStyle=line;fx.fillStyle=mute;fx.font="12px "+getComputedStyle(document.body).fontFamily;fx.lineWidth=1;
+  const vx=v=>pl+(w-pl-pr)*v/6, fy=f=>h-pb-(h-pb-pt)*f/10;
+  for(let f=0;f<=10;f+=2){fx.beginPath();fx.moveTo(pl,fy(f));fx.lineTo(w-pr,fy(f));fx.stroke();fx.textAlign="right";fx.fillText(f,pl-6,fy(f)+4)}
+  for(let v=0;v<=6;v++){fx.textAlign="center";fx.fillText(v,vx(v),h-pb+16)}
+  fx.fillText("ปริมาตร (ลิตร)",(w+pl)/2,h-6);
+  fx.save();fx.translate(14,(h-pb)/2);fx.rotate(-Math.PI/2);fx.textAlign="center";fx.fillText("อัตราไหล (L/s)",0,0);fx.restore();
+  if(curve.length){fx.strokeStyle=blue;fx.lineWidth=2.6;fx.beginPath();
+    curve.forEach((p,i)=>{const X=vx(p[1]),Y=fy(p[0]);i?fx.lineTo(X,Y):fx.moveTo(X,Y)});fx.stroke()}
+}
+function setOut(a,b,c,d){const f=(id,v,u)=>$(id).innerHTML=v+"<i> "+u+"</i>";
+  f("oFVC",a,"L");f("oFEV",b,"L");f("oRAT",c,"%");f("oPEF",d,"L/s")}
+$("run").onclick=()=>{
+  if(running)return; running=true; $("run").disabled=true; $("q").disabled=true;
+  const PEF=8.3+Math.random()*1.2, TAU=0.5+Math.random()*0.12;
+  curve=[]; let vol=0,fev=0,pk=0,t0=performance.now(),tl=t0; setOut("…","…","…","…");
+  (function step(now){
+    const t=(now-t0)/1000, dt=(now-tl)/1000; tl=now;
+    const q=Math.max(0,PEF*(1-Math.exp(-t/0.035))*Math.exp(-t/TAU)+0.05*Math.exp(-t/2)*(t>0.6?1:0));
+    const qm=q<0.27?0:q;                       // device deadband
+    vol+=qm*dt; if(t<=1)fev=vol; if(qm>pk)pk=qm; Q=Math.min(18,qm);
+    curve.push([qm,vol]); $("q").value=Q; $("qv").textContent=Q.toFixed(1)+" L/s";
+    drawFV(); setOut(vol.toFixed(2),fev.toFixed(2),(100*fev/Math.max(vol,.01)).toFixed(0),pk.toFixed(1));
+    if(t<6)requestAnimationFrame(step);
+    else{running=false;$("run").disabled=false;$("q").disabled=false;Q=0;$("q").value=0;$("qv").textContent="0.0 L/s"}
+  })(performance.now());
+};
+drawFV(); requestAnimationFrame(draw);
+</script>

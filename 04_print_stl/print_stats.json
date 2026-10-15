@@ -1,0 +1,87 @@
+{
+ "model_hash": "bba46c906ba0",
+ "parts": [
+  {
+   "file": "housing_left.stl",
+   "dims_mm": [
+    24.0,
+    155.2,
+    170.7
+   ],
+   "grams": 70.7,
+   "hours": 4.01,
+   "fits_bed": true
+  },
+  {
+   "file": "housing_right.stl",
+   "dims_mm": [
+    24.0,
+    155.2,
+    170.7
+   ],
+   "grams": 74.5,
+   "hours": 4.22,
+   "fits_bed": true
+  },
+  {
+   "file": "flow_tube.stl",
+   "dims_mm": [
+    42.0,
+    52.0,
+    150.4
+   ],
+   "grams": 61.9,
+   "hours": 3.52,
+   "fits_bed": true
+  },
+  {
+   "file": "top_cover.stl",
+   "dims_mm": [
+    24.0,
+    54.0,
+    125.0
+   ],
+   "grams": 45.9,
+   "hours": 2.63,
+   "fits_bed": true
+  },
+  {
+   "file": "mouthpiece.stl",
+   "dims_mm": [
+    30.0,
+    34.0,
+    50.0
+   ],
+   "grams": 10.9,
+   "hours": 0.68,
+   "fits_bed": true
+  },
+  {
+   "file": "dock.stl",
+   "dims_mm": [
+    70.5,
+    90.0,
+    175.0
+   ],
+   "grams": 189.9,
+   "hours": 10.63,
+   "fits_bed": true
+  },
+  {
+   "file": "dock_bottom.stl",
+   "dims_mm": [
+    2.4,
+    62.0,
+    85.0
+   ],
+   "grams": 15.9,
+   "hours": 0.96,
+   "fits_bed": true
+  }
+ ],
+ "total_grams": 470,
+ "total_hours": 26.6,
+ "spools_1kg": 0.52,
+ "filament_thb": 362,
+ "note": "estimate: PETG 1.27 g/cm3, infill 30%, 4 walls, +10 % waste; slice in Bambu Studio to confirm"
+}

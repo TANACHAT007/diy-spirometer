@@ -1,0 +1,39 @@
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Prompt:wght@400;500;600&display=swap">
+<style>
+/* Soft 3D-animation look, same system as the product page: puffy cards, pastel KPI tiles, clay highlights. */
+:root{--bg:#f3f8ff;--card:#fff;--ink:#1e3250;--mute:#5f7694;--acc:#3f97e8;--ok:#2fbf8a;--warn:#f0a73a;--bad:#ff6f7d;--line:#dbe8f7;
+  --sky:#6cb8f6;--mint:#7fdcc0;--peach:#ffb59a;--lilac:#c3b5ff;--sun:#ffd776;
+  --pop:0 2px 0 rgba(255,255,255,.9) inset,0 -3px 0 rgba(63,151,232,.10) inset,0 16px 30px -16px rgba(53,110,180,.45);
+  --disp:"Fredoka","Prompt",system-ui,sans-serif}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#0f1b2e;--card:#1a2b45;--ink:#eaf3ff;--mute:#9db4d1;--acc:#74bfff;--line:#2a4163;
+  --pop:0 2px 0 rgba(255,255,255,.07) inset,0 -3px 0 rgba(0,0,0,.18) inset,0 16px 30px -16px rgba(0,0,0,.7);color-scheme:dark}}
+:root[data-theme=dark]{--bg:#0f1b2e;--card:#1a2b45;--ink:#eaf3ff;--mute:#9db4d1;--acc:#74bfff;--line:#2a4163;
+  --pop:0 2px 0 rgba(255,255,255,.07) inset,0 -3px 0 rgba(0,0,0,.18) inset,0 16px 30px -16px rgba(0,0,0,.7);color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;color:var(--ink);font:15px/1.6 "Prompt","Fredoka",system-ui,sans-serif;
+  background:radial-gradient(800px 420px at 0% -5%,rgba(108,184,246,.25),transparent 60%),radial-gradient(700px 400px at 100% 0%,rgba(195,181,255,.22),transparent 60%),var(--bg);background-color:var(--bg);
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+header{display:flex;gap:10px;align-items:center;padding:16px 0;flex-wrap:wrap;max-width:980px;margin:0 auto}
+h1{font:700 22px var(--disp);margin:0 auto 0 0}
+button,input,select{font:inherit;border:0;background:var(--card);color:var(--ink);border-radius:99px;padding:9px 16px;box-shadow:var(--pop)}
+input{border-radius:18px;width:100%;box-shadow:0 0 0 2px var(--line) inset}
+button{cursor:pointer;font-weight:500}
+button.pri{background:linear-gradient(#7cc4ff,#3f97e8);color:#fff;font:600 15px var(--disp);box-shadow:0 2px 0 rgba(255,255,255,.55) inset,0 -3px 0 rgba(0,0,0,.1) inset,0 10px 18px -8px rgba(63,151,232,.7)}
+main{max-width:980px;margin:0 auto;padding:0 0 44px;display:grid;gap:18px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px}
+.card{background:var(--card);border-radius:30px;padding:18px 20px;box-shadow:var(--pop)}
+.grid .card:nth-child(7n+1){background:linear-gradient(160deg,#fff,#dff0ff)}.grid .card:nth-child(7n+2){background:linear-gradient(160deg,#fff,#dcf7ee)}
+.grid .card:nth-child(7n+3){background:linear-gradient(160deg,#fff,#ffe8df)}.grid .card:nth-child(7n+4){background:linear-gradient(160deg,#fff,#ebe5ff)}
+.grid .card:nth-child(7n+5){background:linear-gradient(160deg,#fff,#fff1cc)}.grid .card:nth-child(7n+6){background:linear-gradient(160deg,#fff,#dff0ff)}
+.grid .card:nth-child(7n){background:linear-gradient(160deg,#fff,#dcf7ee)}
+:root[data-theme=dark] .grid .card{background:var(--card)}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]) .grid .card{background:var(--card)}}
+.k{color:var(--mute);font-size:12px}.v{font:600 32px var(--disp)}.u{font:500 13px "Prompt",sans-serif;color:var(--mute)}
+canvas{width:100%;height:230px;display:block}
+table{width:100%;border-collapse:collapse}
+th,td{text-align:right;padding:9px 10px;border-bottom:2px solid var(--bg)}th:first-child,td:first-child{text-align:left}
+.tag{padding:3px 12px;border-radius:99px;font-size:12px;color:#fff;font-weight:600}
+#cfg{display:none;gap:10px;grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}
+#cfg label{display:grid;gap:4px;font-weight:500;color:var(--mute);font-size:13px}
+.note{color:var(--mute);font-size:12px}
+</style>
