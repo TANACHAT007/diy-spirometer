@@ -22,3 +22,5 @@ so all numbers are calculations or datasheet values. Not a certified medical dev
 | `10_manual/web/` | product page + dashboard (HTML) |
 
 Calibrate the venturi constant K with a 3 L syringe before trusting any reading (see `08_firmware/README.md`).
+
+**เว็บ:** https://tanachat007.github.io/diy-spirometer/
