@@ -216,6 +216,7 @@ CONTACT_W = tuple(c_[0] for c_ in CONTACTS)
 MAG_GRIP = (25.0, 4.0)                                                   # (w, y) dock alignment magnet
 MAG_TOP = [(x, s * 20.6) for x in (32.0, 143.0) for s in (-1, 1)]        # cover magnets 5 x 2
 USB_Y, USB_W = XIAO_Y0 + 1.2 + 1.6, XIAO_W0 + 8.9                         # USB-C centre on the grip end
+BZ_OD, BZ_H, BZ_SUNK = 39.0, 1.2, 0.6                                          # white display bezel: OD, height above the wall, tongue sunk into the wall
 SPK_C, SPK_D, SPK_T = (78.0, 25.0), 16.0, 3.5                            # round speaker on the RIGHT wall (u, w) above the battery, clear of the dock collar; sound out through 19 holes
 AMP_U0, AMP_W0, AMP_UL, AMP_WD = 151.0, 20.0, 19.0, 17.8                  # MAX98357A I2S amp board 19 x 17.8, slides onto rails on the LEFT wall
 AMP_Y0 = -YI + 1.8                                                       # pcb y -10.8..-9.6, chip side toward the wall
@@ -231,8 +232,8 @@ def housing_half(side):
     c = new_comp(f'Housing_{nm.capitalize()}')
     b = body_prism(c, f'print_housing_{nm}', 'lilac')
     fillet_one(c, yedge(b, *A_PT), 3, 'A')
-    fillet_one(c, yedge(b, *E_PT), 8, 'E')
-    fillet_one(c, yedge(b, *LB_PT), 8, 'LB')
+    fillet_one(c, yedge(b, *E_PT), 12, 'E')
+    fillet_one(c, yedge(b, *LB_PT), 12, 'LB')
     round_plane(c, b, 'y', BODY_T / 2, 7)
     round_plane(c, b, 'y', -BODY_T / 2, 7)
     keep_side(c, b, side)
@@ -294,6 +295,7 @@ def housing_half(side):
         # round display: window 32.6 + inside counterbore 36.0 x 1.4; 3 clip blocks with lips over the pcb
         drill(c, b, 'y', DISP_C[0], DISP_C[1], -BODY_T / 2 - 1, -YI + 0.1, 32.6)
         drill(c, b, 'y', DISP_C[0], DISP_C[1], -YI - 1.4, -YI + 0.1, 36.0)
+        drill(c, b, 'y', DISP_C[0], DISP_C[1], -BODY_T / 2 - 1, -BODY_T / 2 + BZ_SUNK, BZ_OD + 0.4)      # rebate for the white bezel
         for ang in (0, 180, 270):
             a = math.radians(ang)
             cx, cz = DISP_C[0] + 21.4 * math.cos(a), DISP_C[1] + 21.4 * math.sin(a)
@@ -350,6 +352,12 @@ def housing_half(side):
 HL, hl = housing_half(-1)
 HR, hr = housing_half(+1)
 
+# ---------------------------------------------------------------- display bezel (white ring, glued into a 0.6 mm rebate around the window)
+BZ = new_comp('Display_Bezel')
+bz = cyl_y(BZ, 'print_bezel', DISP_C[0], -BODY_T / 2 - BZ_H, DISP_C[1], BZ_OD, BZ_H + BZ_SUNK, 'white')
+cut_with(BZ, bz, cyl_y(BZ, 'tmp_bz_in', DISP_C[0], -BODY_T / 2 - BZ_H - 0.5, DISP_C[1], 33.4, BZ_H + BZ_SUNK + 1.0, None))
+round_plane(BZ, bz, 'y', -BODY_T / 2 - BZ_H, 0.5)
+
 # ---------------------------------------------------------------- flow tube (white, lifts out for washing)
 FT = new_comp('Flow_Tube')
 # stop rings (OD 42) outside both sleeve ends: the tube can't slide when the cover is on; it still lifts straight up.
@@ -390,10 +398,10 @@ print(f'venturi: pipe {D_PIPE} throat {D_THR} conv {X_CONV0}-{X_THR0:.1f} throat
 
 # ---------------------------------------------------------------- top cover (magnetic, finger knob like the ndd)
 TC = new_comp('Top_Cover')
-cv = cyl_x(TC, 'print_top_cover', SLV_X0, 0, 0, SLV_OD, SLV_X1 - SLV_X0, 'lilac')
+cv = cyl_x(TC, 'print_top_cover', SLV_X0, 0, 0, SLV_OD, SLV_X1 - SLV_X0, 'white')
 round_plane(TC, cv, 'x', SLV_X0, 3)
 round_plane(TC, cv, 'x', SLV_X1, 3)
-kn = cyl_y(TC, 'knob', 45, -27, 14, 16, 54, 'lilac')
+kn = cyl_y(TC, 'knob', 45, -27, 14, 16, 54, 'white')
 round_plane(TC, kn, 'y', -27, 4)
 round_plane(TC, kn, 'y', 27, 4)
 join(TC, cv, kn)
@@ -557,11 +565,15 @@ for x, z in SCREWS:
 
 # ---------------------------------------------------------------- charging dock
 DK = new_comp('Dock')
-slab = rbox(DK, 'print_dock', 50, -45, -198, 175, 90, 18, 6, 'white')
+slab = rbox(DK, 'print_dock', 50, -45, -198, 175, 90, 18, 8, 'white')
 col_ = gbox(DK, 'collar', 180, -21, -6, 34, 42, 62, 'white')
 round_all(DK, col_, 4)
 wedge = rbox(DK, 'wedge', 140, -21, -190, 62, 42, 38, 4, 'white')
 join(DK, slab, col_, wedge)
+for tx_, ty_, th_, tt_ in ((92.0, 12.0, 6.5, 'MEDTHAI'), (92.0, -3.0, 3.0, 'DIY IoT SPIROMETER'), (92.0, -12.0, 2.2, 'NOT A MEDICAL DEVICE')):
+    f_ = text_z(DK, 'tmp_text', tt_, tx_, ty_, -180.5, th_, 'white', depth=1.0)       # engraved 0.5 mm into the top face
+    if f_:
+        cut_with(DK, slab, *[f_.bodies.item(i_) for i_ in range(f_.bodies.count)])
 cut_with(DK, slab, gbox(DK, 'tmp_pocket', 170, -BODY_T / 2 - 0.2, -0.2, 30.4, BODY_T + 0.4, GRIP_W + 2.0 + 0.6, None))
 for (w, cy), uend in zip(CONTACTS, (232.0, 247.0)):
     cut_with(DK, slab, gcyl(DK, 'tmp_pogo', GRIP_L, cy, w, 2.2, uend - GRIP_L, None))    # 2.0 pogo barrel + 0.2
