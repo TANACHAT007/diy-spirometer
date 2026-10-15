@@ -88,7 +88,7 @@ for root, _, files in os.walk(ROOT):
             stamp_text(p, '//')
         elif ext == '.py':
             stamp_text(p, '#')
-        elif ext == '.html':
+        elif ext == '.html' and not (f.endswith('.src.html') or f == 'hero3d.html'):
             t = open(p, encoding='utf-8').read()
             t = re.sub(r'<!-- ' + TAG + r'.*?-->\n?', '', t)
             t = re.sub(r'<meta name="author"[^>]*>\n?', '', t)
