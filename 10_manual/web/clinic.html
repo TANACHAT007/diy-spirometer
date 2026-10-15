@@ -4,6 +4,7 @@
 <!-- CREDIT-STAMP: DIY IoT Spirometer - designed by Tanachat S. (TANACHAT007) / MEDTHAI - 2026 - https://github.com/TANACHAT007/diy-spirometer -->
 <meta name="author" content="Tanachat S. (TANACHAT007) / MEDTHAI">
 
+
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#0b5cab">
@@ -35,8 +36,8 @@ section.tab{display:none}section.tab.on{display:block}
 h2{font-size:18px;margin:0 0 12px}h3{font-size:15px;margin:0 0 8px}
 .k{font-size:11.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--mute);font-weight:600}
 .note{color:var(--mute);font-size:12.5px}
-button.b{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:9px 16px;cursor:pointer;font-weight:600}
-button.b:hover{border-color:var(--acc)}
+.b{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:9px 16px;cursor:pointer;font-weight:600}
+.b:hover{border-color:var(--acc)}
 button.pri{background:var(--acc);border-color:var(--acc);color:#fff}
 button.big{padding:14px 22px;font-size:17px;border-radius:10px}
 button.danger{color:var(--bad)}
@@ -80,6 +81,10 @@ canvas{width:100%;display:block;border:1px solid var(--line);border-radius:8px;b
 .rep table th{background:#f0f4f9;color:#44546a}.rep table td,.rep table th{border-bottom:1px solid #d3dce7}
 .rep .interp{background:#f5f8fc}.rep .interp p{color:#44546a}.rep .note{color:#586b82}
 .sig{display:grid;grid-template-columns:1fr 1fr;gap:30px;margin-top:34px}.sig div{border-top:1px solid #000;padding-top:4px;font-size:12px;color:#444}
+#ptable th,#ptable td,#rtable th:nth-child(2),#rtable td:nth-child(2){text-align:left}#ptable th:last-child,#ptable td:last-child{text-align:right}
+label.b{display:inline-block;color:var(--ink);font-size:15px}
+.demoBar{display:none;background:#fff4d6;color:#5b4300;border:1px solid #e6c36b;border-radius:8px;padding:8px 14px;margin-bottom:14px;align-items:center;gap:12px;flex-wrap:wrap}.demoBar.on{display:flex}
+.how{display:grid;gap:8px;text-align:left;max-width:520px;margin:14px auto;counter-reset:s}.how div{counter-increment:s;display:flex;gap:10px;align-items:flex-start;color:var(--ink)}.how div::before{content:counter(s);flex:none;width:22px;height:22px;border-radius:50%;background:var(--acc);color:#fff;display:grid;place-items:center;font-size:12px;font-weight:700}
 .credit{text-align:center;font-size:12px;opacity:.7;padding:18px 0 28px}
 @media print{
   @page{size:A4;margin:14mm}
@@ -98,6 +103,7 @@ canvas{width:100%;display:block;border:1px solid var(--line);border-radius:8px;b
   <button class="tbtn" id="lang">TH/EN</button><button class="tbtn" id="theme">◐</button>
 </div></header>
 <main>
+<div class="demoBar" id="demoBar"><b id="demoT"></b><button class="b" id="demoOff"></button></div>
 
 <!-- ============ PATIENTS ============ -->
 <section class="tab" id="tab-patients">
@@ -189,7 +195,6 @@ canvas{width:100%;display:block;border:1px solid var(--line);border-radius:8px;b
   <div class="num" id="coachNum">0.00 L</div><div class="bar2"><i id="coachBar"></i></div><div class="sub" id="coachSub"></div>
   <button class="b big" id="coachClose"></button>
 </div>
-<div class="credit">ออกแบบโดย Tanachat S. (TANACHAT007) · ทีม MEDTHAI · 2026 · ไม่ใช่เครื่องมือแพทย์ที่ผ่านการรับรอง</div>
 
 <script>
 const $=id=>document.getElementById(id);
@@ -201,7 +206,7 @@ th:{app:'Spiro Clinic',tabs:{test:'ตรวจผู้ป่วย',patients:'
  npred:'ค่าคาดการณ์ให้กรอกจากเครื่องคำนวณอ้างอิงของโรงพยาบาล (เช่น GLI-2012) เพราะแอปนี้ยังไม่ได้ใส่สมการอ้างอิง',
  save:'บันทึกผู้ป่วย',start:'เริ่มตรวจผู้ป่วยนี้',del:'ลบ',sessions:'ประวัติการตรวจ',none:'ยังไม่มีข้อมูล',
  st1:'เลือกผู้ป่วย',st2:'เตรียมการตรวจ',st3:'เป่า (อย่างน้อย 3 ครั้ง)',st4:'สรุปและบันทึก',
- noPatient:'ยังไม่ได้เลือกผู้ป่วย',pickP:'เลือกหรือเพิ่มผู้ป่วยที่แท็บ "ผู้ป่วย" ก่อนเริ่มตรวจ',goP:'ไปที่รายชื่อผู้ป่วย',
+ noPatient:'ยังไม่ได้เลือกผู้ป่วย',pickP:'เลือกหรือเพิ่มผู้ป่วยที่แท็บ "ผู้ป่วย" ก่อนเริ่มตรวจ',goP:'ไปที่รายชื่อผู้ป่วย',howT:'เริ่มใช้งานใน 4 ขั้น',how1:'เพิ่มผู้ป่วย (แท็บผู้ป่วย) แล้วกด "เริ่มตรวจผู้ป่วยนี้"',how2:'กด "เชื่อมต่อเครื่อง" (Bluetooth) หรือใช้ปุ่มจำลองเพื่อฝึก',how3:'ให้ผู้ป่วยเป่าอย่างน้อย 3 ครั้ง ดูกราฟและสถานะของแต่ละครั้ง',how4:'เมื่อค่าซ้ำกันได้ กดบันทึกแล้วพิมพ์รายงาน',tryDemo:'ลองดูตัวอย่าง (ข้อมูลสมมติ)',demoBanner:'โหมดตัวอย่าง: ข้อมูลสมมติ ไม่ถูกบันทึก',demoOff:'ออกจากโหมดตัวอย่าง',noRep:'ยังไม่มีรายงาน เมื่อตรวจและกดบันทึกแล้วจะแสดงที่นี่',goTest:'ไปตรวจผู้ป่วย',
  prep:'เตรียมก่อนเป่า',c1:'เปลี่ยนที่เป่าใหม่ (ใช้ 1 คนต่อ 1 ชิ้น)',c2:'เครื่องวางนิ่ง กดปุ่มค้าง 1.5 วินาทีเพื่อปรับศูนย์',c3:'ผู้ป่วยนั่งตัวตรง ไม่ใส่ฟันปลอมที่หลวม ใช้ที่หนีบจมูก (ถ้ามี)',c4:'อธิบายท่าเป่า: หายใจเข้าเต็มที่ → อมที่เป่าให้แน่น → เป่าออกแรงเร็วที่สุด และนานจนหมดลม',c5:'ตรวจชื่อ/HN ของผู้ป่วยบนหน้าจอให้ตรง',
  nprep:'ผู้ป่วยกดปุ่มที่เครื่อง (หรือผู้ตรวจกด) แล้วเป่า ผลจะขึ้นเองเมื่อเชื่อมต่อบลูทูธ',
  trials:'ผลการเป่าแต่ละครั้ง',trialN:'ครั้งที่',acc:'ผ่านเกณฑ์',rej:'ไม่ผ่าน',manual:'+ กรอกค่าด้วยมือ',sim:'จำลองการเป่า (ฝึก)',
@@ -233,7 +238,7 @@ en:{app:'Spiro Clinic',tabs:{test:'Test patient',patients:'Patients',reports:'Re
  npred:'Enter predicted values from your hospital reference calculator (e.g. GLI-2012); this app has no reference equations yet.',
  save:'Save patient',start:'Start test',del:'Delete',sessions:'Test history',none:'No data yet',
  st1:'Select patient',st2:'Prepare',st3:'Blow (at least 3)',st4:'Summary & save',
- noPatient:'No patient selected',pickP:'Select or add a patient in the Patients tab first',goP:'Go to patients',
+ noPatient:'No patient selected',pickP:'Select or add a patient in the Patients tab first',goP:'Go to patients',howT:'Get started in 4 steps',how1:'Add a patient (Patients tab) and press "Start test"',how2:'Press "Connect device" (Bluetooth), or use Simulate to practise',how3:'Have the patient blow at least 3 times; review each curve and status',how4:'When repeatable, save and print the report',tryDemo:'Try an example (made-up data)',demoBanner:'Example mode: made-up data, nothing is saved',demoOff:'Exit example mode',noRep:'No reports yet. Save a test and it appears here.',goTest:'Go to test',
  prep:'Before blowing',c1:'Fit a new mouthpiece (one per person)',c2:'Hold the device still; hold the button 1.5 s to zero',c3:'Patient seated upright, nose clip if available',c4:'Explain: breathe in fully → seal lips → blast out as hard and fast as possible until empty',c5:'Check the patient name / HN on screen',
  nprep:'Press the device button, then blow. Results appear automatically over Bluetooth.',
  trials:'Blows',trialN:'Trial',acc:'Acceptable',rej:'Rejected',manual:'+ Enter manually',sim:'Simulate a blow (training)',
@@ -263,7 +268,8 @@ let lang=localStorage.sp_lang||'th';const t=k=>D[lang][k]??k;
 
 /* ---------- state ---------- */
 const load=(k,d)=>{try{return JSON.parse(localStorage[k]||'')||d}catch(e){return d}};
-const save=(k,v)=>{try{localStorage[k]=JSON.stringify(v)}catch(e){}};
+let DEMO=false;
+const save=(k,v)=>{if(DEMO)return;try{localStorage[k]=JSON.stringify(v)}catch(e){}};
 let patients=load('sp_patients',[]),tests=load('sp_tests',[]),activeP=localStorage.sp_active||'',cfg=load('sp_cfg',{});
 let cur={pid:'',trials:[],checks:[],comment:''};          // the test in progress
 let live={buf:[],connected:false,name:''};
@@ -318,7 +324,7 @@ function applyText(){
   $('psearch').placeholder=t('search');
   const opts=(id,keys)=>{[...$(id).options].forEach((o,i)=>o.textContent=t(keys[i]))};opts('p_sex',['male','female']);opts('p_smk',['s0','s1','s2']);
   $('bleBtn').textContent=live.connected?t('connected'):t('conn');$('bleBtn2').textContent=$('bleBtn').textContent;
-  $('bleMsg2').textContent=t('bleHelp');
+  $('bleMsg2').textContent=t('bleHelp');$('demoT').textContent=t('demoBanner');$('demoOff').textContent=t('demoOff');
   $('c_db').value=cfg.db||'';$('c_dev').value=cfg.dev||'';$('c_auth').value=cfg.auth||'';
   render()}
 
@@ -328,7 +334,7 @@ function renderPatients(){
   const list=patients.filter(p=>!q||(p.hn+' '+p.name).toLowerCase().includes(q));
   $('ptable').innerHTML=`<tr><th>${t('hn')}</th><th>${t('name')}</th><th>${t('age')}</th></tr>`+
     (list.map(p=>`<tr class="clk ${p.id===activeP?'sel':''}" data-id="${p.id}"><td>${esc(p.hn)}</td><td>${esc(p.name)}</td><td>${p.age||'–'}</td></tr>`).join('')||`<tr><td colspan="3" class="empty">${t('none')}</td></tr>`);
-  $('ptable').querySelectorAll('tr.clk').forEach(r=>r.onclick=()=>{activeP=r.dataset.id;localStorage.sp_active=activeP;fillForm();renderPatients()});
+  $('ptable').querySelectorAll('tr.clk').forEach(r=>r.onclick=()=>{activeP=r.dataset.id;if(!DEMO)localStorage.sp_active=activeP;fillForm();renderPatients()});
   fillForm()}
 function esc(s){return String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
 function fillForm(){
@@ -361,7 +367,8 @@ function renderTest(){
   const p=P(cur.pid),st=stage();
   $('steps').innerHTML=[1,2,3,4].map(i=>`<div class="step ${st===i?'on':st>i?'done':''}"><b>${st>i?'✓':i}</b>${t('st'+i)}</div>`).join('');
   $('tPatient').innerHTML=p?`<div class="row" style="justify-content:space-between"><div><div class="k">${t('patient')}</div><div style="font-size:20px;font-weight:700">${esc(p.name)||'–'}</div><div class="note">HN ${esc(p.hn)||'–'} · ${p.sex==='F'?t('female'):t('male')} · ${p.age||'–'} ${L('ปี','y')} · ${p.ht||'–'} cm</div></div><button class="b" id="chgP">${t('tabs').patients}</button></div>`
-    :`<div class="empty"><div style="font-size:18px;font-weight:600;color:var(--ink)">${t('noPatient')}</div><p>${t('pickP')}</p><button class="b pri" id="chgP">${t('goP')}</button></div>`;
+    :`<div class="empty"><div style="font-size:18px;font-weight:600;color:var(--ink)">${t('noPatient')}</div><p>${t('pickP')}</p><div class="k" style="margin-top:10px">${t('howT')}</div><div class="how"><div>${t('how1')}</div><div>${t('how2')}</div><div>${t('how3')}</div><div>${t('how4')}</div></div><div class="row" style="justify-content:center"><button class="b pri" id="chgP">${t('goP')}</button><button class="b" id="tryDemo">${t('tryDemo')}</button></div></div>`;
+  if($('tryDemo'))$('tryDemo').onclick=enterDemo;
   $('chgP').onclick=()=>setTab('patients');
   $('tPrep').style.display=p?'':'none';
   $('chk').innerHTML=CHECKS.map(k=>`<label><input type="checkbox" data-k="${k}" ${cur.checks.includes(k)?'checked':''}>${t(k)}</label>`).join('');
@@ -422,7 +429,7 @@ function renderReports(){
   const list=tests.slice().sort((a,b)=>b.ts-a.ts);
   $('rtable').innerHTML=`<tr><th>${t('date')}</th><th>${t('patient')}</th><th>FEV1</th><th>%</th></tr>`+(list.map(x=>{const p=P(x.pid)||{};return`<tr class="clk ${x.id===repSel?'sel':''}" data-id="${x.id}"><td>${fdate(x.ts)}</td><td>${esc(p.name||p.hn||'–')}</td><td>${fmt(x.best.fev1)}</td><td>${fmt(x.best.ratio,0)}</td></tr>`}).join('')||`<tr><td colspan="4" class="empty">${t('none')}</td></tr>`);
   $('rtable').querySelectorAll('tr.clk').forEach(r=>r.onclick=()=>{repSel=r.dataset.id;renderReports()});
-  const x=tests.find(z=>z.id===repSel)||list[0];if(!x){$('repArea').innerHTML='';return}repSel=x.id;
+  const x=tests.find(z=>z.id===repSel)||list[0];if(!x){$('repArea').innerHTML=`<div class="card empty"><p>${t('noRep')}</p><button class="b pri" id="goT">${t('goTest')}</button></div>`;$('goT').onclick=()=>setTab('test');return}repSel=x.id;
   const p=P(x.pid)||{},i=interpret(x.best,p),pf=+p.pf||0,pv=+p.pv||0;
   const trialsRows=x.trials.map((r,k)=>`<tr><td>${k+1}${r.src==='sim'?' *':r.src==='man'?' †':''}</td><td>${fmt(r.fvc)}</td><td>${fmt(r.fev1)}</td><td>${fmt(r.pef,1)}</td><td>${fmt(r.dur,1)}</td><td>${r.ok?t('acc'):t('rej')}</td></tr>`).join('');
   $('repArea').innerHTML=`<div class="row noprint" style="margin-bottom:10px;justify-content:flex-end"><button class="b pri" id="prt">${t('print')}</button><button class="b danger" id="delT">${t('del')}</button></div>
@@ -517,12 +524,15 @@ $('theme').onclick=()=>{const r=document.documentElement;r.dataset.theme=r.datas
 if(localStorage.sp_th)document.documentElement.dataset.theme=localStorage.sp_th;
 addEventListener('resize',()=>{if(tab==='test')drawFV()});
 if('serviceWorker' in navigator&&location.protocol.startsWith('http'))navigator.serviceWorker.register('sw.js').catch(()=>{});
-/* ?demo : fill a throw-away example (not saved) so the screens can be reviewed */
-if(/[?&]demo/.test(location.search)){
-  patients=[{id:'d1',hn:'HN-0001',name:'ตัวอย่าง ผู้ป่วย',sex:'M',age:45,ht:170,wt:68,smk:'1',pf:3.4,pv:4.2,note:''},{id:'d2',hn:'HN-0002',name:'Example Patient',sex:'F',age:32,ht:160,wt:55,smk:'0',pf:2.9,pv:3.5,note:''}];tests=[];
-  cur={pid:'d1',trials:[],checks:CHECKS.slice(),comment:''};activeP='d1';
-  for(let k=0;k<3;k++){const b=simBlow(patients[0]);b.src='sim';cur.trials.push({...b,ok:judge(b)})}live.buf=cur.trials[2].curve;
-  if(/tab=(\w+)/.test(location.search))tab=RegExp.$1}
+/* example mode: made-up patients + two saved tests, never written to storage */
+function enterDemo(){
+  DEMO=true;patients=[{id:'d1',hn:'HN-0001',name:'ตัวอย่าง ผู้ป่วย',sex:'M',age:45,ht:170,wt:68,smk:'1',pf:3.4,pv:4.2,note:''},{id:'d2',hn:'HN-0002',name:'Example Patient',sex:'F',age:32,ht:160,wt:55,smk:'0',pf:2.9,pv:3.5,note:''}];tests=[];
+  for(let k=0;k<3;k++){const trials=[];for(let j=0;j<3;j++){const b=simBlow(patients[0]);b.ok=judge(b);trials.push(b)}
+    const sm=summarize(trials);tests.push({id:'t'+k,pid:'d1',ts:Date.now()-(3-k)*7*864e5,trials,best:sm.best,rep:sm.rep,comment:k===2?'ตัวอย่างความเห็นแพทย์':''})}
+  activeP='d1';cur={pid:'d1',trials:[],checks:[],comment:''};live.buf=[];repSel='';
+  $('demoBar').classList.add('on');render()}
+$('demoOff').onclick=()=>{location.href=location.pathname};
+if(/[?&]demo/.test(location.search)){enterDemo();if(/tab=(\w+)/.test(location.search))tab=RegExp.$1;if(/full/.test(location.search)){cur.trials=[];for(let k=0;k<3;k++){const b=simBlow(patients[0]);cur.trials.push({...b,ok:judge(b)})}cur.checks=CHECKS.slice();live.buf=cur.trials[2].curve}}
 setTab(tab);applyText();pullCloud();
 </script>
 <div class="credit-footer" style="text-align:center;font-size:12px;opacity:.7;padding:18px 0 28px">ออกแบบโดย Tanachat S. (TANACHAT007) · ทีม MEDTHAI · 2026</div>
