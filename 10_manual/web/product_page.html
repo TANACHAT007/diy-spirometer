@@ -154,6 +154,29 @@ th,td{border-bottom:1px solid var(--line)}
 .status{border-left:6px solid var(--sky-d)}
 section{border-top:1px solid var(--line)}
 footer{text-align:left}
+
+/* ---- rounded pass: keep grey grid + orange, but soft pill/rounded shapes ---- */
+:root{--r:26px}
+h1,h2,.hero h1{text-transform:none}
+.wrap{border-radius:34px}
+.eyebrow{border-radius:99px;background:var(--panel);border:1px solid var(--line);padding:7px 14px 7px 28px}
+.eyebrow::before{left:12px;border-radius:50%}
+nav a,nav button,.chip{border-radius:99px}
+nav a.go,.btn,.controls button{border-radius:99px;text-transform:none;letter-spacing:.01em;font-size:15px}
+.btn.ghost{border-radius:99px}
+.stage,.glass3d{border-radius:36px}
+.glass3d::before{border-radius:50%}
+.viewer .main,.feat article,.lab,.chain div,.tw,.status,.ro,.thumbs button{border-radius:var(--r)}
+.viewer .main img,.thumbs img{border-radius:18px}
+.lab canvas{border-radius:20px}
+.feat .k{border-radius:99px}
+.feat article{border-top:1px solid var(--line);border-bottom:4px solid var(--sky-d)}
+.chain div{border-left:1px solid var(--line);border-bottom:4px solid var(--sky-d)}
+.chain b::before{border-radius:50%}
+.v3bar,.v3bar button{border-radius:99px}
+td em{border-radius:99px}
+.status{border-left:1px solid var(--line);border-bottom:4px solid var(--sky-d)}
+.thumbs button[aria-pressed=true]{outline-offset:1px}
 </style>
 
 

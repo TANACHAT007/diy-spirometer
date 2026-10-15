@@ -10,10 +10,14 @@ CSS = '''<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=C
 body{font-family:"IBM Plex Sans Thai","Chakra Petch",system-ui,sans-serif;background:var(--bg);background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);background-size:96px 96px}
 h1{text-transform:uppercase;letter-spacing:.02em}
 header,main{background:var(--bg);box-shadow:0 0 0 1px var(--line);padding-inline:clamp(12px,2.5vw,28px)}
-button,input,select,.card,.tag{border-radius:0!important;box-shadow:none!important}
+button,input,select,.card,.tag{box-shadow:none!important}
+button,select,.tag{border-radius:99px!important}
+input{border-radius:16px!important}
+.card,.grid .card{border-radius:24px!important}
+header,main{border-radius:30px}
 button,select{border:1px solid var(--ink);background:var(--card)}
 button.pri{background:var(--acc)!important;color:#fff;border-color:var(--acc);text-transform:uppercase;letter-spacing:.05em}
-.card,.grid .card{background:var(--card)!important;border:1px solid var(--line);border-top:3px solid var(--acc)}
+.card,.grid .card{background:var(--card)!important;border:1px solid var(--line);border-bottom:4px solid var(--acc)}
 .v{font-family:var(--disp)} .k{text-transform:uppercase;letter-spacing:.08em}
 .tag{padding:2px 10px}
 #ble{display:grid;gap:10px}
