@@ -1,0 +1,85 @@
+<div class="stage glass3d" id="stage3d">
+  <img id="stageFallback" src="{{HERO}}" alt="เครื่อง DIY IoT Spirometer บนแท่นชาร์จ">
+  <canvas id="c3d" aria-label="โมเดล 3 มิติของเครื่องวัดสมรรถภาพปอด ลากเพื่อหมุนดู" hidden></canvas>
+  <div class="v3bar" role="group" aria-label="โหมดแสดงผล">
+    <button type="button" data-mode="solid" aria-pressed="true">ผิวเต็ม</button>
+    <button type="button" data-mode="ghost" aria-pressed="false">โปร่งใส</button>
+    <button type="button" id="spin" aria-pressed="true">หมุนเอง</button>
+  </div>
+  <p class="v3hint">ลากเพื่อหมุนดู · โมเดลจริงจากไฟล์พิมพ์</p>
+</div>
+<style>
+.glass3d{padding:0;min-height:420px;aspect-ratio:1/1.02;max-height:560px;overflow:hidden;
+  background:linear-gradient(145deg,rgba(255,255,255,.55),rgba(255,255,255,.12));
+  border:1.5px solid rgba(255,255,255,.85);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
+  box-shadow:0 2px 0 rgba(255,255,255,.9) inset,0 30px 60px -24px rgba(53,110,180,.55)}
+:root[data-theme="dark"] .glass3d{background:linear-gradient(145deg,rgba(255,255,255,.10),rgba(255,255,255,.03));border-color:rgba(255,255,255,.18)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .glass3d{background:linear-gradient(145deg,rgba(255,255,255,.10),rgba(255,255,255,.03));border-color:rgba(255,255,255,.18)}}
+.glass3d img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;border-radius:0}
+.glass3d canvas{position:absolute;inset:0;width:100%;height:100%;display:block;z-index:1;touch-action:pan-y;cursor:grab}
+.glass3d canvas:active{cursor:grabbing}
+.v3bar{position:absolute;z-index:2;left:50%;bottom:40px;transform:translateX(-50%);display:flex;gap:6px;padding:6px;border-radius:99px;
+  background:rgba(255,255,255,.75);box-shadow:var(--pop);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+:root[data-theme="dark"] .v3bar{background:rgba(26,43,69,.8)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .v3bar{background:rgba(26,43,69,.8)}}
+.v3bar button{border:0;border-radius:99px;padding:7px 15px;font:600 13px var(--disp);background:transparent;color:var(--mute);cursor:pointer}
+.v3bar button[aria-pressed=true]{background:linear-gradient(#7cc4ff,var(--sky-d));color:#fff}
+.v3hint{position:absolute;z-index:2;left:0;right:0;bottom:14px;text-align:center;font-size:12px;color:var(--mute);margin:0}
+.stage.glass3d::before,.stage.glass3d::after{z-index:0}
+</style>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/STLLoader.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+<script>
+(function(){
+  try{
+    const DATA={{STLDATA}};
+    const cv=document.getElementById('c3d'),stage=document.getElementById('stage3d');
+    if(!window.THREE||!THREE.STLLoader||!THREE.OrbitControls)return;
+    const renderer=new THREE.WebGLRenderer({canvas:cv,alpha:true,antialias:true});
+    renderer.setClearColor(0x000000,0);renderer.setPixelRatio(Math.min(2,devicePixelRatio||1));
+    renderer.outputEncoding=THREE.sRGBEncoding;
+    const scene=new THREE.Scene();
+    const cam=new THREE.PerspectiveCamera(32,1,1,3000);
+    scene.add(new THREE.HemisphereLight(0xffffff,0x9db8d8,.55));
+    const key=new THREE.DirectionalLight(0xffffff,.6);key.position.set(250,400,300);scene.add(key);
+    const rim=new THREE.DirectionalLight(0xbfe0ff,.35);rim.position.set(-300,150,-250);scene.add(rim);
+    const COL={housing_left:0x5fb0f0,housing_right:0x5fb0f0,top_cover:0x78bff5,flow_tube:0xf4f9ff,mouthpiece:0xffffff,dock:0xeaf1fa,dock_bottom:0xdbe6f3};
+    const root=new THREE.Group();root.rotation.x=-Math.PI/2;           // CAD is Z-up
+    const pivot=new THREE.Group();pivot.add(root);scene.add(pivot);
+    const items=[];
+    const loader=new THREE.STLLoader();
+    for(const k in DATA){
+      const bin=atob(DATA[k]),buf=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)buf[i]=bin.charCodeAt(i);
+      const g=loader.parse(buf.buffer);g.computeVertexNormals();
+      const solid=new THREE.MeshStandardMaterial({color:COL[k]||0xffffff,roughness:.38,metalness:.02,
+        transparent:(k==='flow_tube'||k==='mouthpiece'),opacity:(k==='flow_tube'||k==='mouthpiece')?.9:1});
+      const ghost=new THREE.MeshBasicMaterial({color:0x6cb8f6,transparent:true,opacity:.07,depthWrite:false,side:THREE.DoubleSide});
+      const mesh=new THREE.Mesh(g,solid);root.add(mesh);
+      const edges=new THREE.LineSegments(new THREE.EdgesGeometry(g,28),new THREE.LineBasicMaterial({color:0x3f97e8,transparent:true,opacity:.0}));
+      root.add(edges);items.push({mesh,solid,ghost,edges});
+    }
+    const box=new THREE.Box3().setFromObject(pivot),ctr=box.getCenter(new THREE.Vector3()),size=box.getSize(new THREE.Vector3());
+    root.position.sub(ctr);
+    const R=Math.max(size.x,size.y,size.z);
+    cam.position.set(R*1.05,R*.45,R*1.75);cam.lookAt(0,0,0);
+    const ctl=new THREE.OrbitControls(cam,cv);
+    ctl.enableZoom=false;ctl.enablePan=false;ctl.enableDamping=true;ctl.dampingFactor=.08;
+    const reduce=matchMedia('(prefers-reduced-motion:reduce)').matches;
+    ctl.autoRotate=!reduce;ctl.autoRotateSpeed=1.4;ctl.minPolarAngle=.35;ctl.maxPolarAngle=2.1;
+    function setMode(m){
+      items.forEach(o=>{o.mesh.material=(m==='ghost')?o.ghost:o.solid;o.edges.material.opacity=(m==='ghost')?.85:0});
+      stage.querySelectorAll('[data-mode]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.mode===m));
+    }
+    stage.querySelectorAll('[data-mode]').forEach(b=>b.onclick=()=>setMode(b.dataset.mode));
+    const spin=document.getElementById('spin');
+    if(reduce)spin.setAttribute('aria-pressed','false');
+    spin.onclick=()=>{ctl.autoRotate=!ctl.autoRotate;spin.setAttribute('aria-pressed',ctl.autoRotate)};
+    function fit(){const w=stage.clientWidth,h=stage.clientHeight;renderer.setSize(w,h,false);cam.aspect=w/h;
+      cam.fov=w/h<.9?42:32;cam.updateProjectionMatrix()}
+    new ResizeObserver(fit).observe(stage);fit();
+    let t=0;(function loop(){ctl.update();pivot.position.y=Math.sin(t+=.02)*2.5;renderer.render(scene,cam);requestAnimationFrame(loop)})();
+    cv.hidden=false;document.getElementById('stageFallback').style.display='none';
+  }catch(e){console.warn('3D viewer unavailable',e)}
+})();
+</script>

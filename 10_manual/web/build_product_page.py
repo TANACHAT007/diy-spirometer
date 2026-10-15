@@ -23,6 +23,12 @@ s = s.replace(f'<a class="go" href="{DASH}"', f'<a class="go" href="{DASH}"')
 s = s.replace('<a class="btn ghost" href="#view">ดูภายในเครื่อง</a></div>',
   '<a class="btn ghost" href="#view">ดูภายในเครื่อง</a><a class="btn ghost" id="goApp" href="'+DASH+'" target="_blank" rel="noopener" aria-describedby="goNote">เข้าหน้าเว็บใช้งาน</a></div><p class="note" id="goNote">เปิดแดชบอร์ดได้แล้ว ตอนนี้แสดงข้อมูลตัวอย่าง จะรับผลจริงเมื่อเชื่อมต่อฐานข้อมูลและมีเครื่องส่งข้อมูล</p>')
 s = s.replace('<a href="#spec">สเปก</a>', '<a href="#spec">สเปก</a><a class="go" href="'+DASH+'" target="_blank" rel="noopener">เข้าใช้งาน</a>', 1)
+# ---- hero: interactive 3D from the real STL files
+import json, glob
+stl = {os.path.splitext(os.path.basename(f))[0]: base64.b64encode(open(f, 'rb').read()).decode()
+       for f in sorted(glob.glob(os.path.join(H, '..', '..', '04_print_stl', '*.stl')))}
+a = s.index('<div class="stage"><img src="{{HERO}}"'); b = s.index('</div>', a) + len('</div>')
+s = s[:a] + rd('hero3d.html').replace('{{STLDATA}}', json.dumps(stl)) + s[b:]
 uri = lambda n: 'data:image/jpeg;base64,' + base64.b64encode(open(os.path.join(H, 'img', n + '.jpg'), 'rb').read()).decode()
 for k, n in (('HERO', 'cu_hero'), ('OPEN', 'cu_open'), ('INSIDE', 'cu_inside'), ('DOCK', 'cu_dock')):
     s = s.replace('{{' + k + '}}', uri(n))
