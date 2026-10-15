@@ -12,6 +12,7 @@
 
 
 
+
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Spiro Dashboard</title>
@@ -76,6 +77,16 @@ button.pri{background:var(--acc)!important;color:#fff;border-color:var(--acc);te
 #ble{display:grid;gap:10px}
 #ble canvas{height:170px;border:1px solid var(--line);background:var(--bg)}
 .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+/* mobile fix: nothing may push the page wider than the screen */
+main{grid-template-columns:minmax(0,1fr)}
+main>*,.card,header>*{min-width:0}
+canvas{max-width:100%}
+.card{overflow-x:auto}
+header{flex-wrap:wrap;row-gap:8px}
+h1{flex:1 1 100%;font-size:20px}
+#cfg{grid-template-columns:repeat(auto-fit,minmax(min(200px,100%),1fr))}
+#cfg input{min-width:0}
+#t_ble{flex:1 1 160px}
 </style>
 
 </head>
