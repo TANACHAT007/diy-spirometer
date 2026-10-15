@@ -1,3 +1,4 @@
+# CREDIT-STAMP: (c) 2026 Tanachat S. (TANACHAT007) / MEDTHAI - https://github.com/TANACHAT007/diy-spirometer - MIT
 # diy-spirometer feasibility: Venturi D28/d23 + Sensirion SDP810-500Pa + XIAO ESP32-S3 + LiPo 603450 + dock
 # run: py feasibility_check.py  -> feasibility.md
 import math, os

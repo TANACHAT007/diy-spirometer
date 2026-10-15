@@ -1,3 +1,7 @@
+<!-- CREDIT-STAMP -->
+> **Designed by Tanachat S. (TANACHAT007) / MEDTHAI, 2026** - please keep this credit when you use or share this work. See [CREDITS.md](CREDITS.md).
+<!-- /CREDIT-STAMP -->
+
 # DIY IoT Spirometer (MEDTHAI)
 
 3D-printed handheld spirometer: printed venturi + Sensirion SDP810-500Pa + XIAO ESP32-S3/C3, BLE + Wi-Fi to a web dashboard, charging dock.

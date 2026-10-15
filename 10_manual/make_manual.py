@@ -1,3 +1,4 @@
+# CREDIT-STAMP: (c) 2026 Tanachat S. (TANACHAT007) / MEDTHAI - https://github.com/TANACHAT007/diy-spirometer - MIT
 # Builds every manual of this project → 10_manual/<name>.pdf / .docx / .html  (rules: references/documentation.md)
 # Images: Fusion job with fusion_docs.step_shots/part_thumbs → collect_doc(PREFIX, IMG); then annotate here.
 import os, sys, json

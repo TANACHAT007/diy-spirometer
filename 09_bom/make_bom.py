@@ -1,3 +1,4 @@
+# CREDIT-STAMP: (c) 2026 Tanachat S. (TANACHAT007) / MEDTHAI - https://github.com/TANACHAT007/diy-spirometer - MIT
 # เครื่องวัดสมรรถภาพปอดพิมพ์ 3D (Spirometer) — BOM (python make_bom.py) → bom.md + bom.csv next to this file
 import os, csv, urllib.parse as u
 HERE = os.path.dirname(os.path.abspath(__file__))

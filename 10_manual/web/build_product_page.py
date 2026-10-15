@@ -1,3 +1,4 @@
+# CREDIT-STAMP: (c) 2026 Tanachat S. (TANACHAT007) / MEDTHAI - https://github.com/TANACHAT007/diy-spirometer - MIT
 """Builds product_page.html (soft 3D-cartoon style) from product_page.src.html + restyle_soft3d.css + draw_soft3d.js."""
 import base64, os, re
 H = os.path.dirname(os.path.abspath(__file__))

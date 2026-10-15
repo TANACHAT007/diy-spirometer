@@ -1,3 +1,4 @@
+// CREDIT-STAMP: (c) 2026 Tanachat S. (TANACHAT007) / MEDTHAI - https://github.com/TANACHAT007/diy-spirometer - MIT
 // DIY IoT Spirometer — XIAO ESP32-S3 + SDP810-500Pa (venturi D28/d23)
 // Targets: XIAO ESP32-S3 or XIAO ESP32-C3 (same 21 x 17.8 footprint; pins switch automatically).
 // Features: breath test (FVC/FEV1/FEV1-FVC/PEF), BLE live stream, Wi-Fi upload to Firebase RTDB (REST), battery %, NTP time.

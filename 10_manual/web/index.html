@@ -1,6 +1,9 @@
 <!doctype html>
 <html lang="th">
 <head>
+<!-- CREDIT-STAMP: DIY IoT Spirometer - designed by Tanachat S. (TANACHAT007) / MEDTHAI - 2026 - https://github.com/TANACHAT007/diy-spirometer -->
+<meta name="author" content="Tanachat S. (TANACHAT007) / MEDTHAI">
+
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Spiro Dashboard</title>
@@ -135,5 +138,6 @@ if(localStorage.th)document.documentElement.dataset.theme=localStorage.th;
 $('c_db').value=cfg.db||'';$('c_dev').value=cfg.dev||'';$('c_auth').value=cfg.auth||'';$('c_pred').value=cfg.pred||'';
 $('role').onchange();applyText();load();setInterval(load,5000);addEventListener('resize',draw);
 </script>
+<div class="credit-footer" style="text-align:center;font-size:12px;opacity:.7;padding:18px 0 28px">ออกแบบโดย Tanachat S. (TANACHAT007) · ทีม MEDTHAI · 2026</div>
 </body>
 </html>

@@ -1,3 +1,4 @@
+# CREDIT-STAMP: (c) 2026 Tanachat S. (TANACHAT007) / MEDTHAI - https://github.com/TANACHAT007/diy-spirometer - MIT
 # DIY IoT Spirometer (ndd-style pistol grip + charging dock) — Fusion model
 # run: copy to ~/fusion-bridge/inbox/<ts>_model.py ; result ~/fusion-bridge/outbox/<ts>_model.json
 # World: x = along the flow tube (mouth end x=0 → exit x=170), z up (tube axis z=0), y = across the body.
