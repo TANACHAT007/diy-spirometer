@@ -10,6 +10,8 @@ Profile: 0.2 mm layer, 4 walls (≥1.6 mm), 20 % gyroid, 0.4 nozzle. Printed hol
 | Flow tube | flow_tube.stl | **vertical, mouth end down** | exit ring (flat 3 mm lip) + the manifold block's horizontal channel need small supports/bridging; mouth ring is 45° (no support) | white; the venturi cone prints at 10.5° from vertical = clean. Do NOT print lying down (venturi would be oval). Test the channel with a Ø2 mm wire before use |
 | Top cover | top_cover.stl | flat side (z=0) down | none | 4 × 5x2 magnets glued, polarity checked against the housing seats |
 | Mouthpiece (DISPOSABLE) | mouthpiece.stl | wide end down | none | **PLA (plant-based), not PETG.** 0.2 mm layers, 2 walls, 10 % infill, ~11 g ≈ 5 THB, ~40 min. Print a batch of 10. One per person; replace after 20 blows or 7 days (the device counts; hold button 4 s after fitting a new one). PLA composts only in industrial composting, not in ordinary soil; do not wash and reuse across people (it is not a bacterial filter). |
+| Display bezel | bezel.stl | flat | none | **white**, glue into the 0.6 mm rebate around the display window (CA gel, keep glue off the glass) |
+| Button cap | button_cap.stl | domed side down? **flat side (socket) up** | none | **white**, press onto the tact stem + one tiny drop of glue |
 | Dock | dock.stl | **bottom face down** | none | 4 × M3x4x4.5 inserts in the underside, 2 pogo holes Ø2.2, magnet pocket Ø6.2 |
 | Dock bottom | dock_bottom.stl | flat | none | M3x6 countersunk ×4 |
 

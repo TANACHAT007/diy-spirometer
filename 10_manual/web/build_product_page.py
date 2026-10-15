@@ -3,7 +3,7 @@
 import base64, os, re
 H = os.path.dirname(os.path.abspath(__file__))
 rd = lambda n: open(os.path.join(H, n), encoding='utf-8').read()
-DASH = 'dashboard.html'
+DASH = 'clinic.html'
 s = rd('product_page.src.html')
 a = s.index('<link rel="preconnect"'); b = s.index('</style>') + len('</style>')
 s = s[:a] + rd('restyle_soft3d.css') + s[b:]

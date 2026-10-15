@@ -254,7 +254,7 @@ void bleInit() {
 
 // ---- quality: ATS/ERS-style checks that this firmware CAN do (no flow-time back-extrapolation yet)
 const char* quality(const Result& r) {
-  if (r.ms < 3000) return "short";            // < 3 s exhalation (adult)
+  if (r.ms < 2000) return "short";            // < 2 s exhalation (the device cut-off ends healthy blows at ~2.5-4 s; ATS wants 6 s)
   if (r.pef < 1.0f) return "weak";
   return "ok";
 }
@@ -291,6 +291,7 @@ void runTest() {
   Serial.println("blow now (max 15 s)...");
   float vol = 0, pef = 0, fev1 = 0, dp;
   uint32_t t0 = 0, tNext = micros(), lastFlow = millis(), tStart = millis(), tl = 0;
+  static float ql[400]; int nl = 0;          // flow log every 40 ms, used to extrapolate the tail below the 0.25 L/s cut-off
   bool started = false;
   while (millis() - tStart < 15000) {
     while ((int32_t)(micros() - tNext) < 0) {}
@@ -304,7 +305,7 @@ void runTest() {
     uiTest(q, vol);          // self-throttled to ~11 Hz; sample clock catches up, volume integral stays correct
     if (t <= 1000) fev1 = vol;
     if (t - tl >= 40) {
-      tl = t;
+      tl = t; if (nl < 400) ql[nl++] = q;
       char s[40]; snprintf(s, sizeof s, "%lu,%.2f,%.2f", (unsigned long)t, q, vol);
       bleNotify(s, chLive);
       Serial.println(s);
@@ -312,6 +313,19 @@ void runTest() {
     if (q > END_FLOW) lastFlow = millis();
     if (millis() - lastFlow > 1000 && t > 1000) break;     // end: flow < END_FLOW for 1 s
   }
+  // The test stops when flow stays < END_FLOW; for a healthy blow that discards the slow tail (~5-12 % of FVC) and would
+  // make FEV1/FVC look falsely normal. Estimate the tail as q_cut * tau (exponential decay fitted over the last second
+  // above the cut-off), capped at 0.5 L and 15 % of the volume. Not validated: check against the 3 L syringe.
+  float tail = 0;
+  if (started && nl > 30) {
+    int ic = -1; for (int i = nl - 1; i >= 0; i--) if (ql[i] > END_FLOW) { ic = i; break; }
+    if (ic > 28) {
+      float qc = (ql[ic] + ql[ic - 1] + ql[ic - 2]) / 3, qp = (ql[ic - 26] + ql[ic - 27] + ql[ic - 28]) / 3;
+      if (qc > 0.1f && qp > qc * 1.2f) tail = min(qc / logf(qp / qc), min(0.5f, 0.15f * vol));
+    }
+  }
+  vol += tail;
+  Serial.printf("tail extrapolation +%.2f L\n", tail);
   digitalWrite(LED_PIN, LOW);
   if (batteryPct() < 15) for (int i = 0; i < 6; i++) { digitalWrite(LED_PIN, !digitalRead(LED_PIN)); delay(120); }  // low battery
   last = { vol, fev1, vol > 0 ? 100 * fev1 / vol : 0, pef, started ? millis() - t0 : 0, time(nullptr), started && vol > 0.2f };

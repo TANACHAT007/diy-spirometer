@@ -1,0 +1,530 @@
+<!doctype html>
+<html lang="th">
+<head>
+<!-- CREDIT-STAMP: DIY IoT Spirometer - designed by Tanachat S. (TANACHAT007) / MEDTHAI - 2026 - https://github.com/TANACHAT007/diy-spirometer -->
+<meta name="author" content="Tanachat S. (TANACHAT007) / MEDTHAI">
+
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#0b5cab">
+<title>Spiro Clinic</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&display=swap">
+<style>
+:root{--bg:#eef2f7;--card:#fff;--ink:#14263d;--mute:#586b82;--acc:#0b5cab;--acc2:#e8f1fb;--line:#d3dce7;--ok:#1b8a4b;--warn:#b7791f;--bad:#c0392b;--soft:#f5f8fc;--sh:0 1px 2px rgba(20,38,61,.06),0 8px 24px -12px rgba(20,38,61,.18)}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#0e1621;--card:#16222f;--ink:#e8eef5;--mute:#93a4b8;--acc:#5aa8f0;--acc2:#1b2d42;--line:#2a3a4c;--ok:#3ccf7b;--warn:#e0a63a;--bad:#ef6a5b;--soft:#1b2a3a;--sh:0 1px 2px rgba(0,0,0,.3)}}
+:root[data-theme=dark]{--bg:#0e1621;--card:#16222f;--ink:#e8eef5;--mute:#93a4b8;--acc:#5aa8f0;--acc2:#1b2d42;--line:#2a3a4c;--ok:#3ccf7b;--warn:#e0a63a;--bad:#ef6a5b;--soft:#1b2a3a;--sh:0 1px 2px rgba(0,0,0,.3)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 "IBM Plex Sans Thai",system-ui,sans-serif}
+button,input,select,textarea{font:inherit;color:inherit}
+header.top{background:#0b5cab;color:#fff;position:sticky;top:0;z-index:5}
+.bar{max-width:1180px;margin:0 auto;padding:10px 16px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:18px;margin-right:auto}
+.brand i{width:24px;height:24px;border:2px solid #fff;border-radius:7px;background:linear-gradient(#fff,#fff) center/6px 70% no-repeat,linear-gradient(#fff,#fff) center/70% 6px no-repeat}
+nav{display:flex;gap:4px;flex-wrap:wrap}
+nav button,.tbtn{background:transparent;border:0;color:#fff;padding:8px 14px;border-radius:8px;cursor:pointer;font-weight:500;opacity:.85}
+nav button.on{background:rgba(255,255,255,.18);opacity:1}
+.tbtn{border:1px solid rgba(255,255,255,.4);padding:6px 11px}
+main{max-width:1180px;margin:0 auto;padding:18px 16px 60px}
+section.tab{display:none}section.tab.on{display:block}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;box-shadow:var(--sh);padding:18px}
+.grid2{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:16px;align-items:start}
+.grid3{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(220px,100%),1fr));gap:12px}
+@media (max-width:860px){.grid2{grid-template-columns:minmax(0,1fr)}}
+h2{font-size:18px;margin:0 0 12px}h3{font-size:15px;margin:0 0 8px}
+.k{font-size:11.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--mute);font-weight:600}
+.note{color:var(--mute);font-size:12.5px}
+button.b{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:9px 16px;cursor:pointer;font-weight:600}
+button.b:hover{border-color:var(--acc)}
+button.pri{background:var(--acc);border-color:var(--acc);color:#fff}
+button.big{padding:14px 22px;font-size:17px;border-radius:10px}
+button.danger{color:var(--bad)}
+button:disabled{opacity:.45;cursor:not-allowed}
+input,select,textarea{width:100%;background:var(--card);border:1px solid var(--line);border-radius:8px;padding:9px 11px}
+label{display:grid;gap:4px;font-size:12.5px;color:var(--mute);font-weight:600}
+.form{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(170px,100%),1fr));gap:12px}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.steps{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap}
+.step{flex:1 1 120px;padding:9px 12px;border-radius:8px;background:var(--soft);border:1px solid var(--line);font-size:13px;font-weight:600;color:var(--mute);display:flex;gap:8px;align-items:center}
+.step b{width:22px;height:22px;border-radius:50%;background:var(--line);color:var(--ink);display:grid;place-items:center;font-size:12px}
+.step.on{background:var(--acc2);border-color:var(--acc);color:var(--acc)}.step.on b{background:var(--acc);color:#fff}
+.step.done b{background:var(--ok);color:#fff}
+table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
+th{font-size:11.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--mute);background:var(--soft);font-weight:600;text-align:right}
+th,td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:right}th:first-child,td:first-child{text-align:left}
+tr.sel td{background:var(--acc2)}tr.clk{cursor:pointer}tr.clk:hover td{background:var(--soft)}
+.tag{display:inline-block;padding:2px 9px;border-radius:4px;font-size:12px;font-weight:700;color:#fff;background:var(--mute)}
+.tag.ok{background:var(--ok)}.tag.warn{background:var(--warn)}.tag.bad{background:var(--bad)}
+.chk{display:grid;gap:8px}.chk label{display:flex;gap:10px;align-items:center;color:var(--ink);font-size:14px;font-weight:500;padding:9px 12px;border:1px solid var(--line);border-radius:8px;cursor:pointer}
+.chk input{width:18px;height:18px;flex:none}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:10px;margin:12px 0}
+.kpi{border:1px solid var(--line);border-left:4px solid var(--acc);border-radius:8px;padding:8px 12px;background:var(--card)}
+.kpi b{display:block;font-size:26px;line-height:1.2;font-variant-numeric:tabular-nums}.kpi span{font-size:11.5px;color:var(--mute);text-transform:uppercase;letter-spacing:.05em}
+canvas{width:100%;display:block;border:1px solid var(--line);border-radius:8px;background:var(--card)}
+.interp{border-left:5px solid var(--ok);background:var(--soft);padding:10px 14px;border-radius:0 8px 8px 0}.interp.warn{border-color:var(--warn)}.interp.bad{border-color:var(--bad)}
+.interp b{font-size:16px}.interp p{margin:4px 0 0;color:var(--mute);font-size:13.5px}
+.alert{padding:9px 13px;border-radius:8px;background:var(--soft);border:1px solid var(--line);font-size:13.5px}
+.alert.warn{border-color:var(--warn)}.alert.bad{border-color:var(--bad)}.alert.ok{border-color:var(--ok)}
+.pill{display:inline-flex;gap:6px;align-items:center;padding:4px 10px;border-radius:99px;background:rgba(255,255,255,.16);font-size:12.5px}
+.pill i{width:8px;height:8px;border-radius:50%;background:#f0b429}.pill.on i{background:#4ade80}
+.empty{padding:28px;text-align:center;color:var(--mute)}
+.coach{position:fixed;inset:0;background:#0b3a6e;color:#fff;z-index:20;display:none;flex-direction:column;align-items:center;justify-content:center;gap:18px;padding:24px;text-align:center}
+.coach.on{display:flex}
+.coach .msg{font-size:clamp(28px,6vw,56px);font-weight:700}.coach .sub{font-size:clamp(16px,2.5vw,24px);opacity:.85}
+.coach .bar2{width:min(720px,90%);height:34px;border-radius:17px;background:rgba(255,255,255,.18);overflow:hidden}.coach .bar2 i{display:block;height:100%;width:0;background:#4ade80;transition:width .08s}
+.coach .num{font-size:clamp(48px,10vw,110px);font-weight:700;font-variant-numeric:tabular-nums}
+.rep{background:#fff;color:#000;border:1px solid var(--line);border-radius:8px;padding:22px;max-width:820px;margin:0 auto}
+.rep h1{font-size:20px;margin:0;color:#0b5cab}.rep .head{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:6px 16px;border-bottom:2px solid #0b5cab;padding:10px 0 12px;margin-bottom:12px}
+.rep .head span{font-size:11px;text-transform:uppercase;color:#586b82;letter-spacing:.05em;display:block}.rep .head b{font-size:14px}
+.rep table th{background:#f0f4f9;color:#44546a}.rep table td,.rep table th{border-bottom:1px solid #d3dce7}
+.rep .interp{background:#f5f8fc}.rep .interp p{color:#44546a}.rep .note{color:#586b82}
+.sig{display:grid;grid-template-columns:1fr 1fr;gap:30px;margin-top:34px}.sig div{border-top:1px solid #000;padding-top:4px;font-size:12px;color:#444}
+.credit{text-align:center;font-size:12px;opacity:.7;padding:18px 0 28px}
+@media print{
+  @page{size:A4;margin:14mm}
+  body{background:#fff}
+  header.top,.tab:not(#tab-reports),#repList,.noprint,.credit,.coach{display:none!important}
+  #tab-reports{display:block!important}main{padding:0;max-width:none}
+  .rep{border:0;padding:0;max-width:none}.card{box-shadow:none;border:0;padding:0}
+}
+</style>
+</head>
+<body>
+<header class="top"><div class="bar">
+  <div class="brand"><i></i><span id="appName">Spiro Clinic</span></div>
+  <nav id="nav"></nav>
+  <span class="pill" id="devPill"><i></i><span id="devPillT"></span></span>
+  <button class="tbtn" id="lang">TH/EN</button><button class="tbtn" id="theme">◐</button>
+</div></header>
+<main>
+
+<!-- ============ PATIENTS ============ -->
+<section class="tab" id="tab-patients">
+  <div class="grid2">
+    <div class="card">
+      <div class="row" style="justify-content:space-between"><h2 id="h_plist"></h2><button class="b pri" id="newP"></button></div>
+      <input id="psearch" style="margin-bottom:10px">
+      <div style="overflow:auto;max-height:520px"><table id="ptable"></table></div>
+    </div>
+    <div class="card" id="pform">
+      <h2 id="h_pform"></h2>
+      <div class="form">
+        <label><span id="l_hn"></span><input id="p_hn"></label>
+        <label><span id="l_name"></span><input id="p_name"></label>
+        <label><span id="l_sex"></span><select id="p_sex"><option value="M"></option><option value="F"></option></select></label>
+        <label><span id="l_age"></span><input id="p_age" type="number" min="3" max="110"></label>
+        <label><span id="l_ht"></span><input id="p_ht" type="number" min="90" max="220"></label>
+        <label><span id="l_wt"></span><input id="p_wt" type="number" min="10" max="250"></label>
+        <label><span id="l_smk"></span><select id="p_smk"><option value="0"></option><option value="1"></option><option value="2"></option></select></label>
+        <label><span id="l_pf"></span><input id="p_pf" type="number" step="0.01" min="0"></label>
+        <label><span id="l_pv"></span><input id="p_pv" type="number" step="0.01" min="0"></label>
+      </div>
+      <label style="margin-top:12px"><span id="l_hist"></span><textarea id="p_note" rows="2"></textarea></label>
+      <p class="note" id="n_pred"></p>
+      <div class="row" style="margin-top:8px"><button class="b pri" id="saveP"></button><button class="b" id="startP"></button><button class="b danger" id="delP"></button></div>
+      <div id="phist" style="margin-top:16px"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ TEST ============ -->
+<section class="tab" id="tab-test">
+  <div class="steps" id="steps"></div>
+  <div class="grid2">
+    <div style="display:grid;gap:16px">
+      <div class="card" id="tPatient"></div>
+      <div class="card" id="tPrep">
+        <h2 id="h_prep"></h2>
+        <div class="chk" id="chk"></div>
+        <p class="note" id="n_prep"></p>
+      </div>
+      <div class="card">
+        <div class="row" style="justify-content:space-between"><h2 id="h_trials" style="margin:0"></h2><span class="note" id="trialCount"></span></div>
+        <div style="overflow:auto"><table id="trialTbl"></table></div>
+        <div class="row" style="margin-top:10px"><button class="b" id="manual"></button><button class="b" id="sim"></button></div>
+        <p class="note" id="n_trials"></p>
+      </div>
+    </div>
+    <div style="display:grid;gap:16px">
+      <div class="card">
+        <div class="row" style="justify-content:space-between"><h2 id="h_live" style="margin:0"></h2>
+          <div class="row"><button class="b pri" id="bleBtn"></button><button class="b" id="coachBtn"></button></div></div>
+        <canvas id="fv" width="900" height="420" style="margin-top:10px"></canvas>
+        <div class="kpis" id="liveK"></div>
+        <p class="note" id="bleMsg"></p>
+      </div>
+      <div class="card" id="tResult"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ REPORTS ============ -->
+<section class="tab" id="tab-reports">
+  <div class="grid2">
+    <div class="card" id="repList"><h2 id="h_rlist"></h2><div style="overflow:auto;max-height:620px"><table id="rtable"></table></div>
+      <div class="row" style="margin-top:12px"><button class="b" id="expJson"></button><button class="b" id="expCsv"></button><label class="b" style="display:inline-block;cursor:pointer"><span id="l_imp"></span><input id="impJson" type="file" accept=".json" hidden></label></div>
+      <p class="note" id="n_priv"></p></div>
+    <div id="repArea"></div>
+  </div>
+</section>
+
+<!-- ============ DEVICE ============ -->
+<section class="tab" id="tab-device">
+  <div class="grid2">
+    <div class="card"><h2 id="h_dev"></h2><div id="devInfo"></div>
+      <div class="row" style="margin-top:12px"><button class="b pri" id="bleBtn2"></button></div><p class="note" id="bleMsg2"></p></div>
+    <div class="card"><h2 id="h_cloud"></h2>
+      <div class="form"><label>Firebase RTDB URL<input id="c_db" placeholder="https://xxxx-default-rtdb.firebaseio.com"></label>
+        <label>Device ID<input id="c_dev" placeholder="spiro-01"></label><label>Auth (optional)<input id="c_auth" type="password"></label></div>
+      <div class="row" style="margin-top:10px"><button class="b pri" id="saveC"></button><button class="b" id="pull"></button><a class="b" id="dashLink" href="dashboard.html" style="text-decoration:none;color:inherit"></a></div>
+      <p class="note" id="n_cloud"></p><div id="cloudList"></div></div>
+  </div>
+  <div class="card" style="margin-top:16px"><h2 id="h_about"></h2><p class="note" id="n_about"></p></div>
+</section>
+</main>
+
+<div class="coach" id="coach">
+  <div class="sub" id="coachName"></div><div class="msg" id="coachMsg"></div>
+  <div class="num" id="coachNum">0.00 L</div><div class="bar2"><i id="coachBar"></i></div><div class="sub" id="coachSub"></div>
+  <button class="b big" id="coachClose"></button>
+</div>
+<div class="credit">ออกแบบโดย Tanachat S. (TANACHAT007) · ทีม MEDTHAI · 2026 · ไม่ใช่เครื่องมือแพทย์ที่ผ่านการรับรอง</div>
+
+<script>
+const $=id=>document.getElementById(id);
+/* ---------- i18n ---------- */
+const D={
+th:{app:'Spiro Clinic',tabs:{test:'ตรวจผู้ป่วย',patients:'ผู้ป่วย',reports:'รายงาน',device:'เครื่อง'},
+ plist:'รายชื่อผู้ป่วย',newp:'+ ผู้ป่วยใหม่',search:'ค้นหา HN / ชื่อ',pform:'ข้อมูลผู้ป่วย',hn:'HN / รหัส',name:'ชื่อ-สกุล',sex:'เพศ',male:'ชาย',female:'หญิง',age:'อายุ (ปี)',ht:'ส่วนสูง (ซม.)',wt:'น้ำหนัก (กก.)',
+ smk:'การสูบบุหรี่',s0:'ไม่สูบ',s1:'เคยสูบ',s2:'สูบอยู่',pf:'FEV1 คาดการณ์ (ลิตร)',pv:'FVC คาดการณ์ (ลิตร)',hist:'หมายเหตุ / โรคประจำตัว',
+ npred:'ค่าคาดการณ์ให้กรอกจากเครื่องคำนวณอ้างอิงของโรงพยาบาล (เช่น GLI-2012) เพราะแอปนี้ยังไม่ได้ใส่สมการอ้างอิง',
+ save:'บันทึกผู้ป่วย',start:'เริ่มตรวจผู้ป่วยนี้',del:'ลบ',sessions:'ประวัติการตรวจ',none:'ยังไม่มีข้อมูล',
+ st1:'เลือกผู้ป่วย',st2:'เตรียมการตรวจ',st3:'เป่า (อย่างน้อย 3 ครั้ง)',st4:'สรุปและบันทึก',
+ noPatient:'ยังไม่ได้เลือกผู้ป่วย',pickP:'เลือกหรือเพิ่มผู้ป่วยที่แท็บ "ผู้ป่วย" ก่อนเริ่มตรวจ',goP:'ไปที่รายชื่อผู้ป่วย',
+ prep:'เตรียมก่อนเป่า',c1:'เปลี่ยนที่เป่าใหม่ (ใช้ 1 คนต่อ 1 ชิ้น)',c2:'เครื่องวางนิ่ง กดปุ่มค้าง 1.5 วินาทีเพื่อปรับศูนย์',c3:'ผู้ป่วยนั่งตัวตรง ไม่ใส่ฟันปลอมที่หลวม ใช้ที่หนีบจมูก (ถ้ามี)',c4:'อธิบายท่าเป่า: หายใจเข้าเต็มที่ → อมที่เป่าให้แน่น → เป่าออกแรงเร็วที่สุด และนานจนหมดลม',c5:'ตรวจชื่อ/HN ของผู้ป่วยบนหน้าจอให้ตรง',
+ nprep:'ผู้ป่วยกดปุ่มที่เครื่อง (หรือผู้ตรวจกด) แล้วเป่า ผลจะขึ้นเองเมื่อเชื่อมต่อบลูทูธ',
+ trials:'ผลการเป่าแต่ละครั้ง',trialN:'ครั้งที่',acc:'ผ่านเกณฑ์',rej:'ไม่ผ่าน',manual:'+ กรอกค่าด้วยมือ',sim:'จำลองการเป่า (ฝึก)',
+ ntrials:'ผ่านเกณฑ์ = เป่านาน ≥ 2 วินาที และไม่อ่อนเกินไป ซึ่งหลวมกว่า ATS/ERS (≥ 6 วินาทีหรือถึงที่ราบ) เพราะเครื่องตัดเมื่อลมต่ำกว่า 0.25 L/s นาน 1 วินาที จึงตัดหางลมทิ้ง เฟิร์มแวร์ประมาณปริมาตรหางให้ แต่ FVC อาจยังต่ำกว่าจริง และอัตราส่วน FEV1/FVC อาจสูงเกินจริง',
+ live:'กราฟสด (flow–volume)',conn:'เชื่อมต่อเครื่อง (Bluetooth)',connected:'เชื่อมต่อแล้ว',coach:'โหมดผู้ป่วย (จอใหญ่)',
+ bleHelp:'ต้องใช้ Chrome/Edge บนคอมหรือ Android และเปิดผ่าน https ยังไม่ได้ทดสอบกับเครื่องจริง ถ้าไม่มีเครื่องใช้ปุ่ม "จำลองการเป่า" เพื่อฝึกขั้นตอน',
+ result:'สรุปการตรวจ',needMore:'ต้องเป่าให้ผ่านเกณฑ์ครบ 3 ครั้ง และค่าซ้ำกันได้ จึงจะสรุปผล',gotN:'ผ่านเกณฑ์แล้ว',of:'จาก 3',
+ repOk:'ค่าซ้ำกันได้ตามเกณฑ์ (FVC และ FEV1 ต่างกัน ≤ 0.15 ลิตร)',repNo:'ค่ายังไม่ซ้ำกัน (ต่างกัน > 0.15 ลิตร) ควรเป่าเพิ่ม สูงสุด 8 ครั้ง',
+ saveTest:'บันทึกผลและดูรายงาน',doctor:'ความเห็นแพทย์ / ผู้ตรวจ',newTest:'เริ่มตรวจใหม่',
+ best:'ค่าที่ดีที่สุด',measured:'ค่าที่วัด',ref:'ค่าคาดการณ์',pct:'% ของคาดการณ์',param:'พารามิเตอร์',
+ interpT:'สรุปผลเบื้องต้น (คัดกรอง)',obs:'สงสัยรูปแบบการอุดกั้นทางเดินหายใจ',noobs:'ไม่พบรูปแบบการอุดกั้น',
+ mild:'เล็กน้อย',mod:'ปานกลาง',sev:'รุนแรง',vsev:'รุนแรงมาก',
+ disc:'ไม่ใช่เครื่องมือแพทย์ที่ผ่านการรับรอง ผลใช้คัดกรองเบื้องต้นเท่านั้น ต้องยืนยันด้วยสไปโรเมทรีมาตรฐานและการประเมินของแพทย์ ไม่ได้ทำ BTPS และยังไม่ได้ผ่านการสอบเทียบกับกระบอกฉีดมาตรฐาน',
+ rlist:'ประวัติการตรวจทั้งหมด',date:'วันที่',patient:'ผู้ป่วย',print:'พิมพ์ / บันทึก PDF',exp:'ส่งออกข้อมูล (JSON)',expc:'ส่งออก CSV',imp:'นำเข้าข้อมูล',
+ priv:'ข้อมูลผู้ป่วยเก็บในเบราว์เซอร์เครื่องนี้เท่านั้น ไม่ถูกส่งขึ้นอินเทอร์เน็ต สำรองข้อมูลด้วยปุ่มส่งออก JSON เป็นระยะ',
+ sigD:'ผู้ตรวจ',sigDr:'แพทย์ผู้อ่านผล',reportT:'รายงานสไปโรเมทรี',
+ dev:'เครื่องวัด',cloud:'คลาวด์ (เลือกใช้): ผลจากเครื่องที่ส่งผ่าน Wi-Fi',saveC:'บันทึกการตั้งค่า',pull:'ดึงผลล่าสุด',dash:'หน้าติดตามระยะไกล',
+ ncloud:'ใช้กับเครื่องที่ตั้ง Wi-Fi และ Firebase ไว้ ผลจากคลาวด์ไม่มีชื่อผู้ป่วย ผู้ตรวจต้องกด "ใช้เป็นการเป่าครั้งนี้" เพื่อใส่เข้าการตรวจที่กำลังทำ ห้ามใช้กฎฐานข้อมูลแบบเปิดสาธารณะกับข้อมูลคนจริง',
+ use:'ใช้เป็นการเป่าครั้งนี้',about:'ข้อควรทราบ',
+ nabout:'ต้นแบบเพื่อการเรียนรู้/คัดกรอง ไม่ใช่เครื่องมือแพทย์ ค่าที่ได้มาจากเซ็นเซอร์ความดันต่างและตัวคงที่ K ที่ต้องสอบเทียบด้วยกระบอกฉีด 3 ลิตรก่อนใช้ ห้ามใช้วินิจฉัยหรือสั่งการรักษา',
+ readyPill:'เชื่อมต่อแล้ว',offPill:'ยังไม่เชื่อมต่อเครื่อง',
+ coachReady:'พร้อมแล้ว หายใจเข้าเต็มที่',coachBlow:'เป่าแรงๆ ให้สุด!',coachKeep:'เป่าต่อ จนหมดลม',coachGood:'ดีมาก',coachRetry:'ลองอีกครั้ง เป่าให้นานกว่านี้',close:'ปิด',
+ trialBad:'ไม่ผ่าน',simTag:'จำลอง',manualTag:'กรอกมือ',dur:'เวลา (วิ)',q:'สถานะ',
+ enterVals:'กรอกค่า FVC, FEV1, PEF ตามลำดับ คั่นด้วยเครื่องหมายจุลภาค เช่น 3.8,3.1,8.2',confirmDel:'ลบข้อมูลนี้?',
+ manualWarn:'ค่าที่กรอกด้วยมือไม่ได้มาจากเครื่อง',nopc:'กรอกค่าคาดการณ์ในข้อมูลผู้ป่วยเพื่อดู %'},
+en:{app:'Spiro Clinic',tabs:{test:'Test patient',patients:'Patients',reports:'Reports',device:'Device'},
+ plist:'Patients',newp:'+ New patient',search:'Search HN / name',pform:'Patient details',hn:'HN / ID',name:'Full name',sex:'Sex',male:'Male',female:'Female',age:'Age (y)',ht:'Height (cm)',wt:'Weight (kg)',
+ smk:'Smoking',s0:'Never',s1:'Former',s2:'Current',pf:'Predicted FEV1 (L)',pv:'Predicted FVC (L)',hist:'Notes / history',
+ npred:'Enter predicted values from your hospital reference calculator (e.g. GLI-2012); this app has no reference equations yet.',
+ save:'Save patient',start:'Start test',del:'Delete',sessions:'Test history',none:'No data yet',
+ st1:'Select patient',st2:'Prepare',st3:'Blow (at least 3)',st4:'Summary & save',
+ noPatient:'No patient selected',pickP:'Select or add a patient in the Patients tab first',goP:'Go to patients',
+ prep:'Before blowing',c1:'Fit a new mouthpiece (one per person)',c2:'Hold the device still; hold the button 1.5 s to zero',c3:'Patient seated upright, nose clip if available',c4:'Explain: breathe in fully → seal lips → blast out as hard and fast as possible until empty',c5:'Check the patient name / HN on screen',
+ nprep:'Press the device button, then blow. Results appear automatically over Bluetooth.',
+ trials:'Blows',trialN:'Trial',acc:'Acceptable',rej:'Rejected',manual:'+ Enter manually',sim:'Simulate a blow (training)',
+ ntrials:'Acceptable = exhalation ≥ 2 s and not too weak; looser than ATS/ERS (≥ 6 s or plateau) because the device stops when flow stays < 0.25 L/s for 1 s, which drops the slow tail. The firmware estimates the tail, but FVC may still read low and FEV1/FVC high.',
+ live:'Live flow–volume',conn:'Connect device (Bluetooth)',connected:'Connected',coach:'Patient view (large)',
+ bleHelp:'Needs Chrome/Edge on desktop or Android over https. Not tested with a real device. Use "Simulate" to practise the workflow.',
+ result:'Summary',needMore:'Three acceptable, repeatable blows are needed before a summary',gotN:'Acceptable',of:'of 3',
+ repOk:'Repeatable (FVC and FEV1 within 0.15 L)',repNo:'Not repeatable (> 0.15 L apart); blow again, up to 8 times',
+ saveTest:'Save and open report',doctor:'Clinician comment',newTest:'New test',
+ best:'Best values',measured:'Measured',ref:'Predicted',pct:'% predicted',param:'Parameter',
+ interpT:'Preliminary interpretation (screening)',obs:'Possible obstructive pattern',noobs:'No obstructive pattern',
+ mild:'mild',mod:'moderate',sev:'severe',vsev:'very severe',
+ disc:'Not a certified medical device. Screening only; confirm with standard spirometry and clinical assessment. No BTPS correction and not yet validated against a calibration syringe.',
+ rlist:'All tests',date:'Date',patient:'Patient',print:'Print / save PDF',exp:'Export (JSON)',expc:'Export CSV',imp:'Import',
+ priv:'Patient data stays in this browser only and is never uploaded. Back it up with the JSON export regularly.',
+ sigD:'Operator',sigDr:'Reporting physician',reportT:'Spirometry report',
+ dev:'Device',cloud:'Cloud (optional): results sent over Wi-Fi',saveC:'Save settings',pull:'Fetch latest',dash:'Remote monitor page',
+ ncloud:'For devices configured with Wi-Fi + Firebase. Cloud results carry no patient name; press "Use as this blow" to add one to the current test. Never use open public database rules for real patient data.',
+ use:'Use as this blow',about:'Please note',
+ nabout:'Learning / screening prototype, not a medical device. Values come from a differential-pressure sensor and a constant K that must be calibrated with a 3 L syringe. Not for diagnosis or treatment decisions.',
+ readyPill:'Connected',offPill:'Device not connected',
+ coachReady:'Ready: breathe in fully',coachBlow:'Blow hard!',coachKeep:'Keep going until empty',coachGood:'Well done',coachRetry:'Try again, blow longer',close:'Close',
+ trialBad:'Rejected',simTag:'simulated',manualTag:'manual',dur:'Time (s)',q:'Status',
+ enterVals:'Enter FVC, FEV1, PEF separated by commas, e.g. 3.8,3.1,8.2',confirmDel:'Delete this?',
+ manualWarn:'Manually entered values did not come from the device',nopc:'Enter predicted values in the patient record to see %'}};
+let lang=localStorage.sp_lang||'th';const t=k=>D[lang][k]??k;
+
+/* ---------- state ---------- */
+const load=(k,d)=>{try{return JSON.parse(localStorage[k]||'')||d}catch(e){return d}};
+const save=(k,v)=>{try{localStorage[k]=JSON.stringify(v)}catch(e){}};
+let patients=load('sp_patients',[]),tests=load('sp_tests',[]),activeP=localStorage.sp_active||'',cfg=load('sp_cfg',{});
+let cur={pid:'',trials:[],checks:[],comment:''};          // the test in progress
+let live={buf:[],connected:false,name:''};
+const uid=()=>Math.random().toString(36).slice(2,9);
+const P=id=>patients.find(p=>p.id===id);
+const fmt=(v,d=2)=>v==null||isNaN(v)?'–':(+v).toFixed(d);
+
+/* ---------- pure clinical logic ---------- */
+const MIN_DUR=2;                       // s, device-level acceptability (the 0.25 L/s cut-off ends healthy blows at ~2.5-4 s; ATS/ERS wants 6 s or a plateau)
+function judge(tr){return tr.fvc>=0.3&&tr.dur>=MIN_DUR&&tr.quality!=='weak'}
+function summarize(trials){
+  const acc=trials.filter(x=>x.ok),fv=acc.map(x=>x.fvc).sort((a,b)=>b-a),fe=acc.map(x=>x.fev1).sort((a,b)=>b-a);
+  const best=acc.length?{fvc:fv[0],fev1:fe[0],pef:Math.max(...acc.map(x=>x.pef))}:null;
+  if(best)best.ratio=100*best.fev1/best.fvc;
+  const tol=best&&best.fvc<=1?0.10:0.15;
+  const rep=acc.length>=2?{dFvc:fv[0]-fv[1],dFev1:fe[0]-fe[1],ok:fv[0]-fv[1]<=tol&&fe[0]-fe[1]<=tol,tol}:null;
+  return{acc:acc.length,best,rep,done:acc.length>=3&&!!rep&&rep.ok}}
+function interpret(best,pt){
+  const pf=+(pt&&pt.pf)||0,pc=pf?100*best.fev1/pf:0;let lvl='ok',title,sub;
+  if(best.ratio<70){
+    if(pf){const sev=pc>=80?t('mild'):pc>=50?t('mod'):pc>=30?t('sev'):t('vsev');lvl=pc>=80?'warn':'bad';title=t('obs')+' ('+sev+')';
+      sub=L(`FEV1/FVC ${fmt(best.ratio,0)}% (< 70%) และ FEV1 ${fmt(pc,0)}% ของค่าคาดการณ์ แบ่งระดับตามแนว GOLD`,`FEV1/FVC ${fmt(best.ratio,0)}% (< 70%), FEV1 ${fmt(pc,0)}% predicted; severity bands as GOLD`)}
+    else{lvl=best.ratio<50?'bad':'warn';title=t('obs');sub=L(`FEV1/FVC ${fmt(best.ratio,0)}% (< 70%) กรอกค่าคาดการณ์เพื่อประเมินระดับ`,`FEV1/FVC ${fmt(best.ratio,0)}% (< 70%). Enter predicted values to grade severity`)}
+  }else{title=t('noobs');
+    if(pf&&pc<80){lvl='warn';sub=L(`FEV1/FVC ${fmt(best.ratio,0)}% ปกติ แต่ FEV1 ต่ำกว่า 80% ของค่าคาดการณ์ อาจเข้าได้กับปริมาตรปอดลดลง ต้องยืนยันด้วยการตรวจปอดเต็มรูปแบบ`,`Ratio normal but FEV1 < 80% predicted; restriction cannot be excluded, confirm with full PFT`)}
+    else sub=L(`FEV1/FVC ${fmt(best.ratio,0)}% (≥ 70%) เครื่องนี้ประเมินภาวะปอดจำกัดการขยายตัวไม่ได้`,`FEV1/FVC ${fmt(best.ratio,0)}% (≥ 70%). This device cannot assess restriction`)}
+  return{lvl,title,sub,pc}}
+function L(a,b){return lang==='th'?a:b}
+/* simulated blow, for staff training only: 3-exponential volume curve; like the device it stops when flow stays < 0.25 L/s, then the tail is added */
+function simBlow(pt){
+  const fvc=(+(pt&&pt.pv)||3.9)*(0.94+Math.random()*0.08),j=Math.random()*0.04,pts=[];let prev=0,fev1=0,pef=0,last=0,vcut=0;
+  const V=tt=>fvc*(1-(0.54+j)*Math.exp(-tt/0.22)-0.26*Math.exp(-tt/1.1)-(0.20-j)*Math.exp(-tt/2.6));
+  for(let tt=0;tt<14;tt+=0.04){const v=V(tt),q=(v-prev)/0.04;prev=v;if(q>pef)pef=q;if(tt<=1.0)fev1=v;
+    if(q>0.25){last=tt;vcut=v}pts.push([Math.round(tt*1000),q,v]);if(tt>1&&tt-last>1)break}
+  while(pts.length&&pts[pts.length-1][0]/1000>last+0.04)pts.pop();
+  return{fvc:+Math.min(fvc,vcut+0.5).toFixed(2),fev1:+fev1.toFixed(2),pef:+pef.toFixed(1),dur:+last.toFixed(1),curve:pts,src:'sim'}}
+
+/* ---------- navigation ---------- */
+let tab='test';
+function setTab(x){tab=x;document.querySelectorAll('section.tab').forEach(s=>s.classList.toggle('on',s.id==='tab-'+x));
+  document.querySelectorAll('#nav button').forEach(b=>b.classList.toggle('on',b.dataset.t===x));render()}
+function buildNav(){$('nav').innerHTML=['test','patients','reports','device'].map(k=>`<button data-t="${k}">${t('tabs')[k]}</button>`).join('');
+  $('nav').querySelectorAll('button').forEach(b=>b.onclick=()=>setTab(b.dataset.t))}
+
+/* ---------- text ---------- */
+function applyText(){
+  document.documentElement.lang=lang;$('appName').textContent=t('app');buildNav();
+  const m={h_plist:'plist',newP:'newp',h_pform:'pform',l_hn:'hn',l_name:'name',l_sex:'sex',l_age:'age',l_ht:'ht',l_wt:'wt',l_smk:'smk',l_pf:'pf',l_pv:'pv',l_hist:'hist',n_pred:'npred',saveP:'save',startP:'start',delP:'del',
+   h_prep:'prep',n_prep:'nprep',h_trials:'trials',manual:'manual',sim:'sim',n_trials:'ntrials',h_live:'live',coachBtn:'coach',bleMsg:'bleHelp',h_rlist:'rlist',expJson:'exp',expCsv:'expc',l_imp:'imp',n_priv:'priv',
+   h_dev:'dev',h_cloud:'cloud',saveC:'saveC',pull:'pull',dashLink:'dash',n_cloud:'ncloud',h_about:'about',n_about:'nabout',coachClose:'close'};
+  for(const k in m)$(k).textContent=t(m[k]);
+  $('psearch').placeholder=t('search');
+  const opts=(id,keys)=>{[...$(id).options].forEach((o,i)=>o.textContent=t(keys[i]))};opts('p_sex',['male','female']);opts('p_smk',['s0','s1','s2']);
+  $('bleBtn').textContent=live.connected?t('connected'):t('conn');$('bleBtn2').textContent=$('bleBtn').textContent;
+  $('bleMsg2').textContent=t('bleHelp');
+  $('c_db').value=cfg.db||'';$('c_dev').value=cfg.dev||'';$('c_auth').value=cfg.auth||'';
+  render()}
+
+/* ---------- patients ---------- */
+function renderPatients(){
+  const q=$('psearch').value.trim().toLowerCase();
+  const list=patients.filter(p=>!q||(p.hn+' '+p.name).toLowerCase().includes(q));
+  $('ptable').innerHTML=`<tr><th>${t('hn')}</th><th>${t('name')}</th><th>${t('age')}</th></tr>`+
+    (list.map(p=>`<tr class="clk ${p.id===activeP?'sel':''}" data-id="${p.id}"><td>${esc(p.hn)}</td><td>${esc(p.name)}</td><td>${p.age||'–'}</td></tr>`).join('')||`<tr><td colspan="3" class="empty">${t('none')}</td></tr>`);
+  $('ptable').querySelectorAll('tr.clk').forEach(r=>r.onclick=()=>{activeP=r.dataset.id;localStorage.sp_active=activeP;fillForm();renderPatients()});
+  fillForm()}
+function esc(s){return String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
+function fillForm(){
+  const p=P(activeP)||{};const f={p_hn:'hn',p_name:'name',p_sex:'sex',p_age:'age',p_ht:'ht',p_wt:'wt',p_smk:'smk',p_pf:'pf',p_pv:'pv',p_note:'note'};
+  for(const k in f)$(k).value=p[f[k]]??(k==='p_sex'?'M':k==='p_smk'?'0':'');
+  $('delP').style.display=$('startP').style.display=p.id?'':'none';
+  const ts=tests.filter(x=>x.pid===p.id).sort((a,b)=>b.ts-a.ts);
+  $('phist').innerHTML=p.id?`<h3>${t('sessions')}</h3>`+(ts.length?`<table><tr><th>${t('date')}</th><th>FEV1</th><th>FVC</th><th>%</th></tr>`+ts.map(x=>`<tr class="clk" data-t="${x.id}"><td>${fdate(x.ts)}</td><td>${fmt(x.best.fev1)}</td><td>${fmt(x.best.fvc)}</td><td>${fmt(x.best.ratio,0)}</td></tr>`).join('')+'</table>'+trendSvg(ts.slice().reverse()):`<p class="note">${t('none')}</p>`):'';
+  $('phist').querySelectorAll('tr.clk').forEach(r=>r.onclick=()=>{repSel=r.dataset.t;setTab('reports')})}
+const fdate=ts=>new Date(ts).toLocaleString(lang==='th'?'th-TH':'en-GB',{dateStyle:'short',timeStyle:'short'});
+function trendSvg(ts){if(ts.length<2)return'';const w=420,h=110,mx=Math.max(...ts.map(x=>x.best.fvc))*1.1,X=i=>20+(w-30)*i/(ts.length-1),Y=v=>h-14-(h-24)*v/mx;
+  const line=k=>ts.map((x,i)=>(i?'L':'M')+X(i).toFixed(1)+' '+Y(x.best[k]).toFixed(1)).join('');
+  return`<svg viewBox="0 0 ${w} ${h}" style="width:100%;margin-top:8px"><path d="${line('fvc')}" fill="none" stroke="#2fbf8a" stroke-width="2"/><path d="${line('fev1')}" fill="none" stroke="var(--acc)" stroke-width="2.5"/>
+   <text x="22" y="12" font-size="10" fill="var(--mute)">FEV1 (blue) / FVC (green), L</text></svg>`}
+$('newP').onclick=()=>{activeP='';fillForm();$('p_hn').focus()};
+$('psearch').oninput=renderPatients;
+$('saveP').onclick=()=>{
+  const g=k=>$(k).value.trim();if(!g('p_name')&&!g('p_hn')){alert(t('name'));return}
+  let p=P(activeP);if(!p){p={id:uid(),created:Date.now()};patients.push(p);activeP=p.id;localStorage.sp_active=activeP}
+  Object.assign(p,{hn:g('p_hn'),name:g('p_name'),sex:g('p_sex'),age:+g('p_age')||'',ht:+g('p_ht')||'',wt:+g('p_wt')||'',smk:g('p_smk'),pf:+g('p_pf')||'',pv:+g('p_pv')||'',note:g('p_note')});
+  save('sp_patients',patients);renderPatients()};
+$('delP').onclick=()=>{if(!confirm(t('confirmDel')))return;patients=patients.filter(p=>p.id!==activeP);tests=tests.filter(x=>x.pid!==activeP);activeP='';localStorage.sp_active='';save('sp_patients',patients);save('sp_tests',tests);renderPatients()};
+$('startP').onclick=()=>{startTest(activeP)};
+
+/* ---------- test workflow ---------- */
+function startTest(pid){cur={pid,trials:[],checks:[],comment:''};live.buf=[];setTab('test')}
+const CHECKS=['c1','c2','c3','c4','c5'];
+function stage(){const p=P(cur.pid);if(!p)return 1;const s=summarize(cur.trials);if(s.done)return 4;if(cur.checks.length>=CHECKS.length||cur.trials.length)return 3;return 2}
+function renderTest(){
+  const p=P(cur.pid),st=stage();
+  $('steps').innerHTML=[1,2,3,4].map(i=>`<div class="step ${st===i?'on':st>i?'done':''}"><b>${st>i?'✓':i}</b>${t('st'+i)}</div>`).join('');
+  $('tPatient').innerHTML=p?`<div class="row" style="justify-content:space-between"><div><div class="k">${t('patient')}</div><div style="font-size:20px;font-weight:700">${esc(p.name)||'–'}</div><div class="note">HN ${esc(p.hn)||'–'} · ${p.sex==='F'?t('female'):t('male')} · ${p.age||'–'} ${L('ปี','y')} · ${p.ht||'–'} cm</div></div><button class="b" id="chgP">${t('tabs').patients}</button></div>`
+    :`<div class="empty"><div style="font-size:18px;font-weight:600;color:var(--ink)">${t('noPatient')}</div><p>${t('pickP')}</p><button class="b pri" id="chgP">${t('goP')}</button></div>`;
+  $('chgP').onclick=()=>setTab('patients');
+  $('tPrep').style.display=p?'':'none';
+  $('chk').innerHTML=CHECKS.map(k=>`<label><input type="checkbox" data-k="${k}" ${cur.checks.includes(k)?'checked':''}>${t(k)}</label>`).join('');
+  $('chk').querySelectorAll('input').forEach(i=>i.onchange=()=>{cur.checks=[...$('chk').querySelectorAll('input:checked')].map(x=>x.dataset.k);renderTest()});
+  $('trialTbl').innerHTML=`<tr><th>${t('trialN')}</th><th>FVC</th><th>FEV1</th><th>PEF</th><th>${t('dur')}</th><th>${t('q')}</th><th></th></tr>`+
+    (cur.trials.map((x,i)=>`<tr><td>${i+1}${x.src==='sim'?' <span class="note">'+t('simTag')+'</span>':x.src==='man'?' <span class="note">'+t('manualTag')+'</span>':''}</td><td>${fmt(x.fvc)}</td><td>${fmt(x.fev1)}</td><td>${fmt(x.pef,1)}</td><td>${fmt(x.dur,1)}</td>
+      <td><span class="tag ${x.ok?'ok':'bad'}">${x.ok?t('acc'):t('rej')}</span></td><td><button class="b danger" data-d="${i}" style="padding:2px 8px">×</button></td></tr>`).join('')||`<tr><td colspan="7" class="empty">${t('none')}</td></tr>`);
+  $('trialTbl').querySelectorAll('button[data-d]').forEach(b=>b.onclick=()=>{cur.trials.splice(+b.dataset.d,1);renderTest()});
+  const s=summarize(cur.trials);$('trialCount').textContent=`${t('gotN')} ${s.acc} ${t('of')} · ${cur.trials.length}/8`;
+  ['manual','sim'].forEach(k=>$(k).disabled=!p||cur.trials.length>=8);
+  renderLiveK();drawFV();renderResult(s)}
+function renderLiveK(){const l=live.buf[live.buf.length-1];
+  $('liveK').innerHTML=[['FVC',l?fmt(l[2]):'–','L'],['FLOW',l?fmt(l[1],1):'–','L/s'],['TIME',l?fmt(l[0]/1000,1):'–','s']].map(([a,b,c])=>`<div class="kpi"><span>${a}</span><b>${b}<small style="font-size:13px;color:var(--mute)"> ${c}</small></b></div>`).join('')}
+function renderResult(s){
+  const p=P(cur.pid);if(!p){$('tResult').innerHTML='';return}
+  let h=`<h2>${t('result')}</h2>`;
+  if(!s.best){h+=`<div class="alert">${t('needMore')}</div>`}
+  else{
+    h+=`<div class="kpis"><div class="kpi"><span>FEV1</span><b>${fmt(s.best.fev1)}<small style="font-size:13px"> L</small></b></div><div class="kpi"><span>FVC</span><b>${fmt(s.best.fvc)}<small style="font-size:13px"> L</small></b></div><div class="kpi"><span>FEV1/FVC</span><b>${fmt(s.best.ratio,0)}<small style="font-size:13px"> %</small></b></div><div class="kpi"><span>PEF</span><b>${fmt(s.best.pef,1)}<small style="font-size:13px"> L/s</small></b></div></div>`;
+    if(s.rep)h+=`<div class="alert ${s.rep.ok?'ok':'warn'}">${s.rep.ok?t('repOk'):t('repNo')} (ΔFVC ${fmt(s.rep.dFvc)} · ΔFEV1 ${fmt(s.rep.dFev1)} L)</div>`;
+    if(!s.done)h+=`<div class="alert" style="margin-top:8px">${t('needMore')} (${s.acc}/3)</div>`;
+    else{const i=interpret(s.best,p);h+=`<div class="interp ${i.lvl==='ok'?'':i.lvl}" style="margin-top:10px"><b>${i.title}</b><p>${i.sub}</p></div>
+      <label style="margin-top:12px"><span>${t('doctor')}</span><textarea id="cmt" rows="2">${esc(cur.comment)}</textarea></label>
+      <div class="row" style="margin-top:12px"><button class="b pri big" id="saveT">${t('saveTest')}</button><button class="b" id="newT">${t('newTest')}</button></div>`}}
+  if(cur.trials.some(x=>x.src))h+=`<p class="note">⚠ ${t('manualWarn')}</p>`;
+  $('tResult').innerHTML=h;
+  if($('cmt'))$('cmt').oninput=e=>cur.comment=e.target.value;
+  if($('saveT'))$('saveT').onclick=saveTest;
+  if($('newT'))$('newT').onclick=()=>startTest(cur.pid)}
+function saveTest(){
+  const s=summarize(cur.trials),id=uid();
+  tests.push({id,pid:cur.pid,ts:Date.now(),trials:cur.trials.map(x=>({...x,curve:x.curve?x.curve.filter((_,i)=>i%2===0):undefined})),best:s.best,rep:s.rep,comment:cur.comment,fw:live.name||''});
+  save('sp_tests',tests);repSel=id;const pid=cur.pid;cur={pid,trials:[],checks:[],comment:''};setTab('reports')}
+function addTrial(r){
+  const x={fvc:+r.fvc,fev1:+r.fev1,pef:+r.pef,dur:+(r.dur||0),curve:r.curve,src:r.src,quality:r.quality};x.ok=judge(x);
+  if(cur.trials.length>=8)return;cur.trials.push(x);if(tab==='test')renderTest();else render();return x}
+$('sim').onclick=()=>{const b=simBlow(P(cur.pid));live.buf=b.curve;addTrial(b)};
+$('manual').onclick=()=>{const v=prompt(t('enterVals'),'');if(!v)return;const a=v.split(',').map(Number);if(a.length<3||a.some(isNaN))return;addTrial({fvc:a[0],fev1:a[1],pef:a[2],dur:6,src:'man'})};
+
+/* ---------- flow-volume chart ---------- */
+function drawFV(){
+  const c=$('fv'),dpr=devicePixelRatio||1,w=c.clientWidth||600,h=Math.round(w*0.48);c.width=w*dpr;c.height=h*dpr;c.style.height=h+'px';
+  const g=c.getContext('2d');g.scale(dpr,dpr);const css=getComputedStyle(document.documentElement),line=css.getPropertyValue('--line'),mute=css.getPropertyValue('--mute'),acc=css.getPropertyValue('--acc');
+  const PL=40,PB=26,PT=10,PR=10,all=[...cur.trials.map(x=>x.curve||[]),live.buf],maxV=Math.max(5,...all.map(a=>a.length?a[a.length-1][2]:0))*1.05,maxF=Math.max(10,...all.map(a=>Math.max(0,...a.map(p=>p[1]))))*1.1;
+  const X=v=>PL+(w-PL-PR)*v/maxV,Y=f=>h-PB-(h-PB-PT)*f/maxF;
+  g.strokeStyle=line;g.fillStyle=mute;g.font='11px IBM Plex Sans Thai,sans-serif';g.lineWidth=1;
+  for(let f=0;f<=maxF;f+=2){g.beginPath();g.moveTo(PL,Y(f));g.lineTo(w-PR,Y(f));g.stroke();g.fillText(f,8,Y(f)+4)}
+  for(let v=0;v<=maxV;v++){g.beginPath();g.moveTo(X(v),PT);g.lineTo(X(v),h-PB);g.stroke();g.fillText(v,X(v)-3,h-8)}
+  g.fillText('L/s',PL+6,PT+12);g.fillText('L',w-PR-8,h-8);
+  const pal=['#2fbf8a','#f0a73a','#a06cf0','#e86f8c','#3fb8e8','#8aa04a','#d08a4a','#6a7f95'];
+  cur.trials.forEach((x,i)=>{if(!x.curve)return;g.strokeStyle=pal[i%8];g.globalAlpha=x.ok?1:.35;g.lineWidth=2;g.beginPath();x.curve.forEach((p,k)=>k?g.lineTo(X(p[2]),Y(p[1])):g.moveTo(X(p[2]),Y(p[1])));g.stroke()});
+  g.globalAlpha=1;if(live.buf.length&&!(cur.trials.length&&cur.trials[cur.trials.length-1].curve===live.buf)){g.strokeStyle=acc;g.lineWidth=3;g.beginPath();live.buf.forEach((p,k)=>k?g.lineTo(X(p[2]),Y(p[1])):g.moveTo(X(p[2]),Y(p[1])));g.stroke()}
+  if(!all.some(a=>a.length)){g.fillStyle=mute;g.font='14px IBM Plex Sans Thai,sans-serif';g.textAlign='center';g.fillText(L('กราฟจะปรากฏเมื่อเริ่มเป่า','The curve appears when the patient blows'),w/2,h/2);g.textAlign='left'}}
+
+/* ---------- reports ---------- */
+let repSel='';
+function renderReports(){
+  const list=tests.slice().sort((a,b)=>b.ts-a.ts);
+  $('rtable').innerHTML=`<tr><th>${t('date')}</th><th>${t('patient')}</th><th>FEV1</th><th>%</th></tr>`+(list.map(x=>{const p=P(x.pid)||{};return`<tr class="clk ${x.id===repSel?'sel':''}" data-id="${x.id}"><td>${fdate(x.ts)}</td><td>${esc(p.name||p.hn||'–')}</td><td>${fmt(x.best.fev1)}</td><td>${fmt(x.best.ratio,0)}</td></tr>`}).join('')||`<tr><td colspan="4" class="empty">${t('none')}</td></tr>`);
+  $('rtable').querySelectorAll('tr.clk').forEach(r=>r.onclick=()=>{repSel=r.dataset.id;renderReports()});
+  const x=tests.find(z=>z.id===repSel)||list[0];if(!x){$('repArea').innerHTML='';return}repSel=x.id;
+  const p=P(x.pid)||{},i=interpret(x.best,p),pf=+p.pf||0,pv=+p.pv||0;
+  const trialsRows=x.trials.map((r,k)=>`<tr><td>${k+1}${r.src==='sim'?' *':r.src==='man'?' †':''}</td><td>${fmt(r.fvc)}</td><td>${fmt(r.fev1)}</td><td>${fmt(r.pef,1)}</td><td>${fmt(r.dur,1)}</td><td>${r.ok?t('acc'):t('rej')}</td></tr>`).join('');
+  $('repArea').innerHTML=`<div class="row noprint" style="margin-bottom:10px;justify-content:flex-end"><button class="b pri" id="prt">${t('print')}</button><button class="b danger" id="delT">${t('del')}</button></div>
+  <div class="rep"><h1>${t('reportT')}</h1>
+   <div class="head"><div><span>${t('name')}</span><b>${esc(p.name)||'–'}</b></div><div><span>HN</span><b>${esc(p.hn)||'–'}</b></div><div><span>${t('age')} / ${t('sex')}</span><b>${p.age||'–'} · ${p.sex==='F'?t('female'):t('male')}</b></div>
+   <div><span>${t('ht')} / ${t('wt')}</span><b>${p.ht||'–'} / ${p.wt||'–'}</b></div><div><span>${t('date')}</span><b>${fdate(x.ts)}</b></div></div>
+   <h3>${t('best')}</h3>
+   <table><tr><th>${t('param')}</th><th>${t('measured')}</th><th>${t('ref')}</th><th>${t('pct')}</th></tr>
+   <tr><td>FEV1 (L)</td><td>${fmt(x.best.fev1)}</td><td>${pf?fmt(pf):'–'}</td><td>${pf?fmt(100*x.best.fev1/pf,0):'–'}</td></tr>
+   <tr><td>FVC (L)</td><td>${fmt(x.best.fvc)}</td><td>${pv?fmt(pv):'–'}</td><td>${pv?fmt(100*x.best.fvc/pv,0):'–'}</td></tr>
+   <tr><td>FEV1/FVC (%)</td><td>${fmt(x.best.ratio,0)}</td><td>≥ 70</td><td>–</td></tr>
+   <tr><td>PEF (L/s)</td><td>${fmt(x.best.pef,1)}</td><td>–</td><td>–</td></tr></table>
+   <div class="interp ${i.lvl==='ok'?'':i.lvl}" style="margin:14px 0"><b>${i.title}</b><p>${i.sub}</p></div>
+   <canvas id="repFv" width="760" height="330" style="border:1px solid #d3dce7"></canvas>
+   <h3 style="margin-top:12px">${t('trials')}</h3><table><tr><th>${t('trialN')}</th><th>FVC</th><th>FEV1</th><th>PEF</th><th>${t('dur')}</th><th>${t('q')}</th></tr>${trialsRows}</table>
+   ${x.rep?`<p class="note">${x.rep.ok?t('repOk'):t('repNo')} (ΔFVC ${fmt(x.rep.dFvc)} · ΔFEV1 ${fmt(x.rep.dFev1)} L)</p>`:''}
+   ${x.trials.some(r=>r.src)?`<p class="note">* ${t('simTag')} · † ${t('manualTag')}</p>`:''}
+   ${x.comment?`<h3>${t('doctor')}</h3><p>${esc(x.comment)}</p>`:''}
+   <div class="sig"><div>${t('sigD')}</div><div>${t('sigDr')}</div></div>
+   <p class="note" style="margin-top:14px">${t('disc')}</p></div>`;
+  $('prt').onclick=()=>window.print();
+  $('delT').onclick=()=>{if(confirm(t('confirmDel'))){tests=tests.filter(z=>z.id!==x.id);save('sp_tests',tests);repSel='';renderReports()}};
+  drawRepFv(x)}
+function drawRepFv(x){const c=$('repFv'),g=c.getContext('2d'),w=c.width,h=c.height,PL=40,PB=26,PT=10,PR=10;
+  g.fillStyle='#fff';g.fillRect(0,0,w,h);const cv=x.trials.filter(r=>r.curve);
+  const maxV=Math.max(5,...cv.map(r=>r.curve[r.curve.length-1][2]))*1.05,maxF=Math.max(10,...cv.map(r=>Math.max(...r.curve.map(p=>p[1]))))*1.1;
+  const X=v=>PL+(w-PL-PR)*v/maxV,Y=f=>h-PB-(h-PB-PT)*f/maxF;g.strokeStyle='#d3dce7';g.fillStyle='#586b82';g.font='12px sans-serif';
+  for(let f=0;f<=maxF;f+=2){g.beginPath();g.moveTo(PL,Y(f));g.lineTo(w-PR,Y(f));g.stroke();g.fillText(f,8,Y(f)+4)}
+  for(let v=0;v<=maxV;v++){g.beginPath();g.moveTo(X(v),PT);g.lineTo(X(v),h-PB);g.stroke();g.fillText(v,X(v)-3,h-8)}
+  g.fillText('L/s',PL+6,PT+12);g.fillText('L',w-PR-10,h-8);
+  if(!cv.length){g.fillText(L('ไม่มีเส้นโค้ง (กรอกค่าด้วยมือ)','No curve (manual entry)'),w/2-70,h/2);return}
+  const pal=['#2fbf8a','#f0a73a','#a06cf0','#e86f8c','#3fb8e8','#8aa04a','#d08a4a','#6a7f95'];
+  x.trials.forEach((r,i)=>{if(!r.curve)return;g.strokeStyle=pal[i%8];g.globalAlpha=r.ok?1:.35;g.lineWidth=2;g.beginPath();r.curve.forEach((p,k)=>k?g.lineTo(X(p[2]),Y(p[1])):g.moveTo(X(p[2]),Y(p[1])));g.stroke()});g.globalAlpha=1}
+$('expJson').onclick=()=>dl('spiro_backup.json',JSON.stringify({patients,tests}),'application/json');
+$('expCsv').onclick=()=>{let s='date,hn,name,sex,age,height,fev1_L,fvc_L,ratio_pct,pef_Lps,trials,comment\n';
+  for(const x of tests){const p=P(x.pid)||{};s+=[new Date(x.ts).toISOString(),p.hn,'"'+(p.name||'').replace(/"/g,'""')+'"',p.sex,p.age,p.ht,x.best.fev1,x.best.fvc,x.best.ratio.toFixed(1),x.best.pef,x.trials.length,'"'+(x.comment||'').replace(/"/g,'""')+'"'].join(',')+'\n'}
+  dl('spiro_tests.csv',s,'text/csv')};
+function dl(n,s,m){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([s],{type:m}));a.download=n;a.click()}
+$('impJson').onchange=async e=>{try{const j=JSON.parse(await e.target.files[0].text());if(Array.isArray(j.patients)&&Array.isArray(j.tests)){
+  for(const p of j.patients)if(!P(p.id))patients.push(p);for(const x of j.tests)if(!tests.find(z=>z.id===x.id))tests.push(x);save('sp_patients',patients);save('sp_tests',tests);render()}}catch(err){alert(err.message)}};
+
+/* ---------- Bluetooth (UUIDs match the firmware) ---------- */
+const NUS='6e400001-b5a3-f393-e0a9-e50e24dcca9e',LIVE_C='6e400002-b5a3-f393-e0a9-e50e24dcca9e',RES_C='6e400003-b5a3-f393-e0a9-e50e24dcca9e';
+let lastT=-1;
+async function connectBle(){
+  const m=[$('bleMsg'),$('bleMsg2')];const say=s=>m.forEach(e=>e.textContent=s);
+  if(!navigator.bluetooth){say(L('เบราว์เซอร์นี้ไม่รองรับ Web Bluetooth หรือถูกบล็อก (ใช้ Chrome/Edge ผ่าน https)','This browser has no Web Bluetooth or it is blocked (use Chrome/Edge over https)'));return}
+  try{
+    const d=await navigator.bluetooth.requestDevice({filters:[{services:[NUS]}]});
+    const s=await (await d.gatt.connect()).getPrimaryService(NUS);
+    const cl=await s.getCharacteristic(LIVE_C),cr=await s.getCharacteristic(RES_C),dec=new TextDecoder();
+    cl.addEventListener('characteristicvaluechanged',e=>{const p=dec.decode(e.target.value).split(',').map(Number);if(p.length>=3&&!p.some(isNaN)){
+      if(p[0]<lastT||!live.buf.length||cur.trials.length&&live.buf===cur.trials[cur.trials.length-1].curve)live.buf=[];lastT=p[0];live.buf.push(p);coachTick(p);if(tab==='test'){renderLiveK();drawFV()}}});
+    cr.addEventListener('characteristicvaluechanged',e=>{const p=dec.decode(e.target.value).split(',');if(p[0]==='R'){
+      const curve=live.buf.slice(),dur=curve.length?curve[curve.length-1][0]/1000:0;
+      addTrial({fvc:+p[1],fev1:+p[2],pef:+p[4],dur,curve,quality:p[5],src:'ble'});coachDone()}});
+    d.addEventListener('gattserverdisconnected',()=>{live.connected=false;pill();applyBtn()});
+    await cl.startNotifications();await cr.startNotifications();
+    live.connected=true;live.name=d.name||'';say(L('เชื่อมต่อแล้ว: ','Connected: ')+d.name);pill();applyBtn();
+  }catch(e){say(L('เชื่อมต่อไม่สำเร็จ: ','Connect failed: ')+e.message)}}
+function applyBtn(){$('bleBtn').textContent=live.connected?t('connected'):t('conn');$('bleBtn2').textContent=$('bleBtn').textContent;renderDevice()}
+function pill(){$('devPill').classList.toggle('on',live.connected);$('devPillT').textContent=live.connected?t('readyPill')+(live.name?' · '+live.name:''):t('offPill')}
+$('bleBtn').onclick=$('bleBtn2').onclick=connectBle;
+
+/* ---------- patient coaching screen ---------- */
+let coachOn=false,coachMax=0;
+$('coachBtn').onclick=()=>{coachOn=true;coachMax=0;$('coach').classList.add('on');coachShow(t('coachReady'),0,0,'')};
+$('coachClose').onclick=()=>{coachOn=false;$('coach').classList.remove('on')};
+function coachShow(msg,vol,q,sub){$('coachName').textContent=(P(cur.pid)||{}).name||'';$('coachMsg').textContent=msg;$('coachNum').textContent=vol.toFixed(2)+' L';$('coachBar').style.width=Math.min(100,q/10*100)+'%';$('coachSub').textContent=sub}
+function coachTick(p){if(!coachOn)return;coachMax=Math.max(coachMax,p[1]);coachShow(p[0]<1500?t('coachBlow'):t('coachKeep'),p[2],p[1],fmt(p[0]/1000,1)+' s')}
+function coachDone(){if(!coachOn)return;const x=cur.trials[cur.trials.length-1];coachShow(x&&x.ok?t('coachGood'):t('coachRetry'),x?x.fvc:0,0,x?`FEV1 ${fmt(x.fev1)} L · PEF ${fmt(x.pef,1)} L/s`:'');setTimeout(()=>{if(coachOn)coachShow(t('coachReady'),0,0,'')},4000)}
+
+/* ---------- device / cloud ---------- */
+function renderDevice(){
+  $('devInfo').innerHTML=`<div class="grid3"><div class="kpi"><span>Bluetooth</span><b style="font-size:18px">${live.connected?t('connected')+(live.name?' · '+esc(live.name):''):'–'}</b></div><div class="kpi"><span>${t('hn')}</span><b style="font-size:18px">${esc(cfg.dev||'–')}</b></div></div>`;
+  pill()}
+let cloud=[];
+$('saveC').onclick=()=>{cfg={db:$('c_db').value.trim(),dev:$('c_dev').value.trim(),auth:$('c_auth').value.trim()};save('sp_cfg',cfg);pullCloud()};
+$('pull').onclick=pullCloud;
+async function pullCloud(){
+  if(!cfg.db||!cfg.dev){$('cloudList').innerHTML='';return}
+  try{const u=`${cfg.db.replace(/\/$/,'')}/devices/${encodeURIComponent(cfg.dev)}/sessions.json`+(cfg.auth?`?auth=${cfg.auth}`:'');
+    const j=await (await fetch(u)).json();cloud=Object.values(j||{}).filter(r=>r&&typeof r.fev1==='number').sort((a,b)=>b.ts-a.ts).slice(0,10);
+    $('cloudList').innerHTML=`<table style="margin-top:10px"><tr><th>${t('date')}</th><th>FVC</th><th>FEV1</th><th>PEF</th><th></th></tr>`+cloud.map((r,i)=>`<tr><td>${fdate(r.ts)}</td><td>${fmt(r.fvc)}</td><td>${fmt(r.fev1)}</td><td>${fmt(r.pef,1)}</td><td><button class="b" data-i="${i}" style="padding:3px 9px">${t('use')}</button></td></tr>`).join('')+'</table>';
+    $('cloudList').querySelectorAll('button').forEach(b=>b.onclick=()=>{const r=cloud[+b.dataset.i];if(!P(cur.pid)){alert(t('pickP'));return}addTrial({fvc:r.fvc,fev1:r.fev1,pef:r.pef,dur:(r.dur_ms||0)/1000,src:'cloud'});setTab('test')})}
+  catch(e){$('cloudList').innerHTML=`<p class="note">offline: ${esc(e.message)}</p>`}}
+
+/* ---------- boot ---------- */
+function render(){pill();({test:renderTest,patients:renderPatients,reports:renderReports,device:renderDevice})[tab]()}
+$('lang').onclick=()=>{lang=lang==='th'?'en':'th';localStorage.sp_lang=lang;applyText()};
+$('theme').onclick=()=>{const r=document.documentElement;r.dataset.theme=r.dataset.theme==='dark'?'light':'dark';localStorage.sp_th=r.dataset.theme;render()};
+if(localStorage.sp_th)document.documentElement.dataset.theme=localStorage.sp_th;
+addEventListener('resize',()=>{if(tab==='test')drawFV()});
+if('serviceWorker' in navigator&&location.protocol.startsWith('http'))navigator.serviceWorker.register('sw.js').catch(()=>{});
+/* ?demo : fill a throw-away example (not saved) so the screens can be reviewed */
+if(/[?&]demo/.test(location.search)){
+  patients=[{id:'d1',hn:'HN-0001',name:'ตัวอย่าง ผู้ป่วย',sex:'M',age:45,ht:170,wt:68,smk:'1',pf:3.4,pv:4.2,note:''},{id:'d2',hn:'HN-0002',name:'Example Patient',sex:'F',age:32,ht:160,wt:55,smk:'0',pf:2.9,pv:3.5,note:''}];tests=[];
+  cur={pid:'d1',trials:[],checks:CHECKS.slice(),comment:''};activeP='d1';
+  for(let k=0;k<3;k++){const b=simBlow(patients[0]);b.src='sim';cur.trials.push({...b,ok:judge(b)})}live.buf=cur.trials[2].curve;
+  if(/tab=(\w+)/.test(location.search))tab=RegExp.$1}
+setTab(tab);applyText();pullCloud();
+</script>
+<div class="credit-footer" style="text-align:center;font-size:12px;opacity:.7;padding:18px 0 28px">ออกแบบโดย Tanachat S. (TANACHAT007) · ทีม MEDTHAI · 2026</div>
+</body>
+</html>

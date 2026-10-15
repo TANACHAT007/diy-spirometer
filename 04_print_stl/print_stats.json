@@ -1,5 +1,5 @@
 {
- "model_hash": "74839c0cfa7a",
+ "model_hash": "5cf81b4539ad",
  "parts": [
   {
    "file": "housing_left.stl",
@@ -8,8 +8,8 @@
     153.6,
     169.1
    ],
-   "grams": 71.1,
-   "hours": 4.03,
+   "grams": 72.1,
+   "hours": 4.09,
    "fits_bed": true
   },
   {
@@ -19,8 +19,8 @@
     153.6,
     169.1
    ],
-   "grams": 75.2,
-   "hours": 4.26,
+   "grams": 76.2,
+   "hours": 4.31,
    "fits_bed": true
   },
   {
@@ -32,6 +32,17 @@
    ],
    "grams": 0.7,
    "hours": 0.12,
+   "fits_bed": true
+  },
+  {
+   "file": "button_cap.stl",
+   "dims_mm": [
+    2.7,
+    9.0,
+    9.0
+   ],
+   "grams": 0.2,
+   "hours": 0.09,
    "fits_bed": true
   },
   {
@@ -52,8 +63,8 @@
     54.0,
     125.0
    ],
-   "grams": 45.9,
-   "hours": 2.63,
+   "grams": 46.3,
+   "hours": 2.65,
    "fits_bed": true
   },
   {
@@ -75,7 +86,7 @@
     175.0
    ],
    "grams": 186.6,
-   "hours": 10.45,
+   "hours": 10.44,
    "fits_bed": true
   },
   {
@@ -90,9 +101,9 @@
    "fits_bed": true
   }
  ],
- "total_grams": 468,
- "total_hours": 26.6,
+ "total_grams": 471,
+ "total_hours": 26.9,
  "spools_1kg": 0.52,
- "filament_thb": 361,
+ "filament_thb": 363,
  "note": "estimate: PETG 1.27 g/cm3, infill 30%, 4 walls, +10 % waste; slice in Bambu Studio to confirm"
 }

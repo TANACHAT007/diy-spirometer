@@ -216,6 +216,7 @@ CONTACT_W = tuple(c_[0] for c_ in CONTACTS)
 MAG_GRIP = (25.0, 4.0)                                                   # (w, y) dock alignment magnet
 MAG_TOP = [(x, s * 20.6) for x in (32.0, 143.0) for s in (-1, 1)]        # cover magnets 5 x 2
 USB_Y, USB_W = XIAO_Y0 + 1.2 + 1.6, XIAO_W0 + 8.9                         # USB-C centre on the grip end
+LUG_C, LUG_D, GROOVE_X = (168.0, 7.5), 4.5, (100.0, 105.5, 111.0)       # wrist-strap hole (u, w) through both halves; 3 decorative ring grooves on the sleeve
 BZ_OD, BZ_H, BZ_SUNK = 39.0, 1.2, 0.6                                          # white display bezel: OD, height above the wall, tongue sunk into the wall
 SPK_C, SPK_D, SPK_T = (78.0, 25.0), 16.0, 3.5                            # round speaker on the RIGHT wall (u, w) above the battery, clear of the dock collar; sound out through 19 holes
 AMP_U0, AMP_W0, AMP_UL, AMP_WD = 151.0, 20.0, 19.0, 17.8                  # MAX98357A I2S amp board 19 x 17.8, slides onto rails on the LEFT wall
@@ -224,6 +225,14 @@ AMP_Y0 = -YI + 1.8                                                       # pcb y
 
 def pad(i, upper):                             # XIAO castellated pad i (0 = USB end) top-surface point
     return XIAO_U1 - (2.9 + 2.54 * i), (XIAO_W0 + 17.4 if upper else XIAO_W0 + 0.4)
+
+
+def ring_grooves(comp, body):
+    """3 fine ring grooves (0.8 wide x 0.8 deep) around the sleeve: shadow lines that continue across housing and cover."""
+    for gx in GROOVE_X:
+        t = cyl_x(comp, 'tmp_g', gx - 0.4, 0, 0, SLV_OD + 3.0, 0.8, None)
+        cut_with(comp, t, cyl_x(comp, 'tmp_gi', gx - 0.5, 0, 0, SLV_OD - 1.6, 1.0, None))
+        cut_with(comp, body, t)
 
 
 # ---------------------------------------------------------------- housing halves
@@ -263,6 +272,11 @@ def housing_half(side):
     # screw bosses (through the cavity, half each)
     for k, (x, z) in enumerate(SCREWS):
         join(c, b, cyl_y(c, f'boss{k}', x, y0, z, 8, YI + 0.9, 'lilac'))
+    # wrist-strap lug: boss (stops at the inner wall face so it never bulges through the rounded edge) + hole through both halves
+    lx, lz = xz(*LUG_C)
+    join(c, b, cyl_y(c, 'lug_boss', lx, -YI if side < 0 else 0.0, lz, 8.5, YI, 'lilac'))
+    drill(c, b, 'y', lx, lz, -BODY_T / 2 - 1, BODY_T / 2 + 1, LUG_D)
+    ring_grooves(c, b)
     # slot for the flow-tube manifold block (it drops in / lifts out with the tube)
     cut_with(c, b, box(c, 'tmp_mslot', MB_X0 - 0.5, -MB_HW - 0.5, -28.0, MB_X1 - MB_X0 + 1.0, 2 * MB_HW + 1.0, 12.0, None))
     # sensor carrier rails + end stops (pcb z -46..-44.4, |y| <= 7)
@@ -358,6 +372,12 @@ bz = cyl_y(BZ, 'print_bezel', DISP_C[0], -BODY_T / 2 - BZ_H, DISP_C[1], BZ_OD, B
 cut_with(BZ, bz, cyl_y(BZ, 'tmp_bz_in', DISP_C[0], -BODY_T / 2 - BZ_H - 0.5, DISP_C[1], 33.4, BZ_H + BZ_SUNK + 1.0, None))
 round_plane(BZ, bz, 'y', -BODY_T / 2 - BZ_H, 0.5)
 
+# ---------------------------------------------------------------- button cap (white dome, press-fit on the tact stem + a drop of glue)
+BC = new_comp('Button_Cap')
+bc = cyl_y(BC, 'print_button_cap', BTN_C[0], -BODY_T / 2 - 3.0, BTN_C[1], 9.0, 2.7, 'white')       # y -18.0 .. -15.3 (0.3 above the wall)
+round_plane(BC, bc, 'y', -BODY_T / 2 - 3.0, 1.4)
+cut_with(BC, bc, cyl_y(BC, 'tmp_sock', BTN_C[0], -BODY_T / 2 - 1.8, BTN_C[1], 3.4, 1.6, None))      # socket y -16.8 .. -15.2 for the 3.5 stem (tip at -15.8)
+
 # ---------------------------------------------------------------- flow tube (white, lifts out for washing)
 FT = new_comp('Flow_Tube')
 # stop rings (OD 42) outside both sleeve ends: the tube can't slide when the cover is on; it still lifts straight up.
@@ -409,6 +429,7 @@ drill(TC, cv, 'x', 0, 0, SLV_X0 - 5, SLV_X1 + 5, BORE)
 cut_with(TC, cv, box(TC, 'tmp_low', SLV_X0 - 5, -40, -40, SLV_X1 - SLV_X0 + 10, 80, 40, None))
 for x, y in MAG_TOP:
     drill(TC, cv, 'z', x, y, -0.5, 2.1, 5.2)
+ring_grooves(TC, cv)
 
 MG = new_comp('Magnets_5x2')
 for i, (x, y) in enumerate(MAG_TOP):

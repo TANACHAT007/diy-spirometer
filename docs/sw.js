@@ -1,5 +1,5 @@
 // network-first, falls back to the cached copy so the dashboard (and its saved results, which live in localStorage) opens offline
-const C = 'spiro-v1', FILES = ['dashboard.html', 'manifest.webmanifest', 'icon-192.png'];
+const C = 'spiro-v2', FILES = ['dashboard.html', 'clinic.html', 'manifest.webmanifest', 'icon-192.png'];
 self.addEventListener('install', e => { e.waitUntil(caches.open(C).then(c => c.addAll(FILES)).then(() => self.skipWaiting())); });
 self.addEventListener('activate', e => { e.waitUntil(self.clients.claim()); });
 self.addEventListener('fetch', e => {

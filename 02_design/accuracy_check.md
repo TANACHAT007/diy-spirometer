@@ -23,3 +23,9 @@ Model: Q = K·√ΔP, K ≈ 0.705 L/s/√Pa (Cd 0.97, β = 0.82) — ต้อ�
 ## ต้องวัดจริงก่อนอ้างค่า
 - syringe 3 L ×5 ความเร็วต่าง → ค่า K, ความคลาดเคลื่อน %
 - zero drift 10 นาที, ทดสอบรั่วที่ tap, ความซ้ำได้ (CV)
+
+## Tail truncation of FVC (found 2026-10-15)
+The firmware ends a test when flow stays below 0.25 L/s for 1 s (the 0.15 Pa deadband already zeroes flow below ~0.27 L/s). For a healthy blow with a slow tail
+(3-exponential model: FVC 4.0 L, FEV1 2.9 L, PEF 10 L/s) the volume at the cut is 3.52 L, i.e. **FVC reads ~12 % low and FEV1/FVC reads 0.83 instead of 0.73**:
+obstruction could be masked. v1.2 firmware estimates the tail as q_cut x tau (exponential fitted over the last second above the cut), capped at 0.5 L / 15 % of the volume.
+This is an unvalidated correction; verify with the 3 L syringe and a healthy volunteer against a reference spirometer before trusting the ratio.
