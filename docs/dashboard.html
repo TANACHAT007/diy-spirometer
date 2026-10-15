@@ -83,13 +83,13 @@ button.pri{background:var(--acc)!important;color:#fff;border-color:var(--acc);te
   
   <section class="card" id="overviewCard" hidden><div class="k" id="t_over">ภาพรวมทุกเครื่อง (ครู-แพทย์)</div><div style="overflow:auto"><table id="over"></table></div></section>
   <section class="card" id="ble"><div class="row"><div class="k" style="margin-right:auto" id="t_ble">เป่าสดผ่านบลูทูธ (Bluetooth)</div><button id="bleBtn" class="pri">เชื่อมต่อเครื่อง</button></div>
-    <canvas id="bleCv" width="900" height="170"></canvas><p class="note" id="bleMsg">ต้องใช้เบราว์เซอร์ที่รองรับ Web Bluetooth (Chrome/Edge บนคอม/Android) และเปิดหน้านี้จากเว็บที่โฮสต์เอง ไม่ใช่ในกรอบพรีวิว ยังไม่ได้ทดสอบกับเครื่องจริง</p>
+    <canvas id="bleCv" width="900" height="170"></canvas><p class="note" id="bleMsg">ต้องใช้เบราว์เซอร์ที่รองรับ Web Bluetooth (Chrome/Edge บนคอม/Android) และเปิดหน้านี้จากเว็บที่โฮสต์เอง ไม่ใช่ในกรอบพรีวิว ผลการเป่าที่รับผ่านบลูทูธจะถูกบันทึกในเบราว์เซอร์นี้ (ไม่ต้องมีฐานข้อมูล) ยังไม่ได้ทดสอบกับเครื่องจริง</p>
     <div class="row"><span class="k">FVC</span><b id="bFvc">–</b><span class="k">FEV1</span><b id="bFev">–</b><span class="k">PEF</span><b id="bPef">–</b></div></section>
   <div class="grid" id="kpis"></div>
   <section class="card"><div class="k" id="t_trend">แนวโน้ม FEV1 / FVC</div><canvas id="chart"></canvas></section>
   <section class="card"><div class="k" id="t_hist">ประวัติการเป่า</div>
     <div style="overflow:auto"><table id="tbl"></table></div>
-    <p><button id="csv">Copy CSV</button> <span class="note" id="status"></span></p>
+    <p><button id="csv">CSV</button> <span class="note" id="status"></span></p>
   </section>
   <p class="note" id="demoNote" hidden>ข้อมูลตัวอย่างที่สร้างขึ้นเพื่อแสดงหน้าจอ ไม่ใช่ผลของคนจริง / Example data only</p>
   <p class="note" id="t_disc"></p>
@@ -141,7 +141,7 @@ async function load(){
     $('status').textContent='demo';$('demoNote').hidden=false;fillSel();return}
   $('demoNote').hidden=true;
   const ids=devList();
-  if(!cfg.db||!ids.length){$('status').textContent=tt('nodata');$('cfg').style.display='grid';return}
+  if(!cfg.db||!ids.length){byDev={};$('status').textContent='local';fillSel();if(!localRows().length){$('status').textContent=tt('nodata')}return}
   try{const out={};
     for(const id of ids){const u=`${cfg.db.replace(/\/$/,'')}/devices/${encodeURIComponent(id)}/sessions.json`+(cfg.auth?`?auth=${cfg.auth}`:'');
       const j=await (await fetch(u)).json();
@@ -157,12 +157,15 @@ $('lang').onclick=()=>{lang=lang==='th'?'en':'th';localStorage.lang=lang;applyTe
 $('theme').onclick=()=>{const r=document.documentElement;r.dataset.theme=r.dataset.theme==='dark'?'':'dark';localStorage.th=r.dataset.theme;draw()};
 $('role').onchange=()=>{$('gear').style.display=$('role').value==='doctor'?'':'none';renderOverview()};
 $('csv').onclick=async()=>{const t='time,fev1_L,fvc_L,ratio_pct,pef_Lps,bat\n'+rows.map(r=>[new Date(r.ts).toISOString(),r.fev1,r.fvc,r.ratio,r.pef,r.bat??''].join(',')).join('\n');
-  try{await navigator.clipboard.writeText(t);$('status').textContent='copied CSV'}catch(e){$('status').textContent='copy blocked'}};
+  try{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([t],{type:'text/csv'}));a.download='spirometer.csv';a.click();$('status').textContent='CSV'}
+  catch(e){try{await navigator.clipboard.writeText(t);$('status').textContent='copied CSV'}catch(e2){$('status').textContent='copy blocked'}}};
 if(localStorage.th)document.documentElement.dataset.theme=localStorage.th;
 $('c_db').value=cfg.db||'';$('c_dev').value=cfg.dev||'';$('c_auth').value=cfg.auth||'';$('c_pred').value=cfg.pred||'';
 
 /* ---------- multi-device + doctor overview ---------- */
 let byDev={};
+function localRows(){try{return JSON.parse(localStorage.localSessions||'[]')}catch(e){return []}}
+function saveLocal(r){try{const a=localRows();a.push(r);localStorage.localSessions=JSON.stringify(a.slice(-500))}catch(e){}}
 function devList(){return (cfg.dev||'').split(',').map(s=>s.trim()).filter(Boolean)}
 function renderOverview(){
   const card=$('overviewCard'),doc=$('role').value==='doctor';card.hidden=!doc;if(!doc)return;
@@ -173,7 +176,7 @@ function renderOverview(){
   $('over').innerHTML=h;
   $('over').querySelectorAll('tr[data-dev]').forEach(tr=>tr.onclick=()=>{$('devSel').value=tr.dataset.dev;pickDev()})}
 function pickDev(){rows=byDev[$('devSel').value]||[];render()}
-function fillSel(){const s=$('devSel'),ids=Object.keys(byDev),cur=s.value;
+function fillSel(){const L=localRows();if(L.length&&!demo)byDev={...byDev,'local-ble':L};const s=$('devSel'),ids=Object.keys(byDev),cur=s.value;
   s.innerHTML=ids.map(i=>`<option>${i}</option>`).join('');if(ids.includes(cur))s.value=cur;s.hidden=ids.length<2;pickDev();renderOverview()}
 /* ---------- Web Bluetooth live view (UUIDs match the firmware) ---------- */
 const NUS='6e400001-b5a3-f393-e0a9-e50e24dcca9e',LIVE_C='6e400002-b5a3-f393-e0a9-e50e24dcca9e',RES_C='6e400003-b5a3-f393-e0a9-e50e24dcca9e';
@@ -191,7 +194,7 @@ $('bleBtn').onclick=async()=>{
     const s=await (await d.gatt.connect()).getPrimaryService(NUS);
     const cl=await s.getCharacteristic(LIVE_C),cr=await s.getCharacteristic(RES_C),dec=new TextDecoder();
     cl.addEventListener('characteristicvaluechanged',e=>{const p=dec.decode(e.target.value).split(',').map(Number);if(p.length>=3){bl.push([p[0],p[1],p[2]]);bleDraw();$('bFvc').textContent=p[2].toFixed(2)+' L'}});
-    cr.addEventListener('characteristicvaluechanged',e=>{const p=dec.decode(e.target.value).split(',');if(p[0]==='R'){$('bFvc').textContent=(+p[1]).toFixed(2)+' L';$('bFev').textContent=(+p[2]).toFixed(2)+' L';$('bPef').textContent=(+p[4]).toFixed(1)+' L/s'}});
+    cr.addEventListener('characteristicvaluechanged',e=>{const p=dec.decode(e.target.value).split(',');if(p[0]==='R'){$('bFvc').textContent=(+p[1]).toFixed(2)+' L';$('bFev').textContent=(+p[2]).toFixed(2)+' L';$('bPef').textContent=(+p[4]).toFixed(1)+' L/s';saveLocal({ts:Date.now(),fvc:+p[1],fev1:+p[2],ratio:+p[3],pef:+p[4]});if(!cfg.db)load()}});
     await cl.startNotifications();await cr.startNotifications();bl=[];bleDraw();
     m.textContent='เชื่อมต่อแล้ว: '+d.name+' — กดปุ่มที่เครื่องแล้วเป่า';$('bleBtn').textContent='เชื่อมต่อแล้ว';
   }catch(e){m.textContent='เชื่อมต่อไม่สำเร็จ: '+e.message}};
