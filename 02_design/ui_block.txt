@@ -1,0 +1,110 @@
+
+// ================= disposable mouthpiece life (plant-based PLA, one person; replace after 20 blows or 7 days) =========
+const uint16_t MP_MAX_USES = 20;
+const uint8_t MP_MAX_DAYS = 7;
+uint16_t mpUses = 0; uint32_t mpStart = 0;     // blows since "new mouthpiece", epoch of the first blow (0 = clock unknown)
+int volPct = 40;                               // speaker volume 0..100 (serial "vol 40")
+bool clockOk() { return time(nullptr) > 1700000000; }
+int mpDays() { return (mpStart && clockOk()) ? (int)((time(nullptr) - mpStart) / 86400) : 0; }
+bool mpExpired() { return mpUses >= MP_MAX_USES || mpDays() >= MP_MAX_DAYS; }
+void mpSave() { prefs.begin("spiro", false); prefs.putUShort("mpn", mpUses); prefs.putUInt("mps", mpStart); prefs.putInt("vol", volPct); prefs.end(); }
+void mpNew() { mpUses = 0; mpStart = 0; mpSave(); }
+void mpCount() { mpUses++; if (!mpStart && clockOk()) mpStart = time(nullptr); mpSave(); }
+
+#if HAS_UI
+// ================= speaker: MAX98357A over I2S, sine + 2nd harmonic with fade in/out (soft, not a raw buzzer) ==========
+const int SR = 16000;
+void audioInit() {
+  i2s_config_t c = {};
+  c.mode = (i2s_mode_t)(I2S_MODE_MASTER | I2S_MODE_TX); c.sample_rate = SR;
+  c.bits_per_sample = I2S_BITS_PER_SAMPLE_16BIT; c.channel_format = I2S_CHANNEL_FMT_ONLY_LEFT;
+  c.communication_format = I2S_COMM_FORMAT_STAND_I2S; c.intr_alloc_flags = ESP_INTR_FLAG_LEVEL1;
+  c.dma_buf_count = 4; c.dma_buf_len = 256; c.use_apll = false; c.tx_desc_auto_clear = true;
+  i2s_driver_install(I2S_NUM_0, &c, 0, NULL);
+  i2s_pin_config_t p = {};
+  p.mck_io_num = I2S_PIN_NO_CHANGE; p.bck_io_num = I2S_BCLK; p.ws_io_num = I2S_LRC;
+  p.data_out_num = I2S_DIN; p.data_in_num = I2S_PIN_NO_CHANGE;
+  i2s_set_pin(I2S_NUM_0, &p);
+}
+void playTone(float f, int ms) {
+  if (volPct <= 0) return;
+  int n = SR / 1000 * ms; int16_t buf[256]; size_t w;
+  for (int i = 0; i < n;) {
+    int m = min(256, n - i);
+    for (int k = 0; k < m; k++) {
+      float t = (float)(i + k) / SR;
+      float env = min(1.0f, min((i + k) / (0.012f * SR), (n - i - k) / (0.030f * SR)));
+      buf[k] = (int16_t)((sinf(6.2832f * f * t) * 0.8f + sinf(12.566f * f * t) * 0.12f) * env * (volPct / 100.0f) * 24000.0f);
+    }
+    i2s_write(I2S_NUM_0, buf, m * 2, &w, portMAX_DELAY);
+    i += m;
+  }
+  i2s_zero_dma_buffer(I2S_NUM_0);
+}
+void sndReady() { playTone(523, 110); playTone(659, 110); playTone(784, 160); }          // C5 E5 G5: start blowing
+void sndDone()  { playTone(784, 120); playTone(1047, 220); }                              // test finished
+void sndGood()  { playTone(523, 90); playTone(659, 90); playTone(784, 90); playTone(1047, 240); }
+void sndLow()   { playTone(392, 160); playTone(330, 160); playTone(262, 300); }           // lower result: calm descending, not an alarm
+void sndWarn()  { for (int i = 0; i < 3; i++) { playTone(440, 120); delay(90); } }         // change mouthpiece / low battery
+void sndClick() { playTone(880, 40); }
+
+// ================= round display GC9A01 (LovyanGFX, 3-wire: CS tied low, RST tied high) =========
+class LGFX : public lgfx::LGFX_Device {
+  lgfx::Panel_GC9A01 _panel; lgfx::Bus_SPI _bus;
+ public:
+  LGFX() {
+    auto b = _bus.config();
+    b.spi_host = SPI2_HOST; b.spi_mode = 0; b.freq_write = 40000000; b.freq_read = 0;
+    b.pin_sclk = TFT_SCK; b.pin_mosi = TFT_MOSI; b.pin_miso = -1; b.pin_dc = TFT_DC;
+    _bus.config(b); _panel.setBus(&_bus);
+    auto p = _panel.config();
+    p.pin_cs = -1; p.pin_rst = -1; p.panel_width = 240; p.panel_height = 240; p.invert = true; p.readable = false;
+    _panel.config(p); setPanel(&_panel);
+  }
+} tft;
+const uint16_t SKY = 0x5D7C, OKC = 0x2EC9, WARNC = 0xFD20, BADC = 0xF9A6, DIM = 0x7BEF;   // sky-blue, green, amber, red, grey (RGB565)
+void uiRing(uint16_t c) { tft.fillArc(120, 120, 117, 112, 0, 360, c); }
+void uiMsg(const char* a, const char* b, uint16_t c) {
+  tft.fillScreen(TFT_BLACK); uiRing(c); tft.setTextDatum(middle_center);
+  tft.setTextColor(c); tft.setFont(&fonts::FreeSansBold18pt7b); tft.drawString(a, 120, 100);
+  tft.setTextColor(TFT_WHITE); tft.setFont(&fonts::FreeSans12pt7b); tft.drawString(b, 120, 145);
+}
+void uiIdle(float bat) {
+  tft.fillScreen(TFT_BLACK); uiRing(mpExpired() ? WARNC : SKY); tft.setTextDatum(middle_center);
+  tft.setTextColor(DIM); tft.setFont(&fonts::FreeSans9pt7b); tft.drawString("SPIROMETER", 120, 52);
+  tft.setTextColor(TFT_WHITE); tft.setFont(&fonts::FreeSansBold24pt7b); tft.drawString("READY", 120, 105);
+  tft.setFont(&fonts::FreeSans9pt7b); tft.setTextColor(bleOn ? SKY : DIM); tft.drawString(bleOn ? "Bluetooth connected" : "press to blow", 120, 140);
+  char s[40]; snprintf(s, sizeof s, "mouthpiece %u/%u", mpUses, MP_MAX_USES);
+  tft.setTextColor(mpExpired() ? WARNC : DIM); tft.drawString(mpExpired() ? "CHANGE MOUTHPIECE" : s, 120, 170);
+  snprintf(s, sizeof s, "battery %.0f%%", bat);
+  tft.setTextColor(bat < 15 ? BADC : DIM); tft.drawString(s, 120, 192);
+}
+void uiTest(float q, float vol) {
+  static uint32_t last = 0; if (millis() - last < 90) return; last = millis();
+  float f = constrain(q / 12.0f, 0, 1);
+  tft.fillArc(120, 120, 117, 108, 135, 135 + 270, 0x2104);
+  if (f > 0.01f) tft.fillArc(120, 120, 117, 108, 135, 135 + 270 * f, SKY);
+  tft.fillRect(40, 70, 160, 100, TFT_BLACK); tft.setTextDatum(middle_center);
+  char s[24]; snprintf(s, sizeof s, "%.2f", vol);
+  tft.setTextColor(TFT_WHITE); tft.setFont(&fonts::FreeSansBold24pt7b); tft.drawString(s, 120, 105);
+  tft.setFont(&fonts::FreeSans12pt7b); tft.setTextColor(DIM); tft.drawString("litres", 120, 140);
+  snprintf(s, sizeof s, "%.1f L/s", q); tft.drawString(s, 120, 165);
+}
+void uiResult(const Result& r, const char* qual, char g) {
+  uint16_t c = strcmp(qual, "ok") ? WARNC : (r.ratio >= 70 ? OKC : WARNC);
+  tft.fillScreen(TFT_BLACK); uiRing(c); tft.setTextDatum(middle_center); char s[40];
+  tft.setFont(&fonts::FreeSans9pt7b); tft.setTextColor(DIM); tft.drawString("FEV1", 120, 45);
+  tft.setFont(&fonts::FreeSansBold24pt7b); tft.setTextColor(TFT_WHITE); snprintf(s, sizeof s, "%.2f L", r.fev1); tft.drawString(s, 120, 80);
+  tft.setFont(&fonts::FreeSans12pt7b); tft.setTextColor(SKY);
+  snprintf(s, sizeof s, "FVC %.2f L", r.fvc); tft.drawString(s, 120, 125);
+  snprintf(s, sizeof s, "FEV1/FVC %.0f%%", r.ratio); tft.drawString(s, 120, 150);
+  snprintf(s, sizeof s, "PEF %.1f L/s", r.pef); tft.drawString(s, 120, 175);
+  tft.setFont(&fonts::FreeSans9pt7b); tft.setTextColor(c);
+  snprintf(s, sizeof s, "quality %s  grade %c", qual, g); tft.drawString(s, 120, 200);
+}
+void uiInit() { tft.init(); tft.setRotation(0); tft.setBrightness(200); tft.fillScreen(TFT_BLACK); }
+#else
+void uiMsg(const char*, const char*, uint16_t) {}
+void sndReady() {} void sndDone() {} void sndGood() {} void sndLow() {} void sndWarn() {} void sndClick() {}
+#endif
+

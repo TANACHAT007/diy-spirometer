@@ -10,7 +10,8 @@ Device (XIAO ESP32-S3 + SDP810-500Pa venturi) → **BLE** live curve, **Wi-Fi �
 | LED (+330 Ω) | D2 (GPIO3) |
 | Battery sense | D0 (GPIO1) via 2 × 100 k divider from BAT+ |
 | LiPo 603450 | BAT+/BAT− pads (on-board charger) |
-| GC9A01 display (optional, SPI) | not in this firmware yet |
+| GC9A01 round display (SPI, 3 wires) | SCK D8 (GPIO7), MOSI D10 (GPIO9), DC D9 (GPIO8); CS → GND, RST → 3V3, BL → 3V3, VCC 3V3 |
+| MAX98357A I2S amp + 16 mm speaker | BCLK D3 (GPIO4), LRC D6 (GPIO43), DIN D7 (GPIO44), VIN 3V3, GND; speaker to the amp's +/− |
 
 ## Upload + configure
 1. Arduino IDE / `arduino-cli`, board `XIAO_ESP32S3`, open `diy_spirometer/diy_spirometer.ino`.
@@ -43,3 +44,13 @@ Compiled only; **not tested on hardware**. Pin map assumed from the XIAO ESP32-S
 - C3 คอร์เดียว 160 MHz: การสุ่ม 400 Hz ใน `runTest()` ทำได้ แต่ห้ามอัปโหลด/ซิงก์ระหว่างเป่า (โค้ดอัปโหลดหลังเป่าเสร็จอยู่แล้ว); จอ GC9A01 แบบเฟรมเต็มอาจกวนจังหวะ → วาดเฉพาะตอนไม่เป่า
 - ฟังก์ชันเพิ่มที่ใส่แล้ว: deadband ลมเบา, ตัดสินคุณภาพ (สั้น/อ่อน), เกรดความซ้ำได้ A/C (3 ครั้ง ต่างกัน ≤0.15 L), คิวออฟไลน์ 20 รายการเก็บใน flash แล้วส่งเมื่อออนไลน์, LED เตือนแบตต่ำ
 - ยังไม่ได้ทำ: OTA, Wi-Fi provisioning ผ่านมือถือ, แปลง BTPS, ค่าอ้างอิง (GLI-2012 % predicted), หน้าจอ
+
+
+## Display, speaker, disposable mouthpiece (v1.1, ESP32-S3 only — compiles, not tested on hardware)
+- Display (LovyanGFX): READY screen, live flow arc + volume while blowing, result screen (FEV1/FVC/ratio/PEF, quality, grade). English labels (built-in fonts have no Thai).
+- Speaker: soft sine tones over I2S (start chime, finish, good/low result, mouthpiece/battery warning). `vol 0-100` over serial, saved in flash.
+- Mouthpiece life: counts blows and days since first blow (needs Wi-Fi/NTP clock for days). Warns at **20 blows or 7 days** (advice only, test still runs). Reset: hold the button **4 s** (screen says NEW mouthpiece) or serial `mp new`. The count is uploaded as `mp` in each session.
+- Button: tap = test, hold 1.5 s = zero, hold 4 s = new mouthpiece.
+- Display redraw during a blow is throttled to ~11 Hz; the 400 Hz sample clock catches up so the volume integral is not lost, but flow samples can be stale by a few ms while the screen is drawing — check against the 3 L syringe.
+- ESP32-C3 build keeps the old behaviour (no display/speaker; too few free pins).
+- Library needed: **LovyanGFX** (Library Manager). Arduino-ESP32 core 2.0.x (legacy `driver/i2s.h`).

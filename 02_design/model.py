@@ -157,6 +157,7 @@ def custom_color(key, rgb, base=('Plastic - Glossy (White)', 'Plastic - Matte (W
 
 
 custom_color('lilac', (95, 170, 230))   # medical sky-blue (key name kept so the whole model re-colours)
+custom_color('leaf', (150, 195, 105))   # plant-based PLA mouthpiece (disposable)
 
 # ---------------------------------------------------------------- body outline (side profile in x-z)
 T_PT, A_PT, Q_PT = (150.0, -8.0), (150.0, -24.0), (130.0, -28.0)
@@ -215,6 +216,9 @@ CONTACT_W = tuple(c_[0] for c_ in CONTACTS)
 MAG_GRIP = (25.0, 4.0)                                                   # (w, y) dock alignment magnet
 MAG_TOP = [(x, s * 20.6) for x in (32.0, 143.0) for s in (-1, 1)]        # cover magnets 5 x 2
 USB_Y, USB_W = XIAO_Y0 + 1.2 + 1.6, XIAO_W0 + 8.9                         # USB-C centre on the grip end
+SPK_C, SPK_D, SPK_T = (78.0, 25.0), 16.0, 3.5                            # round speaker on the RIGHT wall (u, w) above the battery, clear of the dock collar; sound out through 19 holes
+AMP_U0, AMP_W0, AMP_UL, AMP_WD = 151.0, 20.0, 19.0, 17.8                  # MAX98357A I2S amp board 19 x 17.8, slides onto rails on the LEFT wall
+AMP_Y0 = -YI + 1.8                                                       # pcb y -10.8..-9.6, chip side toward the wall
 
 
 def pad(i, upper):                             # XIAO castellated pad i (0 = USB end) top-surface point
@@ -316,7 +320,23 @@ def housing_half(side):
                 lw0 = lip_w - 0.3 if lip_w == XIAO_W0 else lip_w
                 join(c, b, gbox(c, 'xrail_lip', u0, XIAO_Y0 + 1.4, lw0, du, 1.4, 1.2, 'lilac'))
         join(c, b, gbox(c, 'xstop', XIAO_U1 - 23.0, yw, XIAO_W0, 2.0, XIAO_Y0 + 2.8 - yw, 17.8, 'lilac'))
+        # I2S amp board: slides along u onto two rails with lips over the pcb edges, end stop at the XIAO side
+        for w_side, w_lip in ((AMP_W0 - 1.6, AMP_W0 - 1.6), (AMP_W0 + AMP_WD, AMP_W0 + AMP_WD - 1.0)):
+            join(c, b, gbox(c, 'amp_rail', AMP_U0, yw, w_side, AMP_UL, AMP_Y0 + 2.4 - yw, 1.6, 'lilac'))
+            join(c, b, gbox(c, 'amp_lip', AMP_U0, AMP_Y0 + 1.2, w_lip, AMP_UL, 1.2, 2.6, 'lilac'))
+        for w0 in (AMP_W0, AMP_W0 + AMP_WD - 4.0):
+            join(c, b, gbox(c, 'amp_stop', AMP_U0 + AMP_UL, yw, w0, 1.6, AMP_Y0 + 2.4 - yw, 4.0, 'lilac'))
     else:
+        # speaker seat: ring boss on the wall, 3 retaining lips, 19 sound holes through the wall
+        sx, sz = xz(*SPK_C)
+        join(c, b, cyl_y(c, 'spk_ring', sx, YI - 4.4, sz, SPK_D + 4.2, 4.4 + 0.3, 'lilac'))
+        cut_with(c, b, cyl_y(c, 'tmp_spk', sx, YI - 4.6, sz, SPK_D + 0.6, 4.6, None))
+        rr0, rr1 = SPK_D / 2 - 1.0, SPK_D / 2 + 1.4
+        join(c, b, box(c, 'spk_lip', sx + rr0, YI - 4.4, sz - 1.5, rr1 - rr0, 0.7, 3.0, 'lilac'))
+        join(c, b, box(c, 'spk_lip', sx - rr1, YI - 4.4, sz - 1.5, rr1 - rr0, 0.7, 3.0, 'lilac'))
+        join(c, b, box(c, 'spk_lip', sx - 1.5, YI - 4.4, sz - rr1, 3.0, 0.7, rr1 - rr0, 'lilac'))
+        for hx, hz in [(0.0, 0.0)] + [(3.0 * math.cos(k * math.pi / 3), 3.0 * math.sin(k * math.pi / 3)) for k in range(6)] +                       [(5.4 * math.cos(k * math.pi / 6 + 0.26), 5.4 * math.sin(k * math.pi / 6 + 0.26)) for k in range(12)]:
+            drill(c, b, 'y', sx + hx, sz + hz, YI - 0.2, BODY_T / 2 + 1, 1.4)
         # battery cradle: side walls + lips over the pouch edges, end stops leave the leads free
         for w_side, w_lip in ((BAT_W0 - 1.6, BAT_W0 - 1.6), (BAT_W0 + 34, BAT_W0 + 33)):
             join(c, b, gbox(c, 'bat_side', BAT_U0 + 2, BAT_Y0 - 1.2, w_side, 46, YI + 0.3 - BAT_Y0 + 1.2, 1.6, 'lilac'))
@@ -387,7 +407,7 @@ for i, (x, y) in enumerate(MAG_TOP):
     cyl_z(MG, f'magnet_low_{i}', x, y, -2.0, 5.0, 2.0, 'steel')
     cyl_z(MG, f'magnet_up_{i}', x, y, 0.0, 5.0, 2.0, 'steel')
 
-# ---------------------------------------------------------------- mouthpiece (personal, washable)
+# ---------------------------------------------------------------- mouthpiece (DISPOSABLE: plant-based PLA, replace every user / 7 days / 20 blows)
 MP = new_comp('Mouthpiece')
 
 
@@ -408,8 +428,8 @@ def loft2(comp, name, x1, r1, x2, ra, rb, color):
 
 
 try:
-    mp = cyl_x(MP, 'print_mouthpiece', 0, 0, 0, D_SOCK - 0.4, 20, 'white')
-    join(MP, mp, loft2(MP, 'mp_loft', 0.5, (D_SOCK - 0.4) / 2, -30, 17, 11, 'white'))
+    mp = cyl_x(MP, 'print_mouthpiece', 0, 0, 0, D_SOCK - 0.4, 20, 'leaf')
+    join(MP, mp, loft2(MP, 'mp_loft', 0.5, (D_SOCK - 0.4) / 2, -30, 17, 11, 'leaf'))
     cut_with(MP, mp, cyl_x(MP, 'tmp_in', -0.5, 0, 0, 26, 21, None))
     cut_with(MP, mp, loft2(MP, 'tmp_in2', 0.5, 13, -31, 15, 9, None))
 except Exception as ex:
@@ -476,6 +496,27 @@ cyl_y(LD, 'E6_led_body', LED_C[0], -BODY_T / 2 - 1.4, LED_C[1], 3.0, 4.8, 'green
 cyl_y(LD, 'E6_led_flange', LED_C[0], -YI, LED_C[1], 3.8, 1.0, 'green')
 for dx in (-1.27, 1.27):
     cyl_y(LD, 'E6_led_leg', LED_C[0] + dx, -YI + 1.0, LED_C[1], 0.5, 6, 'steel')
+
+# E8 speaker 16 mm (front on the wall, sound through the holes) + E9 MAX98357A I2S amp
+SP = new_comp('E8_Speaker_16mm')
+spx, spz = xz(*SPK_C)
+cyl_y(SP, 'E8_spk_basket', spx, YI - 2.6, spz, SPK_D, 2.6, 'black')
+cyl_y(SP, 'E8_spk_cone', spx, YI - 0.4, spz, SPK_D - 3.4, 0.4, 'grey')
+cyl_y(SP, 'E8_spk_magnet', spx, YI - SPK_T, spz, 11.0, SPK_T - 2.6, 'steel')
+for dz_ in (-2.5, 2.5):
+    box(SP, 'E8_spk_tab', spx + 6.0, YI - 3.0, spz + dz_ - 0.5, 1.6, 0.4, 1.0, 'brass')
+AM = new_comp('E9_MAX98357A_I2S_Amp')
+box(AM, 'E9_amp_pcb', 0, 0, 0, AMP_WD, AMP_UL, 1.2, 'pcb')
+box(AM, 'E9_amp_chip', AMP_WD / 2 - 1.6, 5.0, -0.9, 3.2, 3.2, 0.9, 'black')
+box(AM, 'E9_amp_screw_term', 2.0, 13.0, 1.2, 8.0, 5.0, 3.0, 'green')
+for k_ in range(5):
+    box(AM, 'E9_amp_pad', 2.0 + 3.2 * k_, AMP_UL - 1.2, 0, 1.6, 1.2, 1.25, 'brass')
+place_cs(AM, G(AMP_U0, AMP_Y0, AMP_W0), N_, D_, (0, 1, 0))
+AWR = new_comp('Wires_Audio')       # I2S pigtails from the amp pads (to XIAO BCLK/LRC/DIN) and speaker leads
+for k_ in range(3):
+    ww_ = AMP_W0 + 2.0 + 3.2 * (k_ + 1)
+    wire(AWR, f'w_i2s_{k_}', [G(AMP_U0 + AMP_UL - 1.0, AMP_Y0 + 0.6, ww_), G(AMP_U0 + AMP_UL + 1.5, AMP_Y0 + 1.6, ww_),
+                              G(AMP_U0 + AMP_UL + 3.0, AMP_Y0 + 2.4, ww_)], 0.9, ('yellow', 'green', 'blue')[k_])
 
 CC = new_comp('Charge_Contacts')
 for w, cy in CONTACTS:
