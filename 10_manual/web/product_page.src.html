@@ -215,15 +215,15 @@ footer{padding-block:34px 60px;color:var(--mute);font-size:14px;border-top:1px s
 
 <section id="refs">
   <div class="sec-h"><span class="eyebrow">เอกสารอ้างอิง</span><h2>แหล่งอ้างอิง</h2>
-  <p>ตรวจเล่ม/หน้า/ฉบับกับต้นฉบับอีกครั้งก่อนนำไปใส่ในบทความที่ส่งแข่ง</p></div>
+  <p>กดลิงก์เพื่อเปิดต้นฉบับ (บางฉบับต้องมีสิทธิ์เข้าถึงวารสาร) สรุปด้านล่างเป็นแค่หัวข้อเบื้องต้น ควรตรวจกับต้นฉบับก่อนนำไปใส่ในบทความที่ส่งแข่ง</p></div>
   <ol class="refs">
-    <li>Graham BL, Steenbruggen I, Miller MR, et al. Standardization of Spirometry 2019 Update: An Official ATS and ERS Technical Statement. <i>Am J Respir Crit Care Med</i> 2019;200(8):e70–e88. doi:10.1164/rccm.201908-1590ST</li>
-    <li>Miller MR, Hankinson J, Brusasco V, et al. Standardisation of spirometry. <i>Eur Respir J</i> 2005;26(2):319–338.</li>
-    <li>Quanjer PH, Stanojevic S, Cole TJ, et al. Multi-ethnic reference values for spirometry for the 3–95-yr age range: the global lung function 2012 equations. <i>Eur Respir J</i> 2012;40(6):1324–1343.</li>
-    <li>ISO 5167-4. Measurement of fluid flow by means of pressure differential devices inserted in circular cross-section conduits running full: Venturi tubes.</li>
-    <li>Sensirion AG. SDP810 digital differential pressure sensor, datasheet (ตรวจฉบับล่าสุดที่ sensirion.com).</li>
-    <li>3D-printed Venturi spirometer with ESP32, <i>Frontiers in Bioengineering and Biotechnology</i> 2025. doi:10.3389/fbioe.2025.1664127</li>
-    <li>ndd Medizintechnik AG. EasyOne / Easy on-PC spirometer product information. nddmed.com/products/spirometers/easy-on-pc/</li>
+    <li><b>มาตรฐานการวัดสไปโรเมทรี ATS/ERS ฉบับปรับปรุง 2019</b><span class="rau">Graham BL, et al. <i>Am J Respir Crit Care Med</i> 2019;200(8):e70–e88</span><span class="rsum">เกณฑ์ปัจจุบันของการวัดและยอมรับผลการเป่า เช่น ความแม่นยำของเครื่อง การทำซ้ำ และเกณฑ์สิ้นสุดการเป่า เราใช้เทียบในหัวข้อ “มาตรฐาน”</span><a class="rlink" href="https://doi.org/10.1164/rccm.201908-1590ST" target="_blank" rel="noopener">เปิดอ่าน: doi.org/10.1164/rccm.201908-1590ST ↗</a></li>
+    <li><b>มาตรฐานสไปโรเมทรี ATS/ERS 2005</b><span class="rau">Miller MR, et al. <i>Eur Respir J</i> 2005;26(2):319–338</span><span class="rsum">ฉบับก่อนหน้าที่ใช้กันแพร่หลาย อธิบายหลักการวัด FVC/FEV1 และเกณฑ์คุณภาพการเป่า</span><a class="rlink" href="https://doi.org/10.1183/09031936.05.00034805" target="_blank" rel="noopener">เปิดอ่าน: doi.org/10.1183/09031936.05.00034805 ↗</a></li>
+    <li><b>สมการค่าอ้างอิงปอด GLI-2012</b><span class="rau">Quanjer PH, et al. <i>Eur Respir J</i> 2012;40(6):1324–1343</span><span class="rsum">สมการคาดการณ์ค่าปกติตามอายุ เพศ ส่วนสูง และเชื้อชาติ ใช้คำนวณ % ของค่าคาดการณ์ (ในเว็บตอนนี้ผู้ใช้ใส่ค่าเอง)</span><a class="rlink" href="https://doi.org/10.1183/09031936.00080312" target="_blank" rel="noopener">เปิดอ่าน: doi.org/10.1183/09031936.00080312 ↗</a></li>
+    <li><b>ISO 5167-4 เวนจูรีวัดการไหล</b><span class="rau">International Organization for Standardization</span><span class="rsum">มาตรฐานการออกแบบท่อเวนจูรีที่วัดอัตราไหลจากความต่างความดัน เป็นพื้นฐานของหลอดวัดลมของเรา (ท่อของเราอยู่นอกช่วงเลขเรย์โนลด์ในมาตรฐาน จึงต้องสอบเทียบเอง)</span><a class="rlink" href="https://www.iso.org/search.html?q=ISO%205167-4" target="_blank" rel="noopener">เปิดอ่าน: iso.org (ค้นหา ISO 5167-4) ↗</a></li>
+    <li><b>เซนเซอร์ความดันต่าง Sensirion SDP810</b><span class="rau">Sensirion AG, datasheet</span><span class="rsum">ข้อมูลช่วงวัด ±500 Pa ความละเอียด และการต่อ I²C ของเซนเซอร์ที่ใช้ในเครื่อง (ตรวจฉบับล่าสุดจากหน้าผู้ผลิต)</span><a class="rlink" href="https://sensirion.com/products/catalog/SDP810-500Pa" target="_blank" rel="noopener">เปิดอ่าน: sensirion.com/products/catalog/SDP810-500Pa ↗</a></li>
+    <li><b>สไปโรมิเตอร์เวนจูรีพิมพ์ 3 มิติด้วย ESP32</b><span class="rau"><i>Frontiers in Bioengineering and Biotechnology</i> 2025</span><span class="rsum">งานวิจัยที่ทำเครื่องวัดปอดแบบเวนจูรีพิมพ์ 3 มิติร่วมกับ ESP32 ใกล้เคียงแนวคิดของเรา ใช้เปรียบเทียบผลและวิธีสอบเทียบ</span><a class="rlink" href="https://doi.org/10.3389/fbioe.2025.1664127" target="_blank" rel="noopener">เปิดอ่าน: doi.org/10.3389/fbioe.2025.1664127 ↗</a></li>
+    <li><b>เครื่องสไปโรมิเตอร์เชิงพาณิชย์ ndd Easy on-PC</b><span class="rau">ndd Medizintechnik AG</span><span class="rsum">ผลิตภัณฑ์ที่เป็นต้นแบบรูปทรงของเครื่องเรา (ด้ามจับแบบปืน หลอดวัดลมแบบไม่มีใบพัด)</span><a class="rlink" href="https://www.nddmed.com/products/spirometers/easy-on-pc/" target="_blank" rel="noopener">เปิดอ่าน: nddmed.com/products/spirometers/easy-on-pc ↗</a></li>
   </ol>
   <p class="note">หมายเหตุ: ต้นแบบนี้ไม่ใช่เครื่องมือแพทย์ที่ผ่านการรับรอง และยังไม่ผ่านการทดสอบทางคลินิก ตัวเลขทั้งหมดเป็นค่าคำนวณหรือค่าจากเอกสารผู้ผลิต</p>
 </section>

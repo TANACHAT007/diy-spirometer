@@ -66,3 +66,5 @@ td em{border-radius:99px}
 .refs{margin:0;padding-left:1.4em;display:grid;gap:10px;font-size:14px;color:var(--mute)}.refs li::marker{color:var(--sky-d);font-weight:700}
 #std table th{width:20%}#std td{font-size:14px}
 </style>
+
+.refs li{display:grid;gap:3px}.refs li b{color:var(--ink,#1a1d21);font-size:15px}.refs .rau{font-size:12.5px}.refs .rsum{font-size:14px}.refs .rlink{color:var(--accent,#f25c00);font-weight:600;text-decoration:none;word-break:break-all}.refs .rlink:hover{text-decoration:underline}
