@@ -20,6 +20,7 @@
 
 
 
+
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Spiro Dashboard</title>
@@ -156,7 +157,7 @@ th,td{border-bottom:1px solid var(--line)!important;font-variant-numeric:tabular
 <header>
   <h1 id="t_title">Spiro Dashboard</h1>
   <select id="devSel" hidden></select> <select id="role"><option value="patient">ผู้ป่วย / Patient</option><option value="doctor">ครู-แพทย์ / Doctor</option></select>
-  <button id="lang">TH/EN</button><button id="theme">◐</button><button id="live" onclick="document.getElementById('ble').scrollIntoView({behavior:'smooth'})">เป่าสด / Live</button><button id="gear">⚙</button>
+  <button id="home" onclick="location.href='index.html'">← หน้าแรก</button><button id="goClinic" onclick="location.href='clinic.html'">ตรวจผู้ป่วย</button><button id="lang">TH/EN</button><button id="theme">◐</button><button id="live" onclick="document.getElementById('ble').scrollIntoView({behavior:'smooth'})">เป่าสด / Live</button><button id="gear">⚙</button>
 </header>
 <main>
   <section class="card" id="cfg">

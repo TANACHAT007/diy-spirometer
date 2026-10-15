@@ -5,6 +5,7 @@
 <meta name="author" content="Tanachat S. (TANACHAT007) / MEDTHAI">
 
 
+
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#0b5cab">
@@ -97,6 +98,7 @@ label.b{display:inline-block;color:var(--ink);font-size:15px}
 </head>
 <body>
 <header class="top"><div class="bar">
+  <a class="tbtn" id="homeLink" href="index.html" style="text-decoration:none"></a>
   <div class="brand"><i></i><span id="appName">Spiro Clinic</span></div>
   <nav id="nav"></nav>
   <span class="pill" id="devPill"><i></i><span id="devPillT"></span></span>
@@ -200,7 +202,7 @@ label.b{display:inline-block;color:var(--ink);font-size:15px}
 const $=id=>document.getElementById(id);
 /* ---------- i18n ---------- */
 const D={
-th:{app:'Spiro Clinic',tabs:{test:'ตรวจผู้ป่วย',patients:'ผู้ป่วย',reports:'รายงาน',device:'เครื่อง'},
+th:{home:'← หน้าแรก',app:'Spiro Clinic',tabs:{test:'ตรวจผู้ป่วย',patients:'ผู้ป่วย',reports:'รายงาน',device:'เครื่อง'},
  plist:'รายชื่อผู้ป่วย',newp:'+ ผู้ป่วยใหม่',search:'ค้นหา HN / ชื่อ',pform:'ข้อมูลผู้ป่วย',hn:'HN / รหัส',name:'ชื่อ-สกุล',sex:'เพศ',male:'ชาย',female:'หญิง',age:'อายุ (ปี)',ht:'ส่วนสูง (ซม.)',wt:'น้ำหนัก (กก.)',
  smk:'การสูบบุหรี่',s0:'ไม่สูบ',s1:'เคยสูบ',s2:'สูบอยู่',pf:'FEV1 คาดการณ์ (ลิตร)',pv:'FVC คาดการณ์ (ลิตร)',hist:'หมายเหตุ / โรคประจำตัว',
  npred:'ค่าคาดการณ์ให้กรอกจากเครื่องคำนวณอ้างอิงของโรงพยาบาล (เช่น GLI-2012) เพราะแอปนี้ยังไม่ได้ใส่สมการอ้างอิง',
@@ -232,7 +234,7 @@ th:{app:'Spiro Clinic',tabs:{test:'ตรวจผู้ป่วย',patients:'
  trialBad:'ไม่ผ่าน',simTag:'จำลอง',manualTag:'กรอกมือ',dur:'เวลา (วิ)',q:'สถานะ',
  enterVals:'กรอกค่า FVC, FEV1, PEF ตามลำดับ คั่นด้วยเครื่องหมายจุลภาค เช่น 3.8,3.1,8.2',confirmDel:'ลบข้อมูลนี้?',
  manualWarn:'ค่าที่กรอกด้วยมือไม่ได้มาจากเครื่อง',nopc:'กรอกค่าคาดการณ์ในข้อมูลผู้ป่วยเพื่อดู %'},
-en:{app:'Spiro Clinic',tabs:{test:'Test patient',patients:'Patients',reports:'Reports',device:'Device'},
+en:{home:'← Home',app:'Spiro Clinic',tabs:{test:'Test patient',patients:'Patients',reports:'Reports',device:'Device'},
  plist:'Patients',newp:'+ New patient',search:'Search HN / name',pform:'Patient details',hn:'HN / ID',name:'Full name',sex:'Sex',male:'Male',female:'Female',age:'Age (y)',ht:'Height (cm)',wt:'Weight (kg)',
  smk:'Smoking',s0:'Never',s1:'Former',s2:'Current',pf:'Predicted FEV1 (L)',pv:'Predicted FVC (L)',hist:'Notes / history',
  npred:'Enter predicted values from your hospital reference calculator (e.g. GLI-2012); this app has no reference equations yet.',
@@ -316,7 +318,7 @@ function buildNav(){$('nav').innerHTML=['test','patients','reports','device'].ma
 
 /* ---------- text ---------- */
 function applyText(){
-  document.documentElement.lang=lang;$('appName').textContent=t('app');buildNav();
+  document.documentElement.lang=lang;$('appName').textContent=t('app');$('homeLink').textContent=t('home');buildNav();
   const m={h_plist:'plist',newP:'newp',h_pform:'pform',l_hn:'hn',l_name:'name',l_sex:'sex',l_age:'age',l_ht:'ht',l_wt:'wt',l_smk:'smk',l_pf:'pf',l_pv:'pv',l_hist:'hist',n_pred:'npred',saveP:'save',startP:'start',delP:'del',
    h_prep:'prep',n_prep:'nprep',h_trials:'trials',manual:'manual',sim:'sim',n_trials:'ntrials',h_live:'live',coachBtn:'coach',bleMsg:'bleHelp',h_rlist:'rlist',expJson:'exp',expCsv:'expc',l_imp:'imp',n_priv:'priv',
    h_dev:'dev',h_cloud:'cloud',saveC:'saveC',pull:'pull',dashLink:'dash',n_cloud:'ncloud',h_about:'about',n_about:'nabout',coachClose:'close'};
@@ -366,7 +368,7 @@ function stage(){const p=P(cur.pid);if(!p)return 1;const s=summarize(cur.trials)
 function renderTest(){
   const p=P(cur.pid),st=stage();
   $('steps').innerHTML=[1,2,3,4].map(i=>`<div class="step ${st===i?'on':st>i?'done':''}"><b>${st>i?'✓':i}</b>${t('st'+i)}</div>`).join('');
-  $('tPatient').innerHTML=p?`<div class="row" style="justify-content:space-between"><div><div class="k">${t('patient')}</div><div style="font-size:20px;font-weight:700">${esc(p.name)||'–'}</div><div class="note">HN ${esc(p.hn)||'–'} · ${p.sex==='F'?t('female'):t('male')} · ${p.age||'–'} ${L('ปี','y')} · ${p.ht||'–'} cm</div></div><button class="b" id="chgP">${t('tabs').patients}</button></div>`
+  $('tPatient').innerHTML=p?`<div class="row" style="justify-content:space-between"><div><div class="k">${t('patient')}</div><div style="font-size:20px;font-weight:700">${esc(p.name)||'–'}</div><div class="note">HN ${esc(p.hn)||'–'} · ${p.sex==='F'?t('female'):t('male')} · ${p.age||'–'} ${L('ปี','y')} · ${p.ht||'–'} cm</div></div><button class="b" id="chgP">← ${t('tabs').patients}</button></div>`
     :`<div class="empty"><div style="font-size:18px;font-weight:600;color:var(--ink)">${t('noPatient')}</div><p>${t('pickP')}</p><div class="k" style="margin-top:10px">${t('howT')}</div><div class="how"><div>${t('how1')}</div><div>${t('how2')}</div><div>${t('how3')}</div><div>${t('how4')}</div></div><div class="row" style="justify-content:center"><button class="b pri" id="chgP">${t('goP')}</button><button class="b" id="tryDemo">${t('tryDemo')}</button></div></div>`;
   if($('tryDemo'))$('tryDemo').onclick=enterDemo;
   $('chgP').onclick=()=>setTab('patients');
