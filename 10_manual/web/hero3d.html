@@ -3,7 +3,7 @@
   <canvas id="c3d" aria-label="โมเดล 3 มิติของเครื่องวัดสมรรถภาพปอด ลากเพื่อหมุนดู" hidden></canvas>
   <div class="v3bar" role="group" aria-label="โหมดแสดงผล">
     <button type="button" data-mode="solid" aria-pressed="true">ผิวเต็ม</button>
-    <button type="button" data-mode="ghost" aria-pressed="false">โปร่งใส</button>
+    <button type="button" data-mode="ghost" aria-pressed="false">เห็นวงจร</button>
     <button type="button" id="spin" aria-pressed="true">หมุนเอง</button>
   </div>
   <p class="v3hint">ลากเพื่อหมุนดู · โมเดลจริงจากไฟล์พิมพ์</p>
@@ -33,7 +33,7 @@
 <script>
 (function(){
   try{
-    const DATA={{STLDATA}};
+    const DATA={{STLDATA}};const INT={{INTDATA}};
     const cv=document.getElementById('c3d'),stage=document.getElementById('stage3d');
     if(!window.THREE||!THREE.STLLoader||!THREE.OrbitControls)return;
     const renderer=new THREE.WebGLRenderer({canvas:cv,alpha:true,antialias:true});
@@ -54,11 +54,19 @@
       const g=loader.parse(buf.buffer);g.computeVertexNormals();
       const solid=new THREE.MeshStandardMaterial({color:COL[k]||0xffffff,roughness:.38,metalness:.02,
         transparent:(k==='flow_tube'||k==='mouthpiece'),opacity:(k==='flow_tube'||k==='mouthpiece')?.9:1});
-      const ghost=new THREE.MeshBasicMaterial({color:0x6cb8f6,transparent:true,opacity:.07,depthWrite:false,side:THREE.DoubleSide});
+      const ghost=new THREE.MeshBasicMaterial({color:0x6cb8f6,transparent:true,opacity:.10,depthWrite:false,side:THREE.DoubleSide});
       const mesh=new THREE.Mesh(g,solid);root.add(mesh);
       const edges=new THREE.LineSegments(new THREE.EdgesGeometry(g,28),new THREE.LineBasicMaterial({color:0x3f97e8,transparent:true,opacity:.0}));
       root.add(edges);items.push({mesh,solid,ghost,edges});
     }
+    const ICOL={E1_XIAO_ESP32S3:0x2a6df4,E2_SDP810_500Pa:0x7a7f86,E3_GC9A01_Round_TFT:0x1b2a4a,E4_LiPo_603450:0xd9b44a,E5_Button_6x6:0x222222,E6_LED_3mm:0x2ecc71,Charge_Contacts:0xc8962e,Silicone_Tube_3x5:0xbfe9ff,Wires:0xff5a1f,Pogo_Pins:0xc8962e,Magnets_5x2:0x9aa0a8,Rubber_Feet:0x222222,E7_USB_C_Breakout_Dock:0x2a8f5a};
+    const inner=[];
+    for(const k in INT){
+      const bin=atob(INT[k]),buf=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)buf[i]=bin.charCodeAt(i);
+      const g=loader.parse(buf.buffer);g.computeVertexNormals();
+      const m=new THREE.Mesh(g,new THREE.MeshStandardMaterial({color:ICOL[k]||0x888888,roughness:.5,metalness:k==='Charge_Contacts'||k==='Pogo_Pins'?.6:.1,
+        transparent:k==='Silicone_Tube_3x5',opacity:k==='Silicone_Tube_3x5'?.7:1}));
+      m.visible=false;root.add(m);inner.push(m)}
     const box=new THREE.Box3().setFromObject(pivot),ctr=box.getCenter(new THREE.Vector3()),size=box.getSize(new THREE.Vector3());
     root.position.sub(ctr);
     const R=Math.max(size.x,size.y,size.z);
@@ -67,7 +75,8 @@
     ctl.enableZoom=false;ctl.enablePan=false;ctl.enableDamping=true;ctl.dampingFactor=.08;
     const reduce=matchMedia('(prefers-reduced-motion:reduce)').matches;
     ctl.autoRotate=!reduce;ctl.autoRotateSpeed=1.4;ctl.minPolarAngle=.35;ctl.maxPolarAngle=2.1;
-    function setMode(m){
+    function setMode(m_){const m=m_;
+      inner.forEach(m=>m.visible=(m_==='ghost'));
       items.forEach(o=>{o.mesh.material=(m==='ghost')?o.ghost:o.solid;o.edges.material.opacity=(m==='ghost')?.85:0});
       stage.querySelectorAll('[data-mode]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.mode===m));
     }

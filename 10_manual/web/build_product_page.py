@@ -29,7 +29,7 @@ import json, glob
 stl = {os.path.splitext(os.path.basename(f))[0]: base64.b64encode(open(f, 'rb').read()).decode()
        for f in sorted(glob.glob(os.path.join(H, '..', '..', '04_print_stl', '*.stl')))}
 a = s.index('<div class="stage"><img src="{{HERO}}"'); b = s.index('</div>', a) + len('</div>')
-s = s[:a] + rd('hero3d.html').replace('{{STLDATA}}', json.dumps(stl)) + s[b:]
+s = s[:a] + rd('hero3d.html').replace('{{STLDATA}}', json.dumps(stl)).replace('{{INTDATA}}', json.dumps({os.path.splitext(os.path.basename(f))[0]: base64.b64encode(open(f, 'rb').read()).decode() for f in sorted(glob.glob(os.path.join(H, 'internals', '*.stl')))})) + s[b:]
 uri = lambda n: 'data:image/jpeg;base64,' + base64.b64encode(open(os.path.join(H, 'img', n + '.jpg'), 'rb').read()).decode()
 for k, n in (('HERO', 'cu_hero'), ('OPEN', 'cu_open'), ('INSIDE', 'cu_inside'), ('DOCK', 'cu_dock')):
     s = s.replace('{{' + k + '}}', uri(n))
