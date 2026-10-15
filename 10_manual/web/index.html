@@ -15,6 +15,8 @@
 
 
 
+
+
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Spiro Dashboard</title>
@@ -91,12 +93,67 @@ h1{flex:1 1 100%;font-size:20px}
 #t_ble{flex:1 1 160px}
 </style>
 
+<style>
+/* clinical-report: hospital-style look (white cards, clinical blue, standard traffic-light status colours) */
+:root{--bg:#eef2f7;--card:#fff;--ink:#14263d;--mute:#586b82;--acc:#0b5cab;--line:#d3dce7;--ok:#1b8a4b;--warn:#b7791f;--bad:#c0392b;--soft:#f5f8fc;
+  --disp:"IBM Plex Sans Thai","Chakra Petch",system-ui,sans-serif}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#0e1621;--card:#16222f;--ink:#e8eef5;--mute:#93a4b8;--acc:#5aa8f0;--line:#2a3a4c;--ok:#3ccf7b;--warn:#e0a63a;--bad:#ef6a5b;--soft:#1b2a3a}}
+:root[data-theme=dark]{--bg:#0e1621;--card:#16222f;--ink:#e8eef5;--mute:#93a4b8;--acc:#5aa8f0;--line:#2a3a4c;--ok:#3ccf7b;--warn:#e0a63a;--bad:#ef6a5b;--soft:#1b2a3a}
+body{padding:0!important;background:var(--bg)!important;background-image:none!important;font-family:"IBM Plex Sans Thai",system-ui,sans-serif;font-size:15px}
+body>header{max-width:none;margin:0;background:#0b5cab;color:#fff;border-radius:0;box-shadow:none;padding:12px max(16px,calc((100% - 1040px)/2));gap:10px}
+body>header h1{font:600 18px var(--disp);text-transform:none;letter-spacing:0;display:flex;align-items:center;gap:10px;color:#fff}
+body>header h1::before{content:"";width:22px;height:22px;border:2px solid #fff;border-radius:6px;flex:none;
+  background:linear-gradient(#fff,#fff) center/6px 70% no-repeat,linear-gradient(#fff,#fff) center/70% 6px no-repeat}
+body>header button,body>header select{background:rgba(255,255,255,.14)!important;color:#fff!important;border:1px solid rgba(255,255,255,.45)!important;border-radius:6px!important;padding:6px 12px}
+body>header option{color:#14263d}
+main{max-width:1040px;margin:0 auto;padding:18px 16px 44px;background:transparent;box-shadow:none;border-radius:0;gap:16px}
+.card,.grid .card{background:var(--card)!important;border:1px solid var(--line)!important;border-bottom:1px solid var(--line)!important;border-radius:8px!important;box-shadow:0 1px 2px rgba(20,38,61,.06)!important;padding:16px 18px}
+.grid .card{border-left:4px solid var(--acc)!important;padding:12px 14px}
+.k{font-size:11.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--mute);font-weight:600}
+.v{font:600 28px var(--disp);font-variant-numeric:tabular-nums}
+button,select{border-radius:6px!important}
+button{border:1px solid var(--line);background:var(--card)}
+button.pri{background:var(--acc)!important;border-color:var(--acc)!important;color:#fff;text-transform:none;letter-spacing:0;font-weight:600}
+input{border-radius:6px!important;border:1px solid var(--line);box-shadow:none!important}
+th{font-size:11.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--mute);background:var(--soft);font-weight:600}
+th,td{border-bottom:1px solid var(--line)!important;font-variant-numeric:tabular-nums}
+.tag{border-radius:4px!important;padding:2px 9px;font-weight:600}
+#rep{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(300px,100%),1fr));gap:16px}
+#rep .wide,#rep .rhead{grid-column:1/-1}
+.rhead{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:6px 18px;padding-bottom:12px;border-bottom:2px solid var(--acc)}
+.rhead b{display:block;font-size:15px}.rhead span{font-size:11.5px;color:var(--mute);text-transform:uppercase;letter-spacing:.05em}
+.rtitle{grid-column:1/-1;font:600 20px var(--disp);color:var(--acc)}
+.interp{border-left:5px solid var(--ok);background:var(--soft);padding:10px 14px;border-radius:0 6px 6px 0}
+.interp.warn{border-color:var(--warn)}.interp.bad{border-color:var(--bad)}
+.interp b{font-size:16px}.interp p{margin:4px 0 0;color:var(--mute);font-size:13.5px}
+.zbar{position:relative;height:16px;border-radius:8px;overflow:hidden;display:flex;margin:12px 0 6px}
+.zbar i{display:block;height:100%}.zbar .r{background:var(--bad);width:41.7%}.zbar .y{background:var(--warn);width:25%}.zbar .g{background:var(--ok);flex:1}
+.zmark{position:relative;height:0}.zmark u{position:absolute;top:-30px;width:3px;height:22px;background:var(--ink);text-decoration:none;transform:translateX(-1px)}
+.zleg{display:flex;justify-content:space-between;font-size:11px;color:var(--mute)}
+.big{font:600 34px var(--disp);font-variant-numeric:tabular-nums}
+.alertbox{padding:8px 12px;border-radius:6px;background:var(--soft);border:1px solid var(--line);font-size:13.5px;margin-top:8px}
+.alertbox.warn{border-color:var(--warn)}.alertbox.bad{border-color:var(--bad)}
+#printTitle{display:none}
+@media print{
+  @page{size:A4;margin:14mm}
+  body{background:#fff!important;color:#000}
+  body>header,#cfg,#ble,#overviewCard,.noprint,#demoNote{display:none!important}
+  main{padding:0;max-width:none}
+  .card,.grid .card{box-shadow:none!important;break-inside:avoid;border-color:#999!important}
+  .grid{grid-template-columns:repeat(4,1fr)}
+  #printTitle{display:block}
+  canvas{height:200px}
+}
+</style>
+<meta name="theme-color" content="#0b5cab">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
 </head>
 <body>
 <header>
   <h1 id="t_title">Spiro Dashboard</h1>
   <select id="devSel" hidden></select> <select id="role"><option value="patient">ผู้ป่วย / Patient</option><option value="doctor">ครู-แพทย์ / Doctor</option></select>
-  <button id="lang">TH/EN</button><button id="theme">◐</button><button id="gear">⚙</button>
+  <button id="lang">TH/EN</button><button id="theme">◐</button><button id="live" onclick="document.getElementById('ble').scrollIntoView({behavior:'smooth'})">เป่าสด / Live</button><button id="gear">⚙</button>
 </header>
 <main>
   <section class="card" id="cfg">
@@ -104,19 +161,31 @@ h1{flex:1 1 100%;font-size:20px}
     <label>Device ID (คั่นหลายเครื่องด้วย ,)<input id="c_dev" placeholder="spiro-01"></label>
     <label>Auth (optional)<input id="c_auth" type="password"></label>
     <label>Predicted FEV1 (L) — personal ref<input id="c_pred" type="number" step="0.1" placeholder="3.5"></label>
+    <label>ชื่อ / HN (แสดงในรายงาน เก็บในเบราว์เซอร์นี้เท่านั้น)<input id="c_name" placeholder="HN 000000"></label>
+    <label>อายุ (ปี)<input id="c_age" type="number" min="3" max="110"></label>
+    <label>เพศ<select id="c_sex"><option value="">–</option><option value="M">ชาย / M</option><option value="F">หญิง / F</option></select></label>
+    <label>ส่วนสูง (ซม.)<input id="c_ht" type="number" min="90" max="220"></label>
     <div><button class="pri" id="save">Save</button> <button id="demo">ลองโหมดตัวอย่าง / Demo data</button></div>
   </section>
   
   <section class="card" id="overviewCard" hidden><div class="k" id="t_over">ภาพรวมทุกเครื่อง (ครู-แพทย์)</div><div style="overflow:auto"><table id="over"></table></div></section>
-  <section class="card" id="ble"><div class="row"><div class="k" style="margin-right:auto" id="t_ble">เป่าสดผ่านบลูทูธ (Bluetooth)</div><button id="bleBtn" class="pri">เชื่อมต่อเครื่อง</button></div>
-    <canvas id="bleCv" width="900" height="170"></canvas><p class="note" id="bleMsg">ต้องใช้เบราว์เซอร์ที่รองรับ Web Bluetooth (Chrome/Edge บนคอม/Android) และเปิดหน้านี้จากเว็บที่โฮสต์เอง ไม่ใช่ในกรอบพรีวิว ผลการเป่าที่รับผ่านบลูทูธจะถูกบันทึกในเบราว์เซอร์นี้ (ไม่ต้องมีฐานข้อมูล) ยังไม่ได้ทดสอบกับเครื่องจริง</p>
-    <div class="row"><span class="k">FVC</span><b id="bFvc">–</b><span class="k">FEV1</span><b id="bFev">–</b><span class="k">PEF</span><b id="bPef">–</b></div></section>
   <div class="grid" id="kpis"></div>
+  <section class="card" id="rep" hidden>
+    <div class="rtitle" id="printTitle">รายงานสไปโรเมทรี / Spirometry report</div>
+    <div class="rhead" id="repHead"></div>
+    <div class="rb" id="repInterp"></div>
+    <div class="rb" id="repZone"></div>
+    <div class="rb" id="repTrend"></div>
+    <div class="rb wide" id="repTbl"></div>
+  </section>
   <section class="card"><div class="k" id="t_trend">แนวโน้ม FEV1 / FVC</div><canvas id="chart"></canvas></section>
   <section class="card"><div class="k" id="t_hist">ประวัติการเป่า</div>
     <div style="overflow:auto"><table id="tbl"></table></div>
-    <p><button id="csv">CSV</button> <span class="note" id="status"></span></p>
+    <p class="noprint"><button id="csv">CSV</button> <button id="print" class="pri">พิมพ์รายงาน / Print</button> <span class="note" id="status"></span></p>
   </section>
+  <section class="card" id="ble"><div class="row"><div class="k" style="margin-right:auto" id="t_ble">เป่าสดผ่านบลูทูธ (Bluetooth)</div><button id="bleBtn" class="pri">เชื่อมต่อเครื่อง</button></div>
+    <canvas id="bleCv" width="900" height="170"></canvas><p class="note" id="bleMsg">ต้องใช้เบราว์เซอร์ที่รองรับ Web Bluetooth (Chrome/Edge บนคอม/Android) และเปิดหน้านี้จากเว็บที่โฮสต์เอง ไม่ใช่ในกรอบพรีวิว ผลการเป่าที่รับผ่านบลูทูธจะถูกบันทึกในเบราว์เซอร์นี้ (ไม่ต้องมีฐานข้อมูล) ยังไม่ได้ทดสอบกับเครื่องจริง</p>
+    <div class="row"><span class="k">FVC</span><b id="bFvc">–</b><span class="k">FEV1</span><b id="bFev">–</b><span class="k">PEF</span><b id="bPef">–</b></div></section>
   <p class="note" id="demoNote" hidden>ข้อมูลตัวอย่างที่สร้างขึ้นเพื่อแสดงหน้าจอ ไม่ใช่ผลของคนจริง / Example data only</p>
   <p class="note" id="t_disc"></p>
 </main>
@@ -135,16 +204,61 @@ function stat(r){const p=+cfg.pred||0,ratio=r.ratio;let c='var(--ok)',s=tt('ok')
   if(ratio<70||(p&&r.fev1<0.8*p)){c='var(--warn)';s=tt('lo')}
   if(ratio<50||(p&&r.fev1<0.5*p)){c='var(--bad)';s=tt('vlo')}
   return `<span class="tag" style="background:${c}">${s}</span>`}
+
+/* ---------- clinical report (rule-based screening text; fixed-ratio 0.70 and GOLD %pred bands) ---------- */
+function L(th,en){return lang==='th'?th:en}
+function mean(a){return a.reduce((x,y)=>x+y,0)/a.length}
+function renderReport(l,best){
+  const p=+cfg.pred||0,pb=Math.max(...rows.map(r=>r.pef)),sx={M:L('ชาย','Male'),F:L('หญิง','Female')}[cfg.sex]||'–';
+  $('rep').hidden=false;
+  $('repHead').innerHTML=[[L('ผู้ป่วย / HN','Patient / HN'),cfg.name||'–'],[L('อายุ / เพศ','Age / sex'),(cfg.age?cfg.age+L(' ปี',' y'):'–')+' · '+sx],
+    [L('ส่วนสูง','Height'),cfg.ht?cfg.ht+' cm':'–'],[L('เครื่อง','Device'),$('devSel').value||'–'],[L('ทดสอบล่าสุด','Last test'),new Date(l.ts).toLocaleString(lang==='th'?'th-TH':'en-GB')],
+    [L('จำนวนครั้ง','Tests'),rows.length]].map(([a,b])=>`<div><span>${a}</span><b>${b}</b></div>`).join('');
+  // interpretation
+  let lvl='ok',title,sub;const ppc=p?100*l.fev1/p:0;
+  if(l.ratio<70){
+    if(p){const sev=ppc>=80?L('เล็กน้อย','mild'):ppc>=50?L('ปานกลาง','moderate'):ppc>=30?L('รุนแรง','severe'):L('รุนแรงมาก','very severe');lvl=ppc>=80?'warn':'bad';
+      title=L('สงสัยรูปแบบการอุดกั้นทางเดินหายใจ ('+sev+')','Possible obstructive pattern ('+sev+')');sub=L(`FEV1/FVC ${l.ratio.toFixed(0)}% (< 70%) และ FEV1 ${ppc.toFixed(0)}% ของค่าที่กรอก แบ่งระดับตามแนว GOLD`,`FEV1/FVC ${l.ratio.toFixed(0)}% (< 70%), FEV1 ${ppc.toFixed(0)}% of entered reference; severity bands as GOLD`)}
+    else{lvl=l.ratio<50?'bad':'warn';title=L('สงสัยรูปแบบการอุดกั้นทางเดินหายใจ','Possible obstructive pattern');sub=L(`FEV1/FVC ${l.ratio.toFixed(0)}% (< 70%) ใส่ค่า FEV1 คาดการณ์ในการตั้งค่า ⚙ เพื่อประเมินระดับ`,`FEV1/FVC ${l.ratio.toFixed(0)}% (< 70%). Enter a predicted FEV1 in ⚙ to grade severity`)}
+  }else{
+    title=L('ไม่พบรูปแบบการอุดกั้น','No obstructive pattern');
+    sub=p&&ppc<80?L(`FEV1/FVC ${l.ratio.toFixed(0)}% ปกติ แต่ FEV1 ต่ำกว่า 80% ของค่าที่กรอก อาจเข้าได้กับปริมาตรปอดลดลง ต้องยืนยันด้วยการตรวจปอดเต็มรูปแบบ`,`Ratio normal but FEV1 below 80% of the entered reference; a restrictive process cannot be excluded — confirm with full PFT`):
+      L(`FEV1/FVC ${l.ratio.toFixed(0)}% (≥ 70%) เครื่องนี้ประเมินภาวะปอดจำกัดการขยายตัวไม่ได้`,`FEV1/FVC ${l.ratio.toFixed(0)}% (≥ 70%). This device cannot assess restriction`);
+    if(p&&ppc<80)lvl='warn'}
+  $('repInterp').innerHTML=`<div class="k">${L('สรุปผลเบื้องต้น (คัดกรอง)','Preliminary interpretation (screening)')}</div><div class="interp ${lvl==='ok'?'':lvl}" style="margin-top:8px"><b>${title}</b><p>${sub}</p></div>`+
+    (l.mp>=20?`<div class="alertbox warn">⚠ ${L('ที่เป่าใช้ครบ 20 ครั้ง ควรเปลี่ยนก่อนเป่าครั้งต่อไป','Mouthpiece reached 20 blows — replace before the next test')}</div>`:'');
+  // personal-best zones
+  const z=100*l.fev1/best,zc=z>=80?'ok':z>=50?'warn':'bad',zt=z>=80?L('โซนเขียว','Green zone'):z>=50?L('โซนเหลือง','Yellow zone'):L('โซนแดง','Red zone'),pz=100*l.pef/pb;
+  $('repZone').innerHTML=`<div class="k">${L('เทียบค่าดีที่สุดของตัวเอง','Versus personal best')}</div>
+    <div class="big" style="color:var(--${zc})">${z.toFixed(0)}% <small style="font:600 14px var(--disp)">${zt}</small></div>
+    <div class="zbar"><i class="r"></i><i class="y"></i><i class="g"></i></div><div class="zmark"><u style="left:${Math.min(100,z/120*100)}%"></u></div>
+    <div class="zleg"><span>0</span><span>50%</span><span>80%</span><span>120%</span></div>
+    <p class="note">${L('FEV1 ล่าสุดเทียบกับ FEV1 สูงสุดที่เคยวัดได้ ('+best.toFixed(2)+' L) · PEF ล่าสุด '+pz.toFixed(0)+'% ของ PEF สูงสุด','Latest FEV1 vs best ever ('+best.toFixed(2)+' L) · latest PEF '+pz.toFixed(0)+'% of best PEF')}</p>`;
+  // trend alert
+  let tr;
+  if(rows.length>=6){const a=mean(rows.slice(-3).map(r=>r.fev1)),b=mean(rows.slice(-6,-3).map(r=>r.fev1)),ch=100*(a-b)/b;
+    tr=ch<=-10?['warn',L(`FEV1 เฉลี่ย 3 ครั้งล่าสุดลดลง ${Math.abs(ch).toFixed(0)}% จาก 3 ครั้งก่อนหน้า ควรติดตามและปรึกษาแพทย์ถ้ามีอาการ`,`Mean FEV1 of the last 3 tests fell ${Math.abs(ch).toFixed(0)}% vs the previous 3`)]:
+       ch>=10?['ok',L(`FEV1 เฉลี่ยดีขึ้น ${ch.toFixed(0)}% จาก 3 ครั้งก่อนหน้า`,`Mean FEV1 improved ${ch.toFixed(0)}% vs the previous 3`)]:['ok',L(`FEV1 คงที่ (เปลี่ยน ${ch>0?'+':''}${ch.toFixed(0)}%)`,`FEV1 stable (${ch>0?'+':''}${ch.toFixed(0)}%)`)]}
+  else tr=['',L('ต้องมีอย่างน้อย 6 ครั้งจึงจะประเมินแนวโน้ม','At least 6 tests are needed for a trend')];
+  $('repTrend').innerHTML=`<div class="k">${L('แนวโน้ม','Trend')}</div><div class="alertbox ${tr[0]==='ok'?'':tr[0]}" style="margin-top:8px">${tr[1]}</div>
+    <p class="note">${L('เกณฑ์เปลี่ยนแปลง ±10% เป็นค่าตั้งต้นของโครงงาน ยังไม่ใช่เกณฑ์ทางคลินิกที่รับรอง','The ±10% change threshold is a project default, not a validated clinical rule')}</p>`;
+  // measured / reference table
+  $('repTbl').innerHTML=`<table><tr><th>${L('พารามิเตอร์','Parameter')}</th><th>${L('ค่าที่วัด','Measured')}</th><th>${L('ค่าอ้างอิง','Reference')}</th><th>${L('ผล','Result')}</th></tr>
+   <tr><td>FEV1 (L)</td><td>${l.fev1.toFixed(2)}</td><td>${p?p.toFixed(2)+L(' (ผู้ใช้กรอก)',' (entered)'):'–'}</td><td>${p?ppc.toFixed(0)+'%':'–'}</td></tr>
+   <tr><td>FVC (L)</td><td>${l.fvc.toFixed(2)}</td><td>–</td><td>–</td></tr>
+   <tr><td>FEV1/FVC (%)</td><td>${l.ratio.toFixed(0)}</td><td>≥ 70</td><td>${stat(l)}</td></tr>
+   <tr><td>PEF (L/s)</td><td>${l.pef.toFixed(1)}</td><td>–</td><td>–</td></tr></table>
+   <p class="note">${L('ไม่ใช่เครื่องมือแพทย์ที่ผ่านการรับรอง ผลใช้คัดกรองเบื้องต้นเท่านั้น ต้องยืนยันด้วยสไปโรเมทรีมาตรฐานและการประเมินของแพทย์','Not a certified medical device. Screening only — confirm with standard spirometry and clinical assessment.')}</p>`}
 function kpi(k,v,u){return `<div class="card"><div class="k">${k}</div><div class="v">${v}<span class="u"> ${u||''}</span></div></div>`}
 function render(){
   const k=$('kpis');
-  if(!rows.length){k.innerHTML='';$('tbl').innerHTML='';$('status').textContent=tt('nodata');draw();return}
+  if(!rows.length){k.innerHTML='';$('tbl').innerHTML='';$('rep').hidden=true;$('status').textContent=tt('nodata');draw();return}
   const l=rows[rows.length-1],best=Math.max(...rows.map(r=>r.fev1));
   k.innerHTML=kpi('FEV1',l.fev1.toFixed(2),'L')+kpi('FVC',l.fvc.toFixed(2),'L')+kpi('FEV1/FVC',l.ratio.toFixed(0),'%')+kpi('PEF',l.pef.toFixed(1),'L/s')+
    kpi(tt('n'),rows.length)+kpi(tt('best'),best.toFixed(2),'L')+kpi(tt('bat'),(l.bat??'-'),'%')+kpi(tt('mp'),(l.mp!=null?l.mp+'/20':'-'),l.mp>=20?' ⚠':'');
   let h=`<tr><th>${tt('time')}</th><th>FEV1</th><th>FVC</th><th>%</th><th>PEF</th><th></th></tr>`;
   for(const r of rows.slice().reverse().slice(0,50))h+=`<tr><td>${new Date(r.ts).toLocaleString(lang==='th'?'th-TH':'en-GB')}</td><td>${r.fev1.toFixed(2)}</td><td>${r.fvc.toFixed(2)}</td><td>${r.ratio.toFixed(0)}</td><td>${r.pef.toFixed(1)}</td><td>${stat(r)}</td></tr>`;
-  $('tbl').innerHTML=h;draw()}
+  $('tbl').innerHTML=h;renderReport(l,best);draw()}
 function draw(){
   const c=$('chart'),dpr=devicePixelRatio||1,w=c.clientWidth,h=c.clientHeight;c.width=w*dpr;c.height=h*dpr;
   const g=c.getContext('2d');g.scale(dpr,dpr);g.clearRect(0,0,w,h);
@@ -176,17 +290,19 @@ async function load(){
   }catch(e){$('status').textContent='offline: '+e.message;render()}
 }
 $('demo').onclick=()=>{demo=true;$('cfg').style.display='none';load()};
-$('save').onclick=()=>{demo=false;cfg={db:$('c_db').value.trim(),dev:$('c_dev').value.trim(),auth:$('c_auth').value.trim(),pred:$('c_pred').value};
+$('save').onclick=()=>{demo=false;cfg={db:$('c_db').value.trim(),dev:$('c_dev').value.trim(),auth:$('c_auth').value.trim(),pred:$('c_pred').value,name:$('c_name').value.trim(),age:$('c_age').value,sex:$('c_sex').value,ht:$('c_ht').value};
   localStorage.cfg=JSON.stringify(cfg);$('cfg').style.display='none';load()};
 $('gear').onclick=()=>{const s=$('cfg').style;s.display=s.display==='grid'?'none':'grid'};
 $('lang').onclick=()=>{lang=lang==='th'?'en':'th';localStorage.lang=lang;applyText()};
 $('theme').onclick=()=>{const r=document.documentElement;r.dataset.theme=r.dataset.theme==='dark'?'':'dark';localStorage.th=r.dataset.theme;draw()};
-$('role').onchange=()=>{$('gear').style.display=$('role').value==='doctor'?'':'none';renderOverview()};
+$('role').onchange=()=>{renderOverview()};
 $('csv').onclick=async()=>{const t='time,fev1_L,fvc_L,ratio_pct,pef_Lps,bat\n'+rows.map(r=>[new Date(r.ts).toISOString(),r.fev1,r.fvc,r.ratio,r.pef,r.bat??''].join(',')).join('\n');
   try{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([t],{type:'text/csv'}));a.download='spirometer.csv';a.click();$('status').textContent='CSV'}
   catch(e){try{await navigator.clipboard.writeText(t);$('status').textContent='copied CSV'}catch(e2){$('status').textContent='copy blocked'}}};
 if(localStorage.th)document.documentElement.dataset.theme=localStorage.th;
-$('c_db').value=cfg.db||'';$('c_dev').value=cfg.dev||'';$('c_auth').value=cfg.auth||'';$('c_pred').value=cfg.pred||'';
+$('c_db').value=cfg.db||'';$('c_dev').value=cfg.dev||'';$('c_auth').value=cfg.auth||'';$('c_pred').value=cfg.pred||'';$('c_name').value=cfg.name||'';$('c_age').value=cfg.age||'';$('c_sex').value=cfg.sex||'';$('c_ht').value=cfg.ht||'';
+$('print').onclick=()=>window.print();
+if('serviceWorker' in navigator&&location.protocol.startsWith('http'))navigator.serviceWorker.register('sw.js').catch(()=>{});
 
 /* ---------- multi-device + doctor overview ---------- */
 let byDev={};
@@ -226,6 +342,7 @@ $('bleBtn').onclick=async()=>{
   }catch(e){m.textContent='เชื่อมต่อไม่สำเร็จ: '+e.message}};
 bleDraw();
 
+if(/[?&]demo/.test(location.search))demo=true;
 $('devSel').onchange=pickDev;$('role').onchange();applyText();load();setInterval(load,5000);addEventListener('resize',draw);
 </script>
 <div class="credit-footer" style="text-align:center;font-size:12px;opacity:.7;padding:18px 0 28px">ออกแบบโดย Tanachat S. (TANACHAT007) · ทีม MEDTHAI · 2026</div>
