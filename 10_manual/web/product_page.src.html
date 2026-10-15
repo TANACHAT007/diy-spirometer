@@ -100,7 +100,7 @@ footer{padding-block:34px 60px;color:var(--mute);font-size:14px;border-top:1px s
 <div class="wrap">
 <nav>
   <b>MEDTHAI · Spirometer</b>
-  <a href="#view">ดูชิ้นงาน</a><a href="#flow">การทำงานของลม</a><a href="#chain">ระบบ IoT</a><a href="#spec">สเปก</a>
+  <a href="#view">ดูชิ้นงาน</a><a href="#flow">การทำงานของลม</a><a href="#chain">ระบบ IoT</a><a href="#spec">สเปก</a><a href="#std">มาตรฐาน</a><a href="#refs">อ้างอิง</a>
   <button id="themeBtn" aria-label="สลับธีม">◐</button>
 </nav>
 
@@ -186,7 +186,7 @@ footer{padding-block:34px 60px;color:var(--mute);font-size:14px;border-top:1px s
   <div class="sec-h"><span class="eyebrow">สเปก</span><h2>ตัวเลขที่ออกแบบและคำนวณไว้</h2>
   <p>คอลัมน์ท้ายบอกที่มาของแต่ละค่า เพื่อให้แยกได้ว่าอะไรคำนวณ อะไรวัดจริงแล้ว</p></div>
   <div class="tw"><table>
-    <tr><th>เซ็นเซอร์</th><td>Sensirion SDP810-500Pa, ความดันต่างดิจิทัล <em>datasheet</em></td></tr>
+    <tr><th>เซ็นเซอร์</th><td>Sensirion SDP810-500Pa, ความดันต่างดิจิทัล <em>datasheet [5]</em></td></tr>
     <tr><th>ช่วงอัตราไหล</th><td>ถึง ≈ 15.8 ลิตร/วินาที ก่อนอิ่มตัว <em>คำนวณ</em></td></tr>
     <tr><th>ความแม่นยำที่ลมแรง</th><td>≈ 1.5–3 % ของค่าที่อ่านที่ 1–15 L/s <em>คำนวณจากสเปกเซ็นเซอร์</em></td></tr>
     <tr><th>ลมเบา</th><td>ต่ำกว่า ≈ 0.3 L/s ไม่แม่น (เครื่องตัดทิ้ง) <em>คำนวณ</em></td></tr>
@@ -196,6 +196,36 @@ footer{padding-block:34px 60px;color:var(--mute);font-size:14px;border-top:1px s
     <tr><th>ตัวเครื่อง</th><td>พิมพ์ PETG ≈ 470 กรัม (เครื่อง + แท่น) ≈ 27 ชั่วโมงพิมพ์ <em>จากโมเดล</em></td></tr>
     <tr><th>ขนาด</th><td>เครื่อง ≈ 225 × 90 × 155 มม. (รวมท่อยาว 170 มม.) บนแท่น 175 × 90 มม. <em>จากโมเดล</em></td></tr>
   </table></div>
+</section>
+
+<section id="std">
+  <div class="sec-h"><span class="eyebrow">วัตถุประสงค์และเกณฑ์ออกแบบ</span><h2>เทียบกับมาตรฐานสไปโรเมทรี</h2>
+  <p>วัตถุประสงค์: พัฒนาต้นแบบเครื่องวัดสมรรถภาพปอดต้นทุนต่ำ พิมพ์ 3 มิติ เชื่อมต่อ IoT สำหรับคัดกรองเบื้องต้นในหน่วยบริการปฐมภูมิและโรงเรียน ตารางนี้เปรียบเทียบเป้าหมายการออกแบบกับข้อกำหนดที่เผยแพร่ ไม่ได้เป็นการยืนยันว่าเครื่องผ่านมาตรฐาน</p></div>
+  <div class="tw"><table>
+    <tr><th>หัวข้อ</th><td>เกณฑ์ในเอกสารอ้างอิง</td><td>ต้นแบบนี้ (ค่าออกแบบ/คำนวณ)</td><td>สถานะ</td></tr>
+    <tr><th>ช่วงอัตราไหล</th><td>±14 L/s ขึ้นไป [1]</td><td>ถึง ≈15.8 L/s ก่อนเซ็นเซอร์อิ่มตัว</td><td>ผ่านตามการคำนวณ</td></tr>
+    <tr><th>ความแม่นยำปริมาตร</th><td>±2.5 % หรือ 0.05 L [1]</td><td>≈1.5–3 % ที่ลมแรง 1–15 L/s</td><td>ต้องวัดด้วยกระบอกฉีด 3 L</td></tr>
+    <tr><th>ความต้านทานการหายใจ</th><td>ไม่เกิน 1.5 cmH₂O/(L/s) [1]</td><td>≈0.59 cmH₂O/(L/s) ที่ 14 L/s</td><td>คำนวณ ยังไม่วัดจริง</td></tr>
+    <tr><th>สิ้นสุดการเป่า</th><td>ไหลต่ำกว่า 0.025 L/s นาน ≥1 s [1][2]</td><td>ตัดที่ 0.25 L/s (เซ็นเซอร์ไม่แม่นกว่านี้)</td><td>ไม่ตรงมาตรฐาน: ใช้คัดกรอง</td></tr>
+    <tr><th>ความซ้ำได้</th><td>FVC และ FEV1 ต่างกัน ≤0.15 L [1]</td><td>เกรด A/C ตามเกณฑ์นี้ในเฟิร์มแวร์</td><td>ใช้งานได้ ยังไม่ทดสอบ</td></tr>
+    <tr><th>ค่าอ้างอิงประชากร</th><td>สมการ GLI-2012 [3]</td><td>ผู้ใช้ใส่ค่า FEV1 คาดการณ์เอง</td><td>ยังไม่ได้ใส่สมการ</td></tr>
+    <tr><th>ท่อวัด Venturi</th><td>ISO 5167-4 [4] (ช่วง Reynolds)</td><td>Re ≈ 48 000 ที่ 16 L/s ต่ำกว่าช่วงมาตรฐาน</td><td>ต้อง calibrate ค่า K</td></tr>
+  </table></div>
+</section>
+
+<section id="refs">
+  <div class="sec-h"><span class="eyebrow">เอกสารอ้างอิง</span><h2>แหล่งอ้างอิง</h2>
+  <p>ตรวจเล่ม/หน้า/ฉบับกับต้นฉบับอีกครั้งก่อนนำไปใส่ในบทความที่ส่งแข่ง</p></div>
+  <ol class="refs">
+    <li>Graham BL, Steenbruggen I, Miller MR, et al. Standardization of Spirometry 2019 Update: An Official ATS and ERS Technical Statement. <i>Am J Respir Crit Care Med</i> 2019;200(8):e70–e88. doi:10.1164/rccm.201908-1590ST</li>
+    <li>Miller MR, Hankinson J, Brusasco V, et al. Standardisation of spirometry. <i>Eur Respir J</i> 2005;26(2):319–338.</li>
+    <li>Quanjer PH, Stanojevic S, Cole TJ, et al. Multi-ethnic reference values for spirometry for the 3–95-yr age range: the global lung function 2012 equations. <i>Eur Respir J</i> 2012;40(6):1324–1343.</li>
+    <li>ISO 5167-4. Measurement of fluid flow by means of pressure differential devices inserted in circular cross-section conduits running full: Venturi tubes.</li>
+    <li>Sensirion AG. SDP810 digital differential pressure sensor, datasheet (ตรวจฉบับล่าสุดที่ sensirion.com).</li>
+    <li>3D-printed Venturi spirometer with ESP32, <i>Frontiers in Bioengineering and Biotechnology</i> 2025. doi:10.3389/fbioe.2025.1664127</li>
+    <li>ndd Medizintechnik AG. EasyOne / Easy on-PC spirometer product information. nddmed.com/products/spirometers/easy-on-pc/</li>
+  </ol>
+  <p class="note">หมายเหตุ: ต้นแบบนี้ไม่ใช่เครื่องมือแพทย์ที่ผ่านการรับรอง และยังไม่ผ่านการทดสอบทางคลินิก ตัวเลขทั้งหมดเป็นค่าคำนวณหรือค่าจากเอกสารผู้ผลิต</p>
 </section>
 
 <section>

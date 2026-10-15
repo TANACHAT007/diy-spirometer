@@ -63,4 +63,6 @@ nav a.go,.btn,.controls button{border-radius:99px;text-transform:none;letter-spa
 td em{border-radius:99px}
 .status{border-left:1px solid var(--line);border-bottom:4px solid var(--sky-d)}
 .thumbs button[aria-pressed=true]{outline-offset:1px}
+.refs{margin:0;padding-left:1.4em;display:grid;gap:10px;font-size:14px;color:var(--mute)}.refs li::marker{color:var(--sky-d);font-weight:700}
+#std table th{width:20%}#std td{font-size:14px}
 </style>
