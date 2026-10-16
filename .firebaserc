@@ -1,1 +1,7 @@
-{ "projects": { "default": "spiro-medthai" } }
+{
+  "projects": {
+    "default": "spiro-medthai"
+  },
+  "targets": {},
+  "etags": {}
+}
