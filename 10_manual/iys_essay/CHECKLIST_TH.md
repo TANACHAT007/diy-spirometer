@@ -18,4 +18,4 @@ Poster + พรีเซนต์ ใช้เฉพาะ Top 100 ในรอ�
 เงื่อนไข: อายุ 15-27 ปี, ทีม 2-5 คน (หนึ่งคนเป็นหัวหน้า), บทความมากกว่า 10 หน้าจะไม่ถูกตรวจ
 
 ก่อนส่ง: เปิดไฟล์ .docx ใส่สถาบันของหัวหน้าทีม (แทน `[leader institution]`) และสมาชิกคนอื่นถ้ามี ในหน้าปก แล้วลบข้อความ "<- fill in"
-สมาชิกที่ใส่แล้ว: Puttitada Pruetchayakul (โรงเรียนบดินทรเดชา (สิงห์ สิงหเสนี)), Pimnara Roongsetthavitr (International Community School), Suchanan Kittikraisak (The Newton Sixth Form) — อีเมลและเบอร์โทรไม่ได้ใส่ในบทความ ใช้กรอกในฟอร์ม linktr.ee เท่านั้น
+สมาชิกที่ใส่แล้ว: Puttitada Pruetchayakul (โรงเรียนบดินทรเดชา (สิงห์ สิงหเสนี)), Pimnara Roongsetthavitr (International Community School), Suchanan Kittikraisak (The Newton Sixth Form), Natnicha Taepucharoen (โรงเรียนสามเสนวิทยาลัย) — อีเมลและเบอร์โทรไม่ได้ใส่ในบทความ ใช้กรอกในฟอร์ม linktr.ee เท่านั้น
