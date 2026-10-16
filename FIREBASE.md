@@ -40,3 +40,9 @@ The committed `docs/firebase-config.js` points at the MEDTHAI project. **Do not 
 ## Hosting (live site)
 The site is served by **Firebase Hosting**: https://medthai-spirometer.web.app (also https://spiro-medthai.firebaseapp.com). Publish after any change in `docs/`:
 `npx firebase-tools deploy --only hosting --project spiro-medthai` (rules: `--only firestore`). HTML/JS are sent with `Cache-Control: no-cache` so users get new versions immediately. The default domains are already authorised for sign-in; add any custom domain under Authentication > Settings > Authorized domains.
+
+## Test accounts (demo project only)
+Three throw-away accounts exist for testing each role: `test.admin@example.com`, `test.doctor@example.com`, `test.patient@example.com` (doctor code `DR-TEST`, patient linked to that doctor, 3 labelled demo results). Their password is deliberately trivial and is **not** stored in this repo. **Before any real patient uses the system, disable or delete these three accounts** (Firebase Console > Authentication) - a weak-password admin can read every record.
+
+## Hosting
+GitHub Pages is switched off. The only public site is Firebase Hosting: https://medthai-spirometer.web.app

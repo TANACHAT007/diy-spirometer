@@ -2,7 +2,7 @@
 // DIY IoT Spirometer — XIAO ESP32-S3 + SDP810-500Pa (venturi D28/d23)
 // Targets: XIAO ESP32-S3 or XIAO ESP32-C3 (same 21 x 17.8 footprint; pins switch automatically).
 // Features: breath test (FVC/FEV1/FEV1-FVC/PEF), BLE live stream, Wi-Fi upload to Firebase RTDB (REST), battery %, NTP time.
-// Button (D1 = GPIO2): short press = start test, hold 1.5 s = zero offset, hold 4 s = new mouthpiece. LED on D2 = GPIO3.
+// Button (D1 = GPIO2): short press = start test, hold 1.5 s = zero offset, hold 4 s = new mouthpiece, hold 8 s = show device code and open the 5-minute pairing window. LED on D2 = GPIO3.
 // ESP32-S3 only: GC9A01 round display (LovyanGFX) + MAX98357A I2S speaker (soft tones) + disposable-mouthpiece life counter.
 // NOT a medical device. Venturi model Q = K*sqrt(dP); K from calibration with a 3 L syringe (see README).
 #include <Wire.h>
@@ -46,6 +46,10 @@ float scalePa = 60.0f, offsetPa = 0;
 struct Result { float fvc, fev1, ratio, pef; uint32_t ms; time_t ts; bool valid; } last;
 BLECharacteristic* chLive = nullptr;
 BLECharacteristic* chRes = nullptr;
+BLECharacteristic* chCfg = nullptr;       // phone -> device Wi-Fi setup + device info (only while the pairing window is open)
+String DEV_CODE = "";                      // SP-XXXXX-XXXXX, random, made on first boot, shown on the screen only (hold button 8 s)
+bool pairOpen = false; uint32_t pairUntil = 0;
+volatile bool wifiPending = false; String pendSsid, pendPass;
 bool bleOn = false;
 
 uint8_t crc8(const uint8_t* d, int n) {
@@ -182,8 +186,15 @@ void uiResult(const Result& r, const char* qual, char g) {
   snprintf(s, sizeof s, "quality %s  grade %c", qual, g); tft.drawString(s, 120, 200);
 }
 void uiInit() { tft.init(); tft.setRotation(0); tft.setBrightness(200); tft.fillScreen(TFT_BLACK); }
+void uiCode(const char* code, const char* hint, uint16_t c) {            // pairing screen: device code + what to do next
+  tft.fillScreen(TFT_BLACK); uiRing(c); tft.setTextDatum(middle_center);
+  tft.setTextColor(c); tft.setFont(&fonts::FreeSans12pt7b); tft.drawString("DEVICE CODE", 120, 70);
+  tft.setTextColor(TFT_WHITE); tft.setFont(&fonts::FreeSansBold12pt7b); tft.drawString(code, 120, 120);
+  tft.setTextColor(DIM); tft.setFont(&fonts::FreeSans9pt7b); tft.drawString(hint, 120, 170);
+}
 #else
 void uiMsg(const char*, const char*, uint16_t) {}
+void uiCode(const char*, const char*, uint16_t) {}
 void uiIdle(float) {} void uiTest(float, float) {} void uiResult(const Result&, const char*, char) {} void uiInit() {} void audioInit() {}
 const uint16_t SKY = 0, OKC = 0, WARNC = 0, BADC = 0, DIM = 0;
 void sndReady() {} void sndDone() {} void sndGood() {} void sndLow() {} void sndWarn() {} void sndClick() {}
@@ -197,9 +208,18 @@ void loadCfg() {
   mpUses = prefs.getUShort("mpn", 0); mpStart = prefs.getUInt("mps", 0); volPct = prefs.getInt("vol", 40);
   prefs.end();
 }
+void ensureCode();
 void saveStr(const char* k, const String& v) { prefs.begin("spiro", false); prefs.putString(k, v); prefs.end(); }
 void saveF(const char* k, float v) { prefs.begin("spiro", false); prefs.putFloat(k, v); prefs.end(); }
 
+void ensureCode() {                        // 10 random characters from a 31-letter alphabet (about 50 bits), no I L O 0 1
+  prefs.begin("spiro", true); DEV_CODE = prefs.getString("dcode", ""); prefs.end();
+  if (DEV_CODE.length() == 13) return;
+  const char* A = "ABCDEFGHJKMNPQRSTUVWXYZ23456789";
+  String c = "SP-";
+  for (int i = 0; i < 10; i++) { c += A[esp_random() % 31]; if (i == 4) c += '-'; }
+  DEV_CODE = c; saveStr("dcode", c);
+}
 void zero() {
   float sum = 0, v; int n = 0;
   for (int i = 0; i < 400; i++) { if (sdpRead(v)) { sum += v; n++; } delayMicroseconds(SAMPLE_US); }
@@ -221,7 +241,7 @@ bool upload(const Result& r) {
   String url = DB_URL + "/devices/" + DEV_ID + "/sessions.json" + (DB_AUTH.length() ? "?auth=" + DB_AUTH : "");
   char body[256];
   snprintf(body, sizeof body,
-           "{\"ts\":%lld,\"fvc\":%.2f,\"fev1\":%.2f,\"ratio\":%.1f,\"pef\":%.2f,\"dur_ms\":%lu,\"bat\":%.0f,\"mp\":%u,\"fw\":\"1.1\"}",
+           "{\"ts\":%lld,\"fvc\":%.2f,\"fev1\":%.2f,\"ratio\":%.1f,\"pef\":%.2f,\"dur_ms\":%lu,\"bat\":%.0f,\"mp\":%u,\"fw\":\"1.3\"}",
            (long long)r.ts * 1000LL, r.fvc, r.fev1, r.ratio, r.pef, (unsigned long)r.ms, batteryPct(), (unsigned)mpUses);
   if (!http.begin(cli, url)) return false;
   http.addHeader("Content-Type", "application/json");
@@ -237,6 +257,21 @@ class SrvCb : public BLEServerCallbacks {
   void onConnect(BLEServer*) { bleOn = true; }
   void onDisconnect(BLEServer* s) { bleOn = false; s->startAdvertising(); }
 };
+class CfgCb : public BLECharacteristicCallbacks {
+  // write "W|<device code>|<ssid>|<password>" : accepted only while the pairing window is open AND the code matches
+  void onWrite(BLECharacteristic* c) {
+    String v = String(c->getValue().c_str());
+    if (!pairOpen || millis() > pairUntil || !v.startsWith("W|")) return;
+    int a = v.indexOf('|', 2), b = v.indexOf('|', a + 1);
+    if (a < 0 || b < 0) return;
+    if (v.substring(2, a) != DEV_CODE) return;
+    pendSsid = v.substring(a + 1, b); pendPass = v.substring(b + 1); wifiPending = true;
+  }
+  void onRead(BLECharacteristic* c) {
+    String info = String("SP1|") + (pairOpen && millis() < pairUntil ? "open" : "closed") + "|" + DEV_ID + "|" + (WiFi.status() == WL_CONNECTED ? WIFI_SSID : String(""));
+    c->setValue(info.c_str());                 // never contains the code or the password
+  }
+};
 void bleInit() {
   BLEDevice::init(("Spiro-" + DEV_ID).c_str());
   BLEServer* s = BLEDevice::createServer();
@@ -245,6 +280,8 @@ void bleInit() {
   chLive = sv->createCharacteristic("6e400002-b5a3-f393-e0a9-e50e24dcca9e", BLECharacteristic::PROPERTY_NOTIFY);
   chRes = sv->createCharacteristic("6e400003-b5a3-f393-e0a9-e50e24dcca9e",
                                    BLECharacteristic::PROPERTY_NOTIFY | BLECharacteristic::PROPERTY_READ);
+  chCfg = sv->createCharacteristic("6e400004-b5a3-f393-e0a9-e50e24dcca9e", BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_WRITE);
+  chCfg->setCallbacks(new CfgCb());
   chLive->addDescriptor(new BLE2902());
   chRes->addDescriptor(new BLE2902());
   sv->start();
@@ -360,16 +397,19 @@ void cmd(String l) {
   else if (l.startsWith("dev ")) { saveStr("dev", l.substring(4)); loadCfg(); Serial.println("device id saved (reboot)"); }
   else if (l.startsWith("k ")) { K_VENT = l.substring(2).toFloat(); saveF("k", K_VENT); Serial.printf("K=%.4f\n", K_VENT); }
   else if (l.startsWith("vol ")) { volPct = constrain(l.substring(4).toInt(), 0, 100); mpSave(); sndClick(); Serial.printf("volume %d\n", volPct); }
+  else if (l == "code") Serial.printf("device code: %s
+", DEV_CODE.c_str());
+  else if (l == "pair") { pairOpen = true; pairUntil = millis() + 300000; Serial.println("pairing window open for 5 min"); }
   else if (l == "mp new") { mpNew(); Serial.println("new mouthpiece: counter reset"); }
   else if (l == "info")
-    Serial.printf("dev=%s wifi=%s db=%s K=%.4f off=%.3f bat=%.0f%% mouthpiece=%u/%u uses, day %d/%d, vol=%d\n", DEV_ID.c_str(),
+    Serial.printf("code=%s dev=%s wifi=%s db=%s K=%.4f off=%.3f bat=%.0f%% mouthpiece=%u/%u uses, day %d/%d, vol=%d\n", DEV_CODE.c_str(), DEV_ID.c_str(),
                   WIFI_SSID.c_str(), DB_URL.c_str(), K_VENT, offsetPa, batteryPct(), mpUses, MP_MAX_USES, mpDays(), MP_MAX_DAYS, volPct);
 }
 void setup() {
   Serial.begin(115200);
   pinMode(BTN_PIN, INPUT_PULLUP);
   pinMode(LED_PIN, OUTPUT);
-  loadCfg();
+  loadCfg(); ensureCode();
   uiInit(); audioInit(); uiMsg("SPIRO", "starting...", SKY);
   Wire.begin(SDA_PIN, SCL_PIN, 400000);
   Serial.println(sdpStart() ? "SDP810 ok" : "SDP810 NOT FOUND");
@@ -384,16 +424,27 @@ void loop() {
   static bool lastBle = false;
   if (Serial.available()) cmd(Serial.readStringUntil('\n'));
   if (bleOn != lastBle) { lastBle = bleOn; uiIdle(batteryPct()); }
+  if (pairOpen && millis() > pairUntil) { pairOpen = false; uiIdle(batteryPct()); }
+  if (wifiPending) {                                                   // set from the phone over Bluetooth
+    wifiPending = false; saveStr("ssid", pendSsid); saveStr("pass", pendPass); loadCfg();
+    WiFi.disconnect(); wifiUp();
+    bool ok = WiFi.status() == WL_CONNECTED;
+    char m[80]; snprintf(m, sizeof m, ok ? "WIFI,ok,%s" : "WIFI,fail", WiFi.localIP().toString().c_str());
+    bleNotify(m, chRes); uiMsg(ok ? "WI-FI OK" : "WI-FI FAIL", WIFI_SSID.c_str(), ok ? OKC : BADC);
+    if (ok) pairOpen = false; delay(1500); uiIdle(batteryPct());
+  }
   if (digitalRead(BTN_PIN) == LOW) {
-    uint32_t t = millis(); bool m1 = false, m2 = false;
-    while (digitalRead(BTN_PIN) == LOW && millis() - t < 6000) {          // hold 1.5 s = zero, hold 4 s = new mouthpiece
+    uint32_t t = millis(); bool m1 = false, m2 = false, m3 = false;
+    while (digitalRead(BTN_PIN) == LOW && millis() - t < 9000) {          // hold 1.5 s = zero, 4 s = new mouthpiece, 8 s = show device code + open pairing
       uint32_t d = millis() - t;
       if (d > 1500 && !m1) { m1 = true; uiMsg("ZERO", "release to zero", SKY); sndClick(); }
       if (d > 4000 && !m2) { m2 = true; uiMsg("NEW", "mouthpiece? release", OKC); sndClick(); }
+      if (d > 8000 && !m3) { m3 = true; uiCode(DEV_CODE.c_str(), "release; open the app", SKY); sndGood(); }
       delay(10);
     }
     uint32_t d = millis() - t;
-    if (d > 4000) { mpNew(); sndGood(); } else if (d > 1500) zero(); else runTest();
+    if (d > 8000) { pairOpen = true; pairUntil = millis() + 300000; uiCode(DEV_CODE.c_str(), "pairing open 5 min", SKY); delay(8000); }
+    else if (d > 4000) { mpNew(); sndGood(); } else if (d > 1500) zero(); else runTest();
     while (digitalRead(BTN_PIN) == LOW) delay(10);
     uiIdle(batteryPct());
   }
