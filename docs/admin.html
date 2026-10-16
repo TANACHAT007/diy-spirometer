@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="th">
+<head>
+<!-- CREDIT-STAMP: DIY IoT Spirometer - designed by Tanachat S. (TANACHAT007) / MEDTHAI - 2026 - https://github.com/TANACHAT007/diy-spirometer -->
+<meta name="author" content="Tanachat S. (TANACHAT007) / MEDTHAI">
+
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#0b5cab">
+<title>ผู้ดูแลระบบ · Spiro Admin</title>
+<link rel="icon" href="icon-192.png">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+:root{--bg:#eef2f7;--card:#fff;--ink:#14263d;--mute:#586b82;--acc:#0b5cab;--acc2:#e8f1fb;--line:#d3dce7;--ok:#1b8a4b;--warn:#b7791f;--bad:#c0392b;--soft:#f5f8fc;--sh:0 1px 2px rgba(20,38,61,.06),0 8px 24px -12px rgba(20,38,61,.18)}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#0e1621;--card:#16222f;--ink:#e8eef5;--mute:#93a4b8;--acc:#5aa8f0;--acc2:#1b2d42;--line:#2a3a4c;--ok:#3ccf7b;--warn:#e0a63a;--bad:#ef6a5b;--soft:#1b2a3a;--sh:0 1px 2px rgba(0,0,0,.3)}}
+:root[data-theme=dark]{--bg:#0e1621;--card:#16222f;--ink:#e8eef5;--mute:#93a4b8;--acc:#5aa8f0;--acc2:#1b2d42;--line:#2a3a4c;--ok:#3ccf7b;--warn:#e0a63a;--bad:#ef6a5b;--soft:#1b2a3a;--sh:0 1px 2px rgba(0,0,0,.3)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 "IBM Plex Sans Thai",system-ui,sans-serif}
+button,input,select,textarea{font:inherit;color:inherit}
+header{background:#0b3a63;color:#fff;position:sticky;top:0;z-index:5}
+.bar{max-width:1240px;margin:0 auto;padding:10px 16px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.brand{font-weight:700;font-size:18px;margin-right:auto;display:flex;gap:8px;align-items:center}
+.brand small{font-weight:500;background:rgba(255,255,255,.18);border-radius:99px;padding:2px 10px;font-size:12px}
+nav{display:flex;gap:4px;flex-wrap:wrap}
+nav button,.tb{background:transparent;border:0;color:#fff;padding:8px 14px;border-radius:8px;cursor:pointer;font-weight:500;opacity:.85;text-decoration:none;font-size:15px}
+nav button.on{background:rgba(255,255,255,.2);opacity:1}
+.tb{border:1px solid rgba(255,255,255,.4);padding:6px 11px;font-size:13.5px}
+main{max-width:1240px;margin:0 auto;padding:18px 16px 60px}
+section.tab{display:none}section.tab.on{display:block}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;box-shadow:var(--sh);padding:18px;margin-bottom:16px}
+h2{font-size:18px;margin:0 0 12px}h3{font-size:15px;margin:0 0 8px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(190px,100%),1fr));gap:12px;margin-bottom:16px}
+.stat{background:var(--card);border:1px solid var(--line);border-left:4px solid var(--acc);border-radius:10px;padding:12px 14px;box-shadow:var(--sh)}
+.stat b{display:block;font-size:30px;line-height:1.15;font-variant-numeric:tabular-nums}.stat span{font-size:12px;color:var(--mute)}
+.stat.warn{border-left-color:var(--warn)}.stat.ok{border-left-color:var(--ok)}
+.b{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:7px 13px;cursor:pointer;font-weight:600}.b:hover{border-color:var(--acc)}
+.b.pri{background:var(--acc);border-color:var(--acc);color:#fff}.b.danger{color:var(--bad)}.b.sm{padding:3px 9px;font-size:13px}
+input,select,textarea{width:100%;background:var(--card);border:1px solid var(--line);border-radius:8px;padding:8px 10px}
+label{display:grid;gap:4px;font-size:12.5px;color:var(--mute);font-weight:600}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.form{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(200px,100%),1fr));gap:12px}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th{font-size:11.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--mute);background:var(--soft);font-weight:600;text-align:left}
+th,td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:left;vertical-align:middle}
+.tw{overflow:auto;max-height:560px}
+.tag{display:inline-block;padding:2px 9px;border-radius:99px;font-size:12px;font-weight:700;color:#fff;background:var(--mute)}
+.tag.admin{background:#7a3cc2}.tag.doctor{background:var(--acc)}.tag.patient{background:#12906a}.tag.pending{background:var(--warn)}.tag.disabled{background:var(--bad)}.tag.active{background:var(--ok)}
+.note{color:var(--mute);font-size:12.5px}
+.msg{padding:9px 13px;border-radius:8px;background:var(--soft);border:1px solid var(--line);font-size:13.5px;margin:8px 0}
+.msg.warn{border-color:var(--warn)}.msg.bad{border-color:var(--bad)}.msg.ok{border-color:var(--ok)}
+pre{background:#0f1b2b;color:#d6e4f5;border-radius:8px;padding:12px;overflow:auto;max-height:360px;font:12.5px/1.5 "IBM Plex Mono",monospace;margin:8px 0}
+.sw{display:flex;gap:10px;align-items:center;font-size:14px;color:var(--ink);font-weight:500;padding:6px 0}.sw input{width:auto}
+code{font-family:"IBM Plex Mono",monospace;background:var(--soft);padding:1px 6px;border-radius:4px;font-size:13px}
+.hide{display:none!important}
+.two{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(420px,100%),1fr));gap:16px}
+</style>
+</head>
+<body>
+<header><div class="bar">
+  <div class="brand">🛠️ Spiro Admin <small id="me"></small></div>
+  <nav id="nav"></nav>
+  <a class="tb" href="index.html">หน้าแรก</a><a class="tb" href="clinic.html?demo">ตัวอย่างแอป</a><button class="tb" id="theme">◐</button><button class="tb" id="out">ออกจากระบบ</button>
+</div></header>
+<main>
+<div class="msg warn" id="localWarn">โหมดเก็บข้อมูลในเบราว์เซอร์นี้: บัญชีและผลตรวจที่เห็นที่นี่คือของเครื่องนี้เท่านั้น ใช้ทดสอบระบบก่อนย้ายไป Firebase (ดูแท็บ "ตั้งค่า" และ "นักพัฒนา")</div>
+
+<section class="tab" id="tab-over">
+  <div class="grid" id="stats"></div>
+  <div class="two">
+    <div class="card"><h2>รอดำเนินการ</h2><div id="todo"></div></div>
+    <div class="card"><h2>กิจกรรมล่าสุด</h2><div class="tw" style="max-height:340px"><table id="auditT"></table></div></div>
+  </div>
+</section>
+
+<section class="tab" id="tab-users">
+  <div class="card">
+    <div class="row" style="justify-content:space-between;margin-bottom:10px"><h2 style="margin:0">ผู้ใช้ทั้งหมด</h2>
+      <div class="row"><input id="uq" placeholder="ค้นหาชื่อ / อีเมล" style="width:220px"><select id="uf" style="width:150px"><option value="">ทุกบทบาท</option><option value="admin">แอดมิน</option><option value="doctor">แพทย์</option><option value="patient">ผู้ป่วย</option><option value="pending">รออนุมัติ</option><option value="disabled">ถูกระงับ</option></select><button class="b pri" id="newU">+ สร้างบัญชี</button></div></div>
+    <div class="tw"><table id="uT"></table></div>
+  </div>
+  <div class="card hide" id="uForm"><h2>สร้างบัญชี</h2>
+    <div class="form"><label>ชื่อ-สกุล<input id="nu_name"></label><label>อีเมล<input id="nu_email" type="email"></label><label>บทบาท<select id="nu_role"><option value="patient">ผู้ป่วย</option><option value="doctor">แพทย์</option><option value="admin">แอดมิน</option></select></label><label>รหัสผ่านเริ่มต้น<input id="nu_pw" placeholder="เว้นว่าง = สุ่มให้"></label></div>
+    <div class="row" style="margin-top:10px"><button class="b pri" id="nu_ok">สร้าง</button><button class="b" id="nu_cancel">ยกเลิก</button></div><div id="nu_msg"></div></div>
+</section>
+
+<section class="tab" id="tab-data">
+  <div class="card"><div class="row" style="justify-content:space-between;margin-bottom:10px"><h2 style="margin:0">ผลการตรวจในระบบ (ผู้ป่วยเป่าเอง)</h2>
+    <div class="row"><button class="b" id="expAll">ส่งออกทั้งหมด (JSON)</button><button class="b" id="expCsv">ส่งออก CSV</button><label class="b" style="cursor:pointer;display:inline-block">นำเข้า (รวมกับของเดิม)<input type="file" id="imp" accept=".json" hidden></label></div></div>
+    <div class="tw"><table id="tT"></table></div></div>
+</section>
+
+<section class="tab" id="tab-sys">
+  <div class="two">
+    <div class="card"><h2>การสมัครและอนุมัติ</h2>
+      <label class="sw"><input type="checkbox" id="s_reg"> เปิดรับสมัครผู้ใช้ใหม่</label>
+      <label class="sw"><input type="checkbox" id="s_appr"> บัญชีแพทย์ต้องรอแอดมินอนุมัติ</label>
+      <label>ประกาศหน้าเข้าสู่ระบบ (เว้นว่าง = ไม่แสดง)<input id="s_ann" placeholder="เช่น ปิดปรับปรุงวันเสาร์ 20:00"></label>
+      <div class="row" style="margin-top:10px"><button class="b pri" id="s_save">บันทึก</button></div><div id="s_msg"></div></div>
+    <div class="card"><h2>ย้ายไป Firebase</h2>
+      <p class="note">ข้อมูลทุกอย่างผ่าน <code>core.js</code> ชั้นเดียว เมื่อทำ adapter ของ Firebase แล้วเปลี่ยนโหมดได้ทันที ตอนนี้ใส่ค่าตั้งค่าเก็บไว้ก่อนได้ (ยังไม่ใช้งานจริง)</p>
+      <div class="form"><label>apiKey<input id="f_key"></label><label>authDomain<input id="f_dom"></label><label>databaseURL<input id="f_db"></label><label>projectId<input id="f_pid"></label><label>appId<input id="f_app"></label></div>
+      <div class="msg warn">ห้ามเปิดกฎฐานข้อมูลแบบสาธารณะกับข้อมูลคนจริง ใช้ร่างกฎใน <code>firebase.rules.json</code> และอ่าน <code>FIREBASE_MIGRATION.md</code></div>
+      <div class="row"><button class="b" id="f_save">บันทึกค่า Firebase</button></div></div>
+  </div>
+  <div class="card"><h2>เกณฑ์ทางคลินิกที่ใช้ในแอป (อ่านอย่างเดียว)</h2>
+    <table><tr><th>รายการ</th><th>ค่า</th><th>สถานะ</th></tr>
+    <tr><td>เป่านานขั้นต่ำต่อครั้ง</td><td>2 วินาที</td><td>ค่าของโครงงาน หลวมกว่า ATS/ERS (6 วินาที)</td></tr>
+    <tr><td>ความซ้ำได้ (FVC, FEV1)</td><td>≤ 0.15 L (≤ 0.10 L ถ้า FVC ≤ 1 L)</td><td>ตามแนว ATS/ERS</td></tr>
+    <tr><td>ตัดสินอุดกั้น</td><td>FEV1/FVC &lt; 70 %</td><td>เกณฑ์คงที่ ไม่ใช่ LLN ของ GLI</td></tr>
+    <tr><td>ค่าคาดการณ์</td><td>กรอกเอง</td><td>ยังไม่ใส่สมการ GLI-2012</td></tr>
+    <tr><td>ค่า K ของเครื่อง</td><td>ต้อง calibrate ด้วยกระบอกฉีด 3 L</td><td>ยังไม่ได้วัดจริง</td></tr></table></div>
+</section>
+
+<section class="tab" id="tab-dev">
+  <div class="two">
+    <div class="card"><h2>สถานะระบบ</h2><div id="health"></div></div>
+    <div class="card"><h2>บัญชีทดลอง</h2><p class="note">สร้างแพทย์ + ผู้ป่วย พร้อมผลตรวจสมมติ (ติดป้าย "ทดลอง") เพื่อลองทั้งลำดับงาน รหัสผ่านสุ่มและแสดงครั้งเดียว</p>
+      <button class="b pri" id="seed">สร้างชุดทดลอง</button><div id="seedOut"></div></div>
+  </div>
+  <div class="card"><h2>ดูข้อมูลดิบ</h2>
+    <div class="row"><select id="rawSel" style="width:200px"><option value="users">users (ไม่แสดงรหัสผ่าน)</option><option value="tests">tests</option><option value="audit">audit</option><option value="settings">settings</option></select><button class="b" id="rawGo">แสดง</button></div><pre id="raw">–</pre></div>
+  <div class="card"><h2>เขตอันตราย</h2><p class="note">ล้างข้อมูลทั้งหมดในเบราว์เซอร์นี้ (บัญชี ผลตรวจ บันทึกกิจกรรม และข้อมูลแอปแพทย์ของทุกบัญชี) กู้คืนไม่ได้ สำรองข้อมูลก่อน</p>
+    <div class="row"><input id="wipeIn" placeholder="พิมพ์ RESET เพื่อยืนยัน" style="width:240px"><button class="b danger" id="wipe">ล้างข้อมูลทั้งหมด</button></div></div>
+</section>
+</main>
+<script src="core.js"></script>
+<script>
+const $=id=>document.getElementById(id);
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const fd=ts=>ts?new Date(ts).toLocaleString('th-TH',{dateStyle:'short',timeStyle:'short'}):'–';
+const RL={admin:'แอดมิน',doctor:'แพทย์',patient:'ผู้ป่วย'},ST={active:'ใช้งาน',pending:'รออนุมัติ',disabled:'ระงับ'};
+let me,tab='over';
+const TABS=[['over','ภาพรวม'],['users','ผู้ใช้'],['data','ข้อมูลการตรวจ'],['sys','ตั้งค่า'],['dev','นักพัฒนา']];
+function setTab(x){tab=x;document.querySelectorAll('section.tab').forEach(s=>s.classList.toggle('on',s.id==='tab-'+x));
+  $('nav').innerHTML=TABS.map(([k,v])=>`<button data-t="${k}" class="${k===x?'on':''}">${v}</button>`).join('');
+  $('nav').querySelectorAll('button').forEach(b=>b.onclick=()=>setTab(b.dataset.t));render()}
+const R={over:renderOver,users:renderUsers,data:renderData,sys:renderSys,dev:renderDev};
+function render(){return R[tab]()}
+
+async function renderOver(){
+  const us=await SP.Users.list(),ts=await SP.Tests.all(),au=await SP.Audit.list(),wk=Date.now()-7*864e5;
+  const c=r=>us.filter(u=>u.role===r).length,pend=us.filter(u=>u.status==='pending');
+  $('stats').innerHTML=[['ผู้ใช้ทั้งหมด',us.length,''],['ผู้ป่วย',c('patient'),'ok'],['แพทย์',c('doctor'),''],['รอแอดมินอนุมัติ',pend.length,pend.length?'warn':''],['ผลตรวจทั้งหมด',ts.length,''],['ผลตรวจ 7 วันล่าสุด',ts.filter(t=>t.ts>wk).length,'ok']].map(([a,b,k])=>`<div class="stat ${k}"><b>${b}</b><span>${a}</span></div>`).join('');
+  $('todo').innerHTML=pend.length?pend.map(u=>`<div class="row" style="justify-content:space-between;border-bottom:1px solid var(--line);padding:6px 0"><div><b>${esc(u.name)}</b><div class="note">${esc(u.email)} · ใบอนุญาต ${esc(u.meta&&u.meta.license||'–')} · ${esc(u.meta&&u.meta.org||'–')}</div></div><div class="row"><button class="b pri sm" data-ap="${u.id}">อนุมัติ</button><button class="b danger sm" data-rj="${u.id}">ปฏิเสธ</button></div></div>`).join(''):'<p class="note">ไม่มีรายการรออนุมัติ</p>';
+  $('todo').querySelectorAll('[data-ap]').forEach(b=>b.onclick=async()=>{await SP.Users.update(b.dataset.ap,{status:'active'});await SP.Audit.add('approve',b.dataset.ap);render()});
+  $('todo').querySelectorAll('[data-rj]').forEach(b=>b.onclick=async()=>{if(confirm('ปฏิเสธและลบบัญชีนี้?')){await SP.Users.remove(b.dataset.rj);await SP.Audit.add('reject',b.dataset.rj);render()}});
+  const nm=id=>{const u=us.find(x=>x.id===id);return u?u.email:(id||'–')};
+  $('auditT').innerHTML='<tr><th>เวลา</th><th>ผู้ทำ</th><th>เหตุการณ์</th><th>รายละเอียด</th></tr>'+au.slice(0,40).map(a=>`<tr><td>${fd(a.ts)}</td><td>${esc(nm(a.actor))}</td><td>${esc(a.action)}</td><td>${esc(a.detail)}</td></tr>`).join('')}
+
+async function renderUsers(){
+  const us=await SP.Users.list(),q=$('uq').value.trim().toLowerCase(),f=$('uf').value;
+  const list=us.filter(u=>(!q||(u.name+' '+u.email).toLowerCase().includes(q))&&(!f||u.role===f||u.status===f));
+  const docs=us.filter(u=>u.role==='doctor');
+  $('uT').innerHTML='<tr><th>ชื่อ</th><th>อีเมล</th><th>บทบาท</th><th>สถานะ</th><th>แพทย์ผู้ดูแล / รหัส</th><th>เข้าล่าสุด</th><th></th></tr>'+(list.map(u=>`<tr>
+    <td><b>${esc(u.name)}</b></td><td>${esc(u.email)}</td><td><span class="tag ${u.role}">${RL[u.role]}</span></td><td><span class="tag ${u.status}">${ST[u.status]}</span></td>
+    <td>${u.role==='doctor'?'<code>'+esc(u.code||'')+'</code>':u.role==='patient'?`<select data-doc="${u.id}" style="width:150px"><option value="">–</option>${docs.map(d=>`<option value="${d.id}" ${u.doctorId===d.id?'selected':''}>${esc(d.name)}</option>`).join('')}</select>`:'–'}</td>
+    <td>${fd(u.lastLogin)}</td>
+    <td><div class="row" style="flex-wrap:nowrap">${u.status==='pending'?`<button class="b pri sm" data-a="ap" data-id="${u.id}">อนุมัติ</button>`:''}
+      <button class="b sm" data-a="${u.status==='disabled'?'en':'dis'}" data-id="${u.id}" ${u.id===me.id?'disabled':''}>${u.status==='disabled'?'เปิดใช้':'ระงับ'}</button>
+      <button class="b sm" data-a="pw" data-id="${u.id}">รีเซ็ตรหัส</button>
+      <select data-role="${u.id}" style="width:96px" ${u.id===me.id?'disabled':''}>${['patient','doctor','admin'].map(r=>`<option value="${r}" ${u.role===r?'selected':''}>${RL[r]}</option>`).join('')}</select>
+      <button class="b danger sm" data-a="del" data-id="${u.id}" ${u.id===me.id?'disabled':''}>ลบ</button></div></td></tr>`).join('')||'<tr><td colspan="7" class="note">ไม่พบ</td></tr>');
+  $('uT').querySelectorAll('button[data-a]').forEach(b=>b.onclick=()=>userAct(b.dataset.a,b.dataset.id));
+  $('uT').querySelectorAll('select[data-doc]').forEach(s=>s.onchange=async()=>{await SP.Users.update(s.dataset.doc,{doctorId:s.value});await SP.Audit.add('assign_doctor',s.dataset.doc+' → '+s.value)});
+  $('uT').querySelectorAll('select[data-role]').forEach(s=>s.onchange=async()=>{if(!confirm('เปลี่ยนบทบาทเป็น '+RL[s.value]+'?')){render();return}
+    const patch={role:s.value};const u=await SP.Users.get(s.dataset.role);if(s.value==='doctor'&&!u.code)patch.code='DR-'+SP.rnd(4).toUpperCase();await SP.Users.update(u.id,patch);await SP.Audit.add('role_change',u.email+' → '+s.value);render()})}
+async function userAct(a,id){
+  const u=await SP.Users.get(id);
+  if(a==='ap'){await SP.Users.update(id,{status:'active'});await SP.Audit.add('approve',u.email)}
+  else if(a==='dis'){await SP.Users.update(id,{status:'disabled'});await SP.Audit.add('disable',u.email)}
+  else if(a==='en'){await SP.Users.update(id,{status:'active'});await SP.Audit.add('enable',u.email)}
+  else if(a==='pw'){const p=SP.rnd(10);await SP.Auth.changePassword(id,p);alert('รหัสผ่านชั่วคราวของ '+u.email+' คือ\n\n'+p+'\n\n(แสดงครั้งเดียว ให้ผู้ใช้เปลี่ยนหลังเข้าสู่ระบบ)')}
+  else if(a==='del'){if(!confirm('ลบบัญชี '+u.email+' และผลตรวจที่ผูกกับบัญชี?'))return;
+    await SP.Users.remove(id);const ts=(await SP.Tests.all()).filter(t=>t.patientUid!==id);localStorage.setItem(SP.K.tests,JSON.stringify(ts));await SP.Audit.add('delete_user',u.email)}
+  render()}
+$('uq').oninput=$('uf').onchange=renderUsers;
+$('newU').onclick=()=>$('uForm').classList.remove('hide');$('nu_cancel').onclick=()=>$('uForm').classList.add('hide');
+$('nu_ok').onclick=async()=>{const pw=$('nu_pw').value||SP.rnd(10);
+  try{const u=await SP.Auth.register({email:$('nu_email').value,name:$('nu_name').value,password:pw,role:$('nu_role').value,extra:{},adminCreate:true});
+    const patch={status:'active'};if($('nu_role').value==='admin'){patch.role='admin'}await SP.Users.update(u.id,patch);
+    $('nu_msg').innerHTML=`<div class="msg ok">สร้างแล้ว: ${esc(u.email)} · รหัสผ่านเริ่มต้น <code>${esc(pw)}</code> (แสดงครั้งเดียว)</div>`;renderUsers()}
+  catch(e){$('nu_msg').innerHTML=`<div class="msg bad">${esc(e.message)}</div>`}};
+
+async function renderData(){
+  const ts=(await SP.Tests.all()).sort((a,b)=>b.ts-a.ts),us=await SP.Users.list(),nm=id=>(us.find(u=>u.id===id)||{}).name||id||'–';
+  $('tT').innerHTML='<tr><th>เวลา</th><th>ผู้ป่วย</th><th>แพทย์</th><th>FEV1</th><th>FVC</th><th>FEV1/FVC %</th><th>PEF</th><th>ที่มา</th><th></th></tr>'+(ts.map(t=>`<tr><td>${fd(t.ts)}</td><td>${esc(nm(t.patientUid))}</td><td>${esc(nm(t.doctorUid))}</td><td>${t.best?t.best.fev1.toFixed(2):'–'}</td><td>${t.best?t.best.fvc.toFixed(2):'–'}</td><td>${t.best?t.best.ratio.toFixed(0):'–'}</td><td>${t.best?t.best.pef.toFixed(1):'–'}</td><td>${esc(t.src||'')}${t.demo?' · ทดลอง':''}</td><td><button class="b danger sm" data-d="${t.id}">ลบ</button></td></tr>`).join('')||'<tr><td colspan="9" class="note">ยังไม่มีผลตรวจ</td></tr>');
+  $('tT').querySelectorAll('[data-d]').forEach(b=>b.onclick=async()=>{if(confirm('ลบผลตรวจนี้?')){await SP.Tests.remove(b.dataset.d);await SP.Audit.add('delete_test',b.dataset.d);renderData()}})}
+const dl=(n,s,m)=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([s],{type:m}));a.download=n;a.click()};
+$('expAll').onclick=async()=>{const j=await SP.Data.exportAll();j.users=j.users.map(u=>({...u}));dl('spiro_system_backup.json',JSON.stringify(j),'application/json');SP.Audit.add('export_all','json')};
+$('expCsv').onclick=async()=>{const ts=await SP.Tests.all(),us=await SP.Users.list(),nm=id=>(us.find(u=>u.id===id)||{}).email||'';
+  let s='time,patient,doctor,fev1_L,fvc_L,ratio_pct,pef_Lps,src\n';for(const t of ts)if(t.best)s+=[new Date(t.ts).toISOString(),nm(t.patientUid),nm(t.doctorUid),t.best.fev1,t.best.fvc,t.best.ratio.toFixed(1),t.best.pef,t.src||''].join(',')+'\n';dl('spiro_tests.csv',s,'text/csv')};
+$('imp').onchange=async e=>{try{await SP.Data.importAll(JSON.parse(await e.target.files[0].text()),true);await SP.Audit.add('import','merge');render();alert('นำเข้าแล้ว')}catch(err){alert(err.message)}};
+
+async function renderSys(){const s=await SP.Settings.get();$('s_reg').checked=s.registrationOpen;$('s_appr').checked=s.doctorNeedsApproval;$('s_ann').value=s.announcement;
+  const f=s.firebase||{};$('f_key').value=f.apiKey||'';$('f_dom').value=f.authDomain||'';$('f_db').value=f.databaseURL||'';$('f_pid').value=f.projectId||'';$('f_app').value=f.appId||''}
+$('s_save').onclick=async()=>{await SP.Settings.set({registrationOpen:$('s_reg').checked,doctorNeedsApproval:$('s_appr').checked,announcement:$('s_ann').value.trim()});await SP.Audit.add('settings','registration/approval/announcement');$('s_msg').innerHTML='<div class="msg ok">บันทึกแล้ว</div>'};
+$('f_save').onclick=async()=>{await SP.Settings.set({firebase:{apiKey:$('f_key').value.trim(),authDomain:$('f_dom').value.trim(),databaseURL:$('f_db').value.trim(),projectId:$('f_pid').value.trim(),appId:$('f_app').value.trim()}});await SP.Audit.add('settings','firebase config');alert('บันทึกค่าแล้ว (ยังไม่ได้ใช้งาน จนกว่าจะมี adapter)')};
+
+async function renderDev(){
+  const kb=(SP.Data.usage()/1024).toFixed(0);
+  const checks=[['เบราว์เซอร์รองรับ crypto.subtle (แฮชรหัสผ่าน PBKDF2)',!!(crypto&&crypto.subtle)],['เปิดผ่าน https หรือ localhost (จำเป็นต่อ Bluetooth และ PWA)',location.protocol==='https:'||location.hostname==='localhost'],['Web Bluetooth',!!navigator.bluetooth],['Service worker',!!navigator.serviceWorker]];
+  $('health').innerHTML=checks.map(([a,b])=>`<div class="sw">${b?'✅':'⚠️'} ${a}</div>`).join('')+`<div class="sw">💾 ข้อมูลในเบราว์เซอร์ ≈ ${kb} KB (โควตา ~5,000 KB)</div><div class="sw">🔖 core.js โหมด: <code>local</code></div>`}
+$('seed').onclick=async()=>{
+  try{const out=[];const dpw=SP.rnd(10),ppw=SP.rnd(10),rn=SP.rnd(4);
+    const d=await SP.Auth.register({email:`doctor.${rn}@demo.test`,name:'หมอทดลอง (ทดลอง)',password:dpw,role:'doctor',extra:{license:'DEMO',org:'ทดลอง'},adminCreate:true});await SP.Users.update(d.id,{status:'active'});
+    const p=await SP.Auth.register({email:`patient.${rn}@demo.test`,name:'ผู้ป่วยทดลอง (ทดลอง)',password:ppw,role:'patient',extra:{sex:'M',age:52,ht:168,doctorCode:d.code},adminCreate:true});
+    for(let k=0;k<5;k++){const fvc=3.7+Math.random()*.4-k*.04,fev1=fvc*(0.78-k*.015);await SP.Tests.add({id:SP.uid(),patientUid:p.id,doctorUid:d.id,pid:p.id,ts:Date.now()-(5-k)*5*864e5,best:{fvc:+fvc.toFixed(2),fev1:+fev1.toFixed(2),pef:+(8+Math.random()).toFixed(1),ratio:100*fev1/fvc},trials:[],src:'sim',demo:true})}
+    await SP.Audit.add('seed_demo',rn);
+    $('seedOut').innerHTML=`<div class="msg ok">สร้างแล้ว (แสดงครั้งเดียว)<br>แพทย์: <code>${esc(d.email)}</code> / <code>${esc(dpw)}</code> · รหัสแพทย์ <code>${esc(d.code)}</code><br>ผู้ป่วย: <code>${esc(p.email)}</code> / <code>${esc(ppw)}</code></div>`}
+  catch(e){$('seedOut').innerHTML=`<div class="msg bad">${esc(e.message)}</div>`}};
+$('rawGo').onclick=async()=>{const k=$('rawSel').value;let v=k==='users'?(await SP.Users.list()).map(u=>SP.Users.publicView(u)):k==='tests'?await SP.Tests.all():k==='audit'?await SP.Audit.list():await SP.Settings.get();$('raw').textContent=JSON.stringify(v,null,1).slice(0,30000)};
+$('wipe').onclick=async()=>{if($('wipeIn').value!=='RESET'){alert('พิมพ์ RESET ก่อน');return}await SP.Data.wipe();location.href='login.html'};
+
+$('out').onclick=async()=>{await SP.Auth.logout();location.href='login.html'};
+$('theme').onclick=()=>{const r=document.documentElement;r.dataset.theme=r.dataset.theme==='dark'?'light':'dark';localStorage.sp_th=r.dataset.theme};
+if(localStorage.sp_th)document.documentElement.dataset.theme=localStorage.sp_th;
+(async()=>{me=await SP.Auth.require(['admin']);$('me').textContent=me.name;setTab(new URLSearchParams(location.search).get('tab')||'over')})();
+</script>
+<div class="credit-footer" style="text-align:center;font-size:12px;opacity:.7;padding:18px 0 28px">ออกแบบโดย Tanachat S. (TANACHAT007) · ทีม MEDTHAI · 2026</div>
+</body>
+</html>

@@ -19,6 +19,7 @@
 
 
 
+
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#0b5cab">
@@ -115,13 +116,14 @@ label.b{display:inline-block;color:var(--ink);font-size:15px}
   <div class="brand"><i></i><span id="appName">Spiro Clinic</span></div>
   <nav id="nav"></nav>
   <span class="pill" id="devPill"><i></i><span id="devPillT"></span></span>
-  <button class="tbtn" id="lang">TH/EN</button><button class="tbtn" id="theme">◐</button>
+  <span class="pill on" id="who" style="display:none"><i></i><span id="whoT"></span></span><button class="tbtn" id="lang">TH/EN</button><button class="tbtn" id="theme">◐</button><button class="tbtn" id="logout" style="display:none"></button>
 </div></header>
 <main>
 <div class="demoBar" id="demoBar"><b id="demoT"></b><button class="b" id="demoOff"></button></div>
 
 <!-- ============ PATIENTS ============ -->
 <section class="tab" id="tab-patients">
+  <div class="alert" id="docCode" style="margin-bottom:14px;display:none"></div>
   <div class="grid2">
     <div class="card">
       <div class="row" style="justify-content:space-between"><h2 id="h_plist"></h2><button class="b pri" id="newP"></button></div>
@@ -190,6 +192,9 @@ label.b{display:inline-block;color:var(--ink);font-size:15px}
   </div>
 </section>
 
+<!-- ============ MY PROFILE (patient) ============ -->
+<section class="tab" id="tab-me"><div id="meBox"></div></section>
+
 <!-- ============ DEVICE ============ -->
 <section class="tab" id="tab-device">
   <div class="grid2">
@@ -211,7 +216,8 @@ label.b{display:inline-block;color:var(--ink);font-size:15px}
   <button class="b big" id="coachClose"></button>
 </div>
 
-<script>
+<script src="core.js"></script>
+<script type="module">
 const $=id=>document.getElementById(id);
 /* ---------- i18n ---------- */
 const D={
@@ -279,18 +285,30 @@ en:{home:'← Home',app:'Spiro Clinic',tabs:{test:'Test patient',patients:'Patie
  trialBad:'Rejected',simTag:'simulated',manualTag:'manual',dur:'Time (s)',q:'Status',
  enterVals:'Enter FVC, FEV1, PEF separated by commas, e.g. 3.8,3.1,8.2',confirmDel:'Delete this?',
  manualWarn:'Manually entered values did not come from the device',nopc:'Enter predicted values in the patient record to see %'}};
-let lang=localStorage.sp_lang||'th';const t=k=>D[lang][k]??k;
+let lang=localStorage.sp_lang||'th';const t=k=>D[lang][k]??k;const L0=(a,b)=>lang==='th'?a:b;
 
 /* ---------- state ---------- */
 const load=(k,d)=>{try{return JSON.parse(localStorage[k]||'')||d}catch(e){return d}};
 let DEMO=false;
 const save=(k,v)=>{if(DEMO)return;try{localStorage[k]=JSON.stringify(v)}catch(e){}};
-let patients=load('sp_patients',[]),tests=load('sp_tests',[]),activeP=localStorage.sp_active||'',cfg=load('sp_cfg',{});
-let cur={pid:'',trials:[],checks:[],comment:''};          // the test in progress
+const DEMO_Q=/[?&]demo/.test(location.search);
+const ME=DEMO_Q?{id:'demo',role:'doctor',name:'Example',status:'active',code:'DR-DEMO',meta:{}}:await SP.Auth.require(['doctor','patient']);
+if(!DEMO_Q&&ME.status!=='active'){document.body.innerHTML='<p style="padding:48px 20px;text-align:center;font:16px sans-serif">บัญชียังไม่ได้รับอนุมัติจากผู้ดูแลระบบ · Account awaiting admin approval<br><br><a href="login.html">login</a></p>';throw new Error('pending')}
+const ROLE=ME.role,NS='_'+ME.id,PK='sp_patients'+NS,TK='sp_tests'+NS,AK='sp_active'+NS,CK='sp_cfg'+NS;
+let patients=load(PK,[]),tests=load(TK,[]),activeP=localStorage[AK]||'',cfg=load(CK,{});
+let cur={pid:ROLE==='patient'?ME.id:'',trials:[],checks:[],comment:''};          // the test in progress
 let live={buf:[],connected:false,name:''};
 const uid=()=>Math.random().toString(36).slice(2,9);
 const P=id=>patients.find(p=>p.id===id);
 const fmt=(v,d=2)=>v==null||isNaN(v)?'–':(+v).toFixed(d);
+/* accounts: a patient account is a "linked" patient record; its tests live in the shared store (SP.Tests) */
+const recOf=(u,hn)=>{const m=u.meta||{};return{id:u.id,hn:hn,name:u.name,sex:m.sex||'M',age:m.age||'',ht:m.ht||'',wt:m.wt||'',smk:m.smk||'0',pf:m.pf||'',pv:m.pv||'',note:m.note||'',linked:true}};
+const persistTests=()=>save(TK,tests.filter(x=>!x.linked));
+if(!DEMO_Q){
+  if(ROLE==='patient'){patients=[recOf(ME,'')];patients[0].self=true;activeP=ME.id;tests=(await SP.Tests.forPatient(ME.id)).map(x=>({...x,pid:ME.id,linked:true}))}
+  else{const us=(await SP.Users.list()).filter(u=>u.role==='patient'&&u.doctorId===ME.id),ids=us.map(u=>u.id);
+    patients=patients.concat(us.map(u=>recOf(u,L0('บัญชี','Acct'))));tests=tests.concat((await SP.Tests.forDoctor(ME.id)).filter(x=>ids.includes(x.patientUid)).map(x=>({...x,pid:x.patientUid,linked:true})))}
+}
 
 /* ---------- pure clinical logic ---------- */
 const MIN_DUR=2;                       // s, device-level acceptability (the 0.25 L/s cut-off ends healthy blows at ~2.5-4 s; ATS/ERS wants 6 s or a plateau)
@@ -326,12 +344,13 @@ function simBlow(pt){
 let tab='test';
 function setTab(x){tab=x;document.querySelectorAll('section.tab').forEach(s=>s.classList.toggle('on',s.id==='tab-'+x));
   document.querySelectorAll('#nav button').forEach(b=>b.classList.toggle('on',b.dataset.t===x));render()}
-function buildNav(){$('nav').innerHTML=['test','patients','reports','device'].map(k=>`<button data-t="${k}">${t('tabs')[k]}</button>`).join('');
+const tabName=k=>ROLE==='patient'?({test:L('เป่าวัดปอด','Blow test'),reports:L('ประวัติของฉัน','My history'),me:L('ข้อมูลของฉัน','My profile'),device:t('tabs').device})[k]:t('tabs')[k];
+function buildNav(){$('nav').innerHTML=(ROLE==='patient'?['test','reports','me','device']:['test','patients','reports','device']).map(k=>`<button data-t="${k}">${tabName(k)}</button>`).join('');
   $('nav').querySelectorAll('button').forEach(b=>b.onclick=()=>setTab(b.dataset.t))}
 
 /* ---------- text ---------- */
 function applyText(){
-  document.documentElement.lang=lang;$('appName').textContent=t('app');$('homeLink').textContent=t('home');buildNav();
+  document.documentElement.lang=lang;$('appName').textContent=ROLE==='patient'?'Spiro · '+L0('ผู้ป่วย','Patient'):t('app');$('homeLink').textContent=t('home');buildNav();
   const m={h_plist:'plist',newP:'newp',h_pform:'pform',l_hn:'hn',l_name:'name',l_sex:'sex',l_age:'age',l_ht:'ht',l_wt:'wt',l_smk:'smk',l_pf:'pf',l_pv:'pv',l_hist:'hist',n_pred:'npred',saveP:'save',startP:'start',delP:'del',
    h_prep:'prep',n_prep:'nprep',h_trials:'trials',manual:'manual',sim:'sim',n_trials:'ntrials',h_live:'live',coachBtn:'coach',bleMsg:'bleHelp',h_rlist:'rlist',expJson:'exp',expCsv:'expc',l_imp:'imp',n_priv:'priv',
    h_dev:'dev',h_cloud:'cloud',saveC:'saveC',pull:'pull',dashLink:'dash',n_cloud:'ncloud',h_about:'about',n_about:'nabout',coachClose:'close'};
@@ -349,13 +368,14 @@ function renderPatients(){
   const list=patients.filter(p=>!q||(p.hn+' '+p.name).toLowerCase().includes(q));
   $('ptable').innerHTML=`<tr><th>${t('hn')}</th><th>${t('name')}</th><th>${t('age')}</th></tr>`+
     (list.map(p=>`<tr class="clk ${p.id===activeP?'sel':''}" data-id="${p.id}"><td>${esc(p.hn)}</td><td>${esc(p.name)}</td><td>${p.age||'–'}</td></tr>`).join('')||`<tr><td colspan="3" class="empty">${t('none')}</td></tr>`);
-  $('ptable').querySelectorAll('tr.clk').forEach(r=>r.onclick=()=>{activeP=r.dataset.id;if(!DEMO)localStorage.sp_active=activeP;fillForm();renderPatients()});
+  $('ptable').querySelectorAll('tr.clk').forEach(r=>r.onclick=()=>{activeP=r.dataset.id;if(!DEMO)localStorage[AK]=activeP;fillForm();renderPatients()});
   fillForm()}
 function esc(s){return String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
 function fillForm(){
   const p=P(activeP)||{};const f={p_hn:'hn',p_name:'name',p_sex:'sex',p_age:'age',p_ht:'ht',p_wt:'wt',p_smk:'smk',p_pf:'pf',p_pv:'pv',p_note:'note'};
   for(const k in f)$(k).value=p[f[k]]??(k==='p_sex'?'M':k==='p_smk'?'0':'');
   $('delP').style.display=$('startP').style.display=p.id?'':'none';
+  ['p_hn','p_name'].forEach(k=>$(k).disabled=!!p.linked);
   const ts=tests.filter(x=>x.pid===p.id).sort((a,b)=>b.ts-a.ts);
   $('phist').innerHTML=p.id?`<h3>${t('sessions')}</h3>`+(ts.length?`<table><tr><th>${t('date')}</th><th>FEV1</th><th>FVC</th><th>%</th></tr>`+ts.map(x=>`<tr class="clk" data-t="${x.id}"><td>${fdate(x.ts)}</td><td>${fmt(x.best.fev1)}</td><td>${fmt(x.best.fvc)}</td><td>${fmt(x.best.ratio,0)}</td></tr>`).join('')+'</table>'+trendSvg(ts.slice().reverse()):`<p class="note">${t('none')}</p>`):'';
   $('phist').querySelectorAll('tr.clk').forEach(r=>r.onclick=()=>{repSel=r.dataset.t;setTab('reports')})}
@@ -368,10 +388,11 @@ $('newP').onclick=()=>{activeP='';fillForm();$('p_hn').focus()};
 $('psearch').oninput=renderPatients;
 $('saveP').onclick=()=>{
   const g=k=>$(k).value.trim();if(!g('p_name')&&!g('p_hn')){alert(t('name'));return}
-  let p=P(activeP);if(!p){p={id:uid(),created:Date.now()};patients.push(p);activeP=p.id;localStorage.sp_active=activeP}
+  let p=P(activeP);if(!p){p={id:uid(),created:Date.now()};patients.push(p);activeP=p.id;localStorage[AK]=activeP}
   Object.assign(p,{hn:g('p_hn'),name:g('p_name'),sex:g('p_sex'),age:+g('p_age')||'',ht:+g('p_ht')||'',wt:+g('p_wt')||'',smk:g('p_smk'),pf:+g('p_pf')||'',pv:+g('p_pv')||'',note:g('p_note')});
-  save('sp_patients',patients);renderPatients()};
-$('delP').onclick=()=>{if(!confirm(t('confirmDel')))return;patients=patients.filter(p=>p.id!==activeP);tests=tests.filter(x=>x.pid!==activeP);activeP='';localStorage.sp_active='';save('sp_patients',patients);save('sp_tests',tests);renderPatients()};
+  if(p.linked&&!DEMO)SP.Users.get(p.id).then(u=>SP.Users.update(u.id,{meta:{...u.meta,sex:p.sex,age:p.age,ht:p.ht,wt:p.wt,smk:p.smk,pf:p.pf,pv:p.pv,note:p.note}}));
+  save(PK,patients.filter(p=>!p.linked));renderPatients()};
+$('delP').onclick=()=>{if(!confirm(t('confirmDel')))return;{const q=P(activeP);if(q&&q.linked&&!DEMO)SP.Users.update(q.id,{doctorId:''})}patients=patients.filter(p=>p.id!==activeP);tests=tests.filter(x=>x.pid!==activeP);activeP='';localStorage[AK]='';save(PK,patients.filter(p=>!p.linked));persistTests();renderPatients()};
 $('startP').onclick=()=>{startTest(activeP)};
 
 /* ---------- test workflow ---------- */
@@ -381,10 +402,10 @@ function stage(){const p=P(cur.pid);if(!p)return 1;const s=summarize(cur.trials)
 function renderTest(){
   const p=P(cur.pid),st=stage();
   $('steps').innerHTML=[1,2,3,4].map(i=>`<div class="step ${st===i?'on':st>i?'done':''}"><b>${st>i?'✓':i}</b>${t('st'+i)}</div>`).join('');
-  $('tPatient').innerHTML=p?`<div class="row" style="justify-content:space-between"><div><div class="k">${t('patient')}</div><div style="font-size:20px;font-weight:700">${esc(p.name)||'–'}</div><div class="note">HN ${esc(p.hn)||'–'} · ${p.sex==='F'?t('female'):t('male')} · ${p.age||'–'} ${L('ปี','y')} · ${p.ht||'–'} cm</div></div><button class="b" id="chgP">← ${t('tabs').patients}</button></div>`
+  $('tPatient').innerHTML=p?`<div class="row" style="justify-content:space-between"><div><div class="k">${t('patient')}</div><div style="font-size:20px;font-weight:700">${esc(p.name)||'–'}</div><div class="note">HN ${esc(p.hn)||'–'} · ${p.sex==='F'?t('female'):t('male')} · ${p.age||'–'} ${L('ปี','y')} · ${p.ht||'–'} cm</div></div>${ROLE==='patient'?'':`<button class="b" id="chgP">← ${t('tabs').patients}</button>`}</div>`
     :`<div class="empty"><div style="font-size:18px;font-weight:600;color:var(--ink)">${t('noPatient')}</div><p>${t('pickP')}</p><div class="k" style="margin-top:10px">${t('howT')}</div><div class="how"><div>${t('how1')}</div><div>${t('how2')}</div><div>${t('how3')}</div><div>${t('how4')}</div></div><div class="row" style="justify-content:center"><button class="b pri" id="chgP">${t('goP')}</button><button class="b" id="tryDemo">${t('tryDemo')}</button></div></div>`;
   if($('tryDemo'))$('tryDemo').onclick=enterDemo;
-  $('chgP').onclick=()=>setTab('patients');
+  if($('chgP'))$('chgP').onclick=()=>setTab('patients');
   $('tPrep').style.display=p?'':'none';
   $('chk').innerHTML=CHECKS.map(k=>`<label><input type="checkbox" data-k="${k}" ${cur.checks.includes(k)?'checked':''}>${t(k)}</label>`).join('');
   $('chk').querySelectorAll('input').forEach(i=>i.onchange=()=>{cur.checks=[...$('chk').querySelectorAll('input:checked')].map(x=>x.dataset.k);renderTest()});
@@ -393,7 +414,7 @@ function renderTest(){
       <td><span class="tag ${x.ok?'ok':'bad'}">${x.ok?t('acc'):t('rej')}</span></td><td><button class="b danger" data-d="${i}" style="padding:2px 8px">×</button></td></tr>`).join('')||`<tr><td colspan="7" class="empty">${t('none')}</td></tr>`);
   $('trialTbl').querySelectorAll('button[data-d]').forEach(b=>b.onclick=()=>{cur.trials.splice(+b.dataset.d,1);renderTest()});
   const s=summarize(cur.trials);$('trialCount').textContent=`${t('gotN')} ${s.acc} ${t('of')} · ${cur.trials.length}/8`;
-  ['manual','sim'].forEach(k=>$(k).disabled=!p||cur.trials.length>=8);
+  ['manual','sim'].forEach(k=>$(k).disabled=!p||cur.trials.length>=8);$('manual').style.display=ROLE==='patient'?'none':'';
   renderLiveK();drawFV();renderResult(s)}
 function renderLiveK(){const l=live.buf[live.buf.length-1];
   $('liveK').innerHTML=[['FVC',l?fmt(l[2]):'–','L'],['FLOW',l?fmt(l[1],1):'–','L/s'],['TIME',l?fmt(l[0]/1000,1):'–','s']].map(([a,b,c])=>`<div class="kpi"><span>${a}</span><b>${b}<small style="font-size:13px;color:var(--mute)"> ${c}</small></b></div>`).join('')}
@@ -406,17 +427,20 @@ function renderResult(s){
     if(s.rep)h+=`<div class="alert ${s.rep.ok?'ok':'warn'}">${s.rep.ok?t('repOk'):t('repNo')} (ΔFVC ${fmt(s.rep.dFvc)} · ΔFEV1 ${fmt(s.rep.dFev1)} L)</div>`;
     if(!s.done)h+=`<div class="alert" style="margin-top:8px">${t('needMore')} (${s.acc}/3)</div>`;
     else{const i=interpret(s.best,p);h+=`<div class="interp ${i.lvl==='ok'?'':i.lvl}" style="margin-top:10px"><b>${i.title}</b><p>${i.sub}</p></div>
-      <label style="margin-top:12px"><span>${t('doctor')}</span><textarea id="cmt" rows="2">${esc(cur.comment)}</textarea></label>
+      ${ROLE==='patient'?'<p class="note" style="margin-top:10px">'+L('ผลนี้เป็นการคัดกรองเบื้องต้น ถ้าผิดปกติหรือมีอาการ ให้ปรึกษาแพทย์','Screening only. If abnormal or you have symptoms, see a doctor')+'</p>':`<label style="margin-top:12px"><span>${t('doctor')}</span><textarea id="cmt" rows="2">${esc(cur.comment)}</textarea></label>`}
       <div class="row" style="margin-top:12px"><button class="b pri big" id="saveT">${t('saveTest')}</button><button class="b" id="newT">${t('newTest')}</button></div>`}}
   if(cur.trials.some(x=>x.src))h+=`<p class="note">⚠ ${t('manualWarn')}</p>`;
   $('tResult').innerHTML=h;
   if($('cmt'))$('cmt').oninput=e=>cur.comment=e.target.value;
-  if($('saveT'))$('saveT').onclick=saveTest;
+  if($('saveT'))$('saveT').onclick=()=>saveTest();
   if($('newT'))$('newT').onclick=()=>startTest(cur.pid)}
-function saveTest(){
-  const s=summarize(cur.trials),id=uid();
-  tests.push({id,pid:cur.pid,ts:Date.now(),trials:cur.trials.map(x=>({...x,curve:x.curve?x.curve.filter((_,i)=>i%2===0):undefined})),best:s.best,rep:s.rep,comment:cur.comment,fw:live.name||''});
-  save('sp_tests',tests);repSel=id;const pid=cur.pid;cur={pid,trials:[],checks:[],comment:''};setTab('reports')}
+async function saveTest(){
+  const s=summarize(cur.trials),id=uid(),p=P(cur.pid);
+  const rec={id,pid:cur.pid,ts:Date.now(),trials:cur.trials.map(x=>({...x,curve:x.curve?x.curve.filter((_,i)=>i%2===0):undefined})),best:s.best,rep:s.rep,comment:cur.comment,fw:live.name||''};
+  if(p&&p.linked&&!DEMO){rec.patientUid=p.id;rec.doctorUid=ROLE==='doctor'?ME.id:((await SP.Users.get(ME.id)).doctorId||'');rec.src=ROLE==='patient'?'self':'clinic';
+    if(cur.trials.some(x=>x.src==='sim'))rec.demo=true;await SP.Tests.add(rec);tests.push({...rec,linked:true})}
+  else{tests.push(rec);persistTests()}
+  repSel=id;const pid=cur.pid;cur={pid,trials:[],checks:[],comment:''};setTab('reports')}
 function addTrial(r){
   const x={fvc:+r.fvc,fev1:+r.fev1,pef:+r.pef,dur:+(r.dur||0),curve:r.curve,src:r.src,quality:r.quality};x.ok=judge(x);
   if(cur.trials.length>=8)return;cur.trials.push(x);if(tab==='test')renderTest();else render();return x}
@@ -466,7 +490,7 @@ function renderReports(){
    <div class="sig"><div>${t('sigD')}</div><div>${t('sigDr')}</div></div>
    <p class="note" style="margin-top:14px">${t('disc')}</p></div>`;
   $('prt').onclick=()=>window.print();
-  $('delT').onclick=()=>{if(confirm(t('confirmDel'))){tests=tests.filter(z=>z.id!==x.id);save('sp_tests',tests);repSel='';renderReports()}};
+  $('delT').onclick=async()=>{if(confirm(t('confirmDel'))){if(x.linked&&!DEMO)await SP.Tests.remove(x.id);tests=tests.filter(z=>z.id!==x.id);persistTests();repSel='';renderReports()}};
   drawRepFv(x)}
 function drawRepFv(x){const c=$('repFv'),g=c.getContext('2d'),w=c.width,h=c.height,PL=40,PB=26,PT=10,PR=10;
   g.fillStyle='#fff';g.fillRect(0,0,w,h);const cv=x.trials.filter(r=>r.curve);
@@ -484,7 +508,7 @@ $('expCsv').onclick=()=>{let s='date,hn,name,sex,age,height,fev1_L,fvc_L,ratio_p
   dl('spiro_tests.csv',s,'text/csv')};
 function dl(n,s,m){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([s],{type:m}));a.download=n;a.click()}
 $('impJson').onchange=async e=>{try{const j=JSON.parse(await e.target.files[0].text());if(Array.isArray(j.patients)&&Array.isArray(j.tests)){
-  for(const p of j.patients)if(!P(p.id))patients.push(p);for(const x of j.tests)if(!tests.find(z=>z.id===x.id))tests.push(x);save('sp_patients',patients);save('sp_tests',tests);render()}}catch(err){alert(err.message)}};
+  for(const p of j.patients)if(!P(p.id))patients.push(p);for(const x of j.tests)if(!tests.find(z=>z.id===x.id))tests.push(x);save(PK,patients.filter(p=>!p.linked));persistTests();render()}}catch(err){alert(err.message)}};
 
 /* ---------- Bluetooth (UUIDs match the firmware) ---------- */
 const NUS='6e400001-b5a3-f393-e0a9-e50e24dcca9e',LIVE_C='6e400002-b5a3-f393-e0a9-e50e24dcca9e',RES_C='6e400003-b5a3-f393-e0a9-e50e24dcca9e';
@@ -522,7 +546,7 @@ function renderDevice(){
   $('devInfo').innerHTML=`<div class="grid3"><div class="kpi"><span>Bluetooth</span><b style="font-size:18px">${live.connected?t('connected')+(live.name?' · '+esc(live.name):''):'–'}</b></div><div class="kpi"><span>${t('hn')}</span><b style="font-size:18px">${esc(cfg.dev||'–')}</b></div></div>`;
   pill()}
 let cloud=[];
-$('saveC').onclick=()=>{cfg={db:$('c_db').value.trim(),dev:$('c_dev').value.trim(),auth:$('c_auth').value.trim()};save('sp_cfg',cfg);pullCloud()};
+$('saveC').onclick=()=>{cfg={db:$('c_db').value.trim(),dev:$('c_dev').value.trim(),auth:$('c_auth').value.trim()};save(CK,cfg);pullCloud()};
 $('pull').onclick=pullCloud;
 async function pullCloud(){
   if(!cfg.db||!cfg.dev){$('cloudList').innerHTML='';return}
@@ -532,9 +556,41 @@ async function pullCloud(){
     $('cloudList').querySelectorAll('button').forEach(b=>b.onclick=()=>{const r=cloud[+b.dataset.i];if(!P(cur.pid)){alert(t('pickP'));return}addTrial({fvc:r.fvc,fev1:r.fev1,pef:r.pef,dur:(r.dur_ms||0)/1000,src:'cloud'});setTab('test')})}
   catch(e){$('cloudList').innerHTML=`<p class="note">offline: ${esc(e.message)}</p>`}}
 
+/* ---------- my profile (patient) ---------- */
+async function renderMe(){
+  const u=await SP.Users.get(ME.id),m=u.meta||{},doc=u.doctorId?await SP.Users.get(u.doctorId):null;
+  $('meBox').innerHTML=`<div class="grid2"><div style="display:grid;gap:16px">
+   <div class="card"><h2>${L0('ข้อมูลของฉัน','My details')}</h2><div class="form">
+    <label>${L0('ชื่อ-สกุล','Full name')}<input id="m_name" value="${esc(u.name)}"></label>
+    <label>${t('sex')}<select id="m_sex"><option value="M" ${m.sex!=='F'?'selected':''}>${t('male')}</option><option value="F" ${m.sex==='F'?'selected':''}>${t('female')}</option></select></label>
+    <label>${t('age')}<input id="m_age" type="number" value="${esc(m.age)}"></label><label>${t('ht')}<input id="m_ht" type="number" value="${esc(m.ht)}"></label>
+    <label>${t('wt')}<input id="m_wt" type="number" value="${esc(m.wt)}"></label>
+    <label>${t('smk')}<select id="m_smk"><option value="0">${t('s0')}</option><option value="1" ${m.smk==='1'?'selected':''}>${t('s1')}</option><option value="2" ${m.smk==='2'?'selected':''}>${t('s2')}</option></select></label></div>
+    <p class="note" style="margin-top:8px">${L0('ค่าคาดการณ์ (ถ้าแพทย์ให้มา)','Predicted values (if your doctor gave them)')}</p>
+    <div class="form"><label>${t('pf')}<input id="m_pf" type="number" step="0.01" value="${esc(m.pf)}"></label><label>${t('pv')}<input id="m_pv" type="number" step="0.01" value="${esc(m.pv)}"></label></div>
+    <div class="row" style="margin-top:12px"><button class="b pri" id="m_save">${t('save')}</button></div><div id="m_msg" class="note"></div></div>
+   <div class="card"><h2>${L0('บัญชี','Account')}</h2><p class="note">${esc(u.email)}</p>
+    <div class="form"><label>${L0('รหัสผ่านใหม่ (≥ 8 ตัว)','New password (≥ 8)')}<input id="m_pw" type="password" autocomplete="new-password"></label></div>
+    <div class="row" style="margin-top:10px"><button class="b" id="m_pwgo">${L0('เปลี่ยนรหัสผ่าน','Change password')}</button><button class="b" id="m_exp">${t('exp')}</button><button class="b danger" id="m_del">${L0('ลบบัญชีและข้อมูลของฉัน','Delete my account and data')}</button></div></div></div>
+   <div class="card"><h2>${L0('แชร์ผลกับแพทย์','Share with a doctor')}</h2>
+    <p>${doc?L0('แพทย์ผู้ดูแล','Your doctor')+': <b>'+esc(doc.name)+'</b>':L0('ยังไม่ได้เชื่อมกับแพทย์','Not linked to a doctor')}</p>
+    <p class="note">${L0('ใส่รหัสแพทย์ (เช่น DR-AB12) ที่แพทย์ให้ เพื่อให้แพทย์เห็นผลการเป่าของคุณ แพทย์ที่เชื่อมจะเห็นประวัติของคุณทั้งหมด เลิกเชื่อมได้ทุกเมื่อ','Enter the doctor code (e.g. DR-AB12) you were given so that doctor can see your results. A linked doctor sees your whole history. You can unlink any time.')}</p>
+    <div class="row"><input id="m_code" placeholder="DR-XXXX" style="max-width:180px"><button class="b pri" id="m_link">${L0('เชื่อมต่อ','Link')}</button>${doc?`<button class="b danger" id="m_unlink">${L0('เลิกเชื่อม','Unlink')}</button>`:''}</div><div id="m_lmsg" class="note" style="margin-top:6px"></div></div></div>`;
+  $('m_save').onclick=async()=>{const g=k=>$(k).value.trim();const name=g('m_name');if(name.length<2)return;
+    await SP.Users.update(ME.id,{name,meta:{...m,sex:g('m_sex'),age:+g('m_age')||'',ht:+g('m_ht')||'',wt:+g('m_wt')||'',smk:g('m_smk'),pf:+g('m_pf')||'',pv:+g('m_pv')||''}});
+    const nu=await SP.Users.get(ME.id);patients=[recOf(nu,'')];patients[0].self=true;$('m_msg').textContent=L0('บันทึกแล้ว','Saved')};
+  const setDoc=async id=>{await SP.Users.update(ME.id,{doctorId:id});const mine=await SP.Tests.forPatient(ME.id);mine.forEach(x=>x.doctorUid=id);await SP.Tests.replaceFor(ME.id,mine);await SP.Audit.add(id?'link_doctor':'unlink_doctor',id);renderMe()};
+  $('m_link').onclick=async()=>{const d=await SP.Users.doctorByCode($('m_code').value);if(!d){$('m_lmsg').textContent=L0('ไม่พบรหัสแพทย์นี้ (หรือบัญชียังไม่ได้อนุมัติ)','Doctor code not found (or not approved)');return}setDoc(d.id)};
+  if($('m_unlink'))$('m_unlink').onclick=()=>setDoc('');
+  $('m_pwgo').onclick=async()=>{try{await SP.Auth.changePassword(ME.id,$('m_pw').value);$('m_pw').value='';alert(L0('เปลี่ยนรหัสผ่านแล้ว','Password changed'))}catch(e){alert(e.message)}};
+  $('m_exp').onclick=async()=>dl('my_spirometry.json',JSON.stringify({profile:SP.Users.publicView(await SP.Users.get(ME.id)),tests:await SP.Tests.forPatient(ME.id)}),'application/json');
+  $('m_del').onclick=async()=>{const pw=prompt(L0('พิมพ์รหัสผ่านเพื่อยืนยันการลบบัญชีและผลตรวจทั้งหมด (ลบแล้วกู้คืนไม่ได้)','Type your password to delete your account and all results (cannot be undone)'));if(!pw)return;
+    if(!(await SP.Auth.verify(ME.id,pw))){alert(L0('รหัสผ่านไม่ถูกต้อง','Wrong password'));return}
+    await SP.Tests.replaceFor(ME.id,[]);await SP.Audit.add('self_delete',ME.id);await SP.Users.remove(ME.id);await SP.Auth.logout();location.href='login.html'}}
+
 /* ---------- boot ---------- */
-function render(){pill();({test:renderTest,patients:renderPatients,reports:renderReports,device:renderDevice})[tab]()}
-$('lang').onclick=()=>{lang=lang==='th'?'en':'th';localStorage.sp_lang=lang;applyText()};
+function render(){pill();({test:renderTest,patients:renderPatients,reports:renderReports,device:renderDevice,me:renderMe})[tab]()}
+$('lang').onclick=()=>{lang=lang==='th'?'en':'th';localStorage.sp_lang=lang;applyText();if(!DEMO_Q)$('logout').textContent=L0('ออก','Sign out')};
 $('theme').onclick=()=>{const r=document.documentElement;r.dataset.theme=r.dataset.theme==='dark'?'light':'dark';localStorage.sp_th=r.dataset.theme;render()};
 if(localStorage.sp_th)document.documentElement.dataset.theme=localStorage.sp_th;
 addEventListener('resize',()=>{if(tab==='test')drawFV()});
@@ -548,6 +604,9 @@ function enterDemo(){
   $('demoBar').classList.add('on');render()}
 $('demoOff').onclick=()=>{location.href=location.pathname};
 if(/[?&]demo/.test(location.search)){enterDemo();if(/tab=(\w+)/.test(location.search))tab=RegExp.$1;if(/full/.test(location.search)){cur.trials=[];for(let k=0;k<3;k++){const b=simBlow(patients[0]);cur.trials.push({...b,ok:judge(b)})}cur.checks=CHECKS.slice();live.buf=cur.trials[2].curve}}
+if(!DEMO_Q){$('who').style.display='';$('whoT').textContent=ME.name+' · '+({doctor:'แพทย์',patient:'ผู้ป่วย'}[ROLE]);$('logout').style.display='';$('logout').textContent=L0('ออก','Sign out');
+  $('logout').onclick=async()=>{await SP.Auth.logout();location.href='login.html'};
+  if(ROLE==='doctor'){$('docCode').style.display='';$('docCode').innerHTML=L0('รหัสแพทย์ของคุณ','Your doctor code')+': <b style="font-size:17px">'+esc(ME.code||'')+'</b> · '+L0('ให้ผู้ป่วยกรอกตอนสมัครหรือในแท็บ "ข้อมูลของฉัน" ผลการเป่าของเขาจะแสดงในรายชื่อผู้ป่วยและรายงาน','patients enter it at sign-up or in "My profile"; their results then appear in your patient list and reports')}}
 setTab(tab);applyText();pullCloud();
 </script>
 <div class="credit-footer" style="text-align:center;font-size:12px;opacity:.7;padding:18px 0 28px">ออกแบบโดย Tanachat S. (TANACHAT007) · ทีม MEDTHAI · 2026</div>

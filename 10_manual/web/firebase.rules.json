@@ -1,0 +1,39 @@
+{
+  "_comment": "DRAFT Realtime Database rules for the Spiro 3-role system. NOT TESTED against the emulator yet: run firebase emulators:exec with rules unit tests before any real patient data. Admin = custom claim admin:true (set with the Admin SDK / a Cloud Function, never from the client).",
+  "rules": {
+    ".read": false,
+    ".write": false,
+    "users": {
+      "$uid": {
+        ".read": "auth != null && (auth.uid === $uid || auth.token.admin === true || (root.child('users').child(auth.uid).child('role').val() === 'doctor' && root.child('users').child(auth.uid).child('status').val() === 'active' && data.child('doctorId').val() === auth.uid))",
+        ".write": "auth != null && (auth.token.admin === true || (auth.uid === $uid && (!data.exists() ? (newData.child('role').val() === 'patient' && newData.child('status').val() === 'active') || (newData.child('role').val() === 'doctor' && newData.child('status').val() === 'pending') : (newData.child('role').val() === data.child('role').val() && newData.child('status').val() === data.child('status').val()))))",
+        ".validate": "newData.hasChildren(['role','status','name'])",
+        "role": { ".validate": "newData.val() === 'patient' || newData.val() === 'doctor' || newData.val() === 'admin'" },
+        "status": { ".validate": "newData.val() === 'active' || newData.val() === 'pending' || newData.val() === 'disabled'" },
+        "name": { ".validate": "newData.isString() && newData.val().length >= 2 && newData.val().length < 120" }
+      }
+    },
+    "doctorCodes": {
+      "$code": {
+        ".read": "auth != null",
+        ".write": "auth.token.admin === true",
+        "_note": "code -> doctor uid, so a patient can link without listing all users"
+      }
+    },
+    "tests": {
+      "$id": {
+        ".read": "auth != null && (data.child('patientUid').val() === auth.uid || auth.token.admin === true || (data.child('doctorUid').val() === auth.uid && root.child('users').child(auth.uid).child('status').val() === 'active'))",
+        ".write": "auth != null && (auth.token.admin === true || (!data.exists() && (newData.child('patientUid').val() === auth.uid || (newData.child('doctorUid').val() === auth.uid && root.child('users').child(newData.child('patientUid').val()).child('doctorId').val() === auth.uid))) || (data.exists() && data.child('patientUid').val() === auth.uid && !newData.exists()))",
+        ".validate": "newData.hasChildren(['patientUid','ts','best'])"
+      }
+    },
+    "audit": {
+      ".read": "auth.token.admin === true",
+      "$id": { ".write": "auth != null && !data.exists()" }
+    },
+    "settings": {
+      ".read": "auth != null",
+      ".write": "auth.token.admin === true"
+    }
+  }
+}
