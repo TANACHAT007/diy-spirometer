@@ -48,3 +48,14 @@ tr.sel td{background:var(--acc2)}
 #trainOv .tbar{height:44px;border-radius:22px}
 #trainOv .tmsg{font-size:clamp(30px,6vw,60px)}
 @media (max-width:700px){.bigBtn{min-height:190px}.bigBtn .ic{font-size:64px}.bigBtn b{font-size:1.6rem}}
+/* count gauges */
+.planCard{display:flex;gap:22px;align-items:center;flex-wrap:wrap}
+.ringBox{flex:none}
+.week{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+.week .wd{display:grid;gap:3px;justify-items:center;font-size:.9rem;color:var(--mute)}
+.week .wd span{display:grid;place-items:center;width:44px;height:44px;border-radius:50%;background:#e3effa;color:var(--ink);font-weight:800;font-size:1.05rem}
+.week .wd span.part{background:#ffe9b5}.week .wd span.full{background:#1a8a52;color:#fff}
+.dots{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;max-width:720px}
+.dots i{width:26px;height:26px;border-radius:50%;background:rgba(255,255,255,.25);border:2px solid rgba(255,255,255,.55)}
+.dots i.on{background:#4ade80;border-color:#4ade80}.dots i.cur{border-color:#fff;box-shadow:0 0 0 4px rgba(255,255,255,.35)}
+.tcount{font-size:clamp(22px,4vw,34px);margin-top:6px}.tcount b{font-size:1.4em}

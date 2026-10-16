@@ -94,7 +94,7 @@ rep("$('lang').onclick=()=>{lang=lang==='th'?'en':'th';localStorage.sp_lang=lang
 TRAIN_JS = open('roles_train.js', encoding='utf-8').read()
 rep("/* ---------- boot ---------- */", TRAIN_JS + "\n/* ---------- boot ---------- */")
 rep('<!-- ============ MY PROFILE (patient) ============ -->', '<section class="tab" id="tab-home"><div id="homeBox"></div></section>\n\n<!-- ============ MY PROFILE (patient) ============ -->')
-rep('<div class="coach" id="coach">', '<div class="coach" id="trainOv"><div class="sub tsub"></div><div class="msg tmsg"></div><div class="num tnum">0</div><div class="bar2 tbar"><i></i></div><button class="b big" id="trainSim" style="display:none">Practice blow</button><button class="b big" id="trainStop"></button></div>\n<div class="coach" id="coach">')
+rep('<div class="coach" id="coach">', '<div class="coach" id="trainOv"><div class="sub tsub"></div><div class="msg tmsg"></div><div class="tdots"></div><div class="num tnum">0</div><div class="bar2 tbar"><i></i></div><button class="b big" id="trainSim" style="display:none">Practice blow</button><button class="b big" id="trainSnd"></button><button class="b big" id="trainStop"></button></div>\n<div class="coach" id="coach">')
 rep("      <div id=\"phist\" style=\"margin-top:16px\"></div>", "      <div id=\"phist\" style=\"margin-top:16px\"></div>\n      <div id=\"planBox\"></div>") if False else None
 rep('<div id="phist" style="margin-top:16px"></div>', '<div id="phist" style="margin-top:16px"></div>\n      <div id="planBox"></div>')
 rep("  $('phist').querySelectorAll('tr.clk').forEach(r=>r.onclick=()=>{repSel=r.dataset.t;setTab('reports')})}", "  $('phist').querySelectorAll('tr.clk').forEach(r=>r.onclick=()=>{repSel=r.dataset.t;setTab('reports')});renderPlanBox()}")
@@ -103,6 +103,6 @@ rep("(ROLE==='patient'?['test','reports','me','device']:", "(ROLE==='patient'?['
 rep("({test:L('เป่าวัดปอด','Blow test'),", "({home:L('หน้าหลัก','Home'),test:L('เป่าวัดปอด','Blow test'),")
 rep("device:renderDevice,me:renderMe})[tab]()}", "device:renderDevice,me:renderMe,home:renderHome})[tab]()}")
 rep("addTrial({fvc:+p[1],fev1:+p[2],pef:+p[4],dur,curve,quality:p[5],src:'ble'});coachDone()", "if(tr&&tr.plan.kind==='volume'){trainBreath(+p[1])}else{addTrial({fvc:+p[1],fev1:+p[2],pef:+p[4],dur,curve,quality:p[5],src:'ble'});coachDone()}")
-rep("setTab(tab);applyText();pullCloud();", "$('trainStop').onclick=stopTraining;$('trainSim').onclick=trainSimBlow;$('trainStop').textContent=L0('หยุด','Stop');$('trainSim').textContent=L0('จำลองการเป่า (ฝึกใช้งาน)','Practice blow');\nsetTab(tab);applyText();pullCloud();")
+rep("setTab(tab);applyText();pullCloud();", "$('trainSnd').onclick=toggleSound;$('trainStop').onclick=stopTraining;$('trainSim').onclick=trainSimBlow;$('trainStop').textContent=L0('หยุด','Stop');$('trainSim').textContent=L0('จำลองการเป่า (ฝึกใช้งาน)','Practice blow');\nsetTab(tab);applyText();pullCloud();")
 open('clinic.html', 'w', encoding='utf-8').write(s)
 print('ok', len(s))

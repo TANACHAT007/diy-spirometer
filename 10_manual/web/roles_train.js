@@ -1,3 +1,10 @@
+/* ---------- count gauges ---------- */
+function ringSvg(done,total,size,label){const R=size/2-9,C=2*Math.PI*R,f=total?Math.min(1,done/total):0;
+  return '<svg viewBox="0 0 '+size+' '+size+'" width="'+size+'" height="'+size+'" role="img" aria-label="'+done+'/'+total+'"><circle cx="'+size/2+'" cy="'+size/2+'" r="'+R+'" fill="none" stroke="#cfe3f5" stroke-width="14"/><circle cx="'+size/2+'" cy="'+size/2+'" r="'+R+'" fill="none" stroke="'+(f>=1?'#1a8a52':'#0a5fb0')+'" stroke-width="14" stroke-linecap="round" stroke-dasharray="'+(C*f).toFixed(1)+' '+C.toFixed(1)+'" transform="rotate(-90 '+size/2+' '+size/2+')"/><text x="50%" y="48%" text-anchor="middle" dominant-baseline="middle" font-size="'+size*0.3+'" font-weight="800" fill="#0b1e33">'+done+'/'+total+'</text><text x="50%" y="70%" text-anchor="middle" font-size="'+size*0.11+'" fill="#42586f">'+label+'</text></svg>';}
+function dots(done,total){let h='<div class="dots">';for(let i=0;i<total;i++)h+='<i class="'+(i<done?'on':i===done?'cur':'')+'"></i>';return h+'</div>'}
+function weekStrip(planId,perDay){const out=[];for(let d=6;d>=0;d--){const a=new Date();a.setHours(0,0,0,0);a.setDate(a.getDate()-d);const t0=a.getTime(),n=myTrains.filter(x=>(!planId||x.planId===planId)&&x.ts>=t0&&x.ts<t0+864e5).length;
+  out.push('<div class="wd"><small>'+['อา','จ','อ','พ','พฤ','ศ','ส'][a.getDay()]+'</small><span class="'+(n>=perDay?'full':n>0?'part':'')+'">'+(n>=perDay?'✓':n||'')+'</span></div>')}return '<div class="week">'+out.join('')+'</div>'}
+
 /* ---------- patient home: two big buttons only ---------- */
 const todayStart=()=>{const d=new Date();d.setHours(0,0,0,0);return d.getTime()};
 let myPlans=[],myTrains=[];
@@ -17,7 +24,7 @@ async function renderHome(){
     <button class="bigBtn alt" id="hTrain"><span class="ic">🌬️</span><b>${L0('ฝึกตามตารางแพทย์','Practice (doctor plan)')}</b>
       <small>${plan?(left>0?L0(`วันนี้เหลืออีก ${left} รอบ`,`${left} session(s) left today`):L0('วันนี้ฝึกครบแล้ว เก่งมาก','Done for today, well done')):L0('แพทย์ยังไม่ได้สั่งตาราง','No plan from your doctor yet')}</small></button>
   </div>
-  ${plan?`<div class="card" style="margin-top:16px"><h2>${L0('ตารางของฉัน','My plan')}</h2><p style="font-size:1.15rem;margin:0">${planText(plan)}</p>${plan.note?`<p class="note">${L0('ข้อความจากแพทย์','Doctor note')}: ${esc(plan.note)}</p>`:''}</div>`:''}
+  ${plan?`<div class="card planCard" style="margin-top:16px"><div class="ringBox">${ringSvg(Math.min(done,plan.sessionsPerDay),plan.sessionsPerDay,150,L0('รอบวันนี้','today'))}</div><div style="flex:1;min-width:220px"><h2>${L0('ตารางของฉัน','My plan')}</h2><p style="font-size:1.15rem;margin:0">${planText(plan)}</p>${weekStrip(plan.id,plan.sessionsPerDay)}</div></div><div class="card" style="margin-top:16px" hidden><p style="margin:0">${plan.note?`<p class="note">${L0('ข้อความจากแพทย์','Doctor note')}: ${esc(plan.note)}</p>`:''}</p></div>`:''}
   ${last?`<div class="card" style="margin-top:16px"><h2>${L0('ผลล่าสุด','Latest result')}</h2><div class="kpis"><div class="kpi"><span>FEV1</span><b>${fmt(last.best.fev1)}<small style="font-size:14px"> L</small></b></div><div class="kpi"><span>FVC</span><b>${fmt(last.best.fvc)}<small style="font-size:14px"> L</small></b></div><div class="kpi"><span>FEV1/FVC</span><b>${fmt(last.best.ratio,0)}<small style="font-size:14px"> %</small></b></div></div><p class="note">${fdate(last.ts)}</p></div>`:''}
   <p class="note" style="margin-top:14px">${L0('ผลนี้เป็นการคัดกรองเบื้องต้น ไม่ใช่การวินิจฉัย ถ้ามีอาการเหนื่อยหอบ ให้พบแพทย์','Screening only, not a diagnosis. If you feel short of breath, see a doctor.')}</p>`;
   $('hTest').onclick=()=>{startTest(ME.id);cur.checks=CHECKS.slice();setTab('test')};
@@ -28,40 +35,57 @@ function planText(p){
   return `${kind} · ${L0('วันละ','')} <b>${p.sessionsPerDay}</b> ${L0('รอบ','sessions/day')} · ${L0('รอบละ','')} <b>${p.reps}</b> ${L0('ครั้ง','breaths')} · ${L0('ประมาณ','about')} <b>${p.minutes}</b> ${L0('นาที','min')}${p.kind==='volume'&&p.target?` · ${L0('เป้า','target')} <b>${p.target}</b> L`:''}`;
 }
 
+/* ---------- voice + beeps for training (works in any modern phone browser; no data leaves the device) ---------- */
+let sndOn=(()=>{try{return localStorage.sp_snd!=='0'}catch(e){return true}})(),actx=null,lastSay='';
+function beep(f,ms,v){if(!sndOn)return;try{actx=actx||new (window.AudioContext||window.webkitAudioContext)();const o=actx.createOscillator(),g=actx.createGain();o.frequency.value=f;o.type='sine';g.gain.value=v||0.08;o.connect(g);g.connect(actx.destination);o.start();o.stop(actx.currentTime+ms/1000)}catch(e){}}
+function say(text){
+  if(!sndOn||!('speechSynthesis' in window)||text===lastSay)return;lastSay=text;
+  try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);u.lang=lang==='th'?'th-TH':'en-US';u.rate=0.9;u.volume=1;
+    const v=speechSynthesis.getVoices().find(x=>x.lang&&x.lang.toLowerCase().startsWith(u.lang.slice(0,2).toLowerCase()));if(v)u.voice=v;speechSynthesis.speak(u)}catch(e){}
+}
+function buzz(ms){try{if(navigator.vibrate)navigator.vibrate(ms)}catch(e){}}
+const NUMTH=['ศูนย์','หนึ่ง','สอง','สาม','สี่','ห้า','หก','เจ็ด','แปด','เก้า','สิบ'];
+const numWord=n=>lang==='th'?(n<=10?NUMTH[n]:String(n)):String(n);
+function toggleSound(){sndOn=!sndOn;try{localStorage.sp_snd=sndOn?'1':'0'}catch(e){}$('trainSnd').textContent=(sndOn?'🔊 ':'🔇 ')+L0(sndOn?'เสียงเปิด':'เสียงปิด',sndOn?'Sound on':'Sound off');if(!sndOn&&'speechSynthesis' in window)speechSynthesis.cancel();else say(L0('เปิดเสียงแล้ว','Sound on'))}
+
 /* ---------- guided training session (full screen) ---------- */
 let tr=null;
-function trainUi(msg,sub,pct,num){const o=$('trainOv');o.querySelector('.tmsg').textContent=msg;o.querySelector('.tsub').textContent=sub;o.querySelector('.tnum').textContent=num;o.querySelector('.tbar i').style.width=Math.max(0,Math.min(100,pct))+'%'}
+function trainUi(msg,sub,pct,num,done,total){const o=$('trainOv');o.querySelector('.tdots').innerHTML=total?dots(done||0,total)+'<div class="tcount">'+L0('ครั้งที่','Breath')+' <b>'+Math.min((done||0)+1,total)+'</b> / '+total+'</div>':'';o.querySelector('.tmsg').textContent=msg;o.querySelector('.tsub').textContent=sub;o.querySelector('.tnum').textContent=num;o.querySelector('.tbar i').style.width=Math.max(0,Math.min(100,pct))+'%'}
 function startTraining(plan){
   if(tr)return;
-  tr={plan,rep:0,startTs:Date.now(),vols:[],sim:false,timer:null,phase:'',t0:0};
-  $('trainOv').classList.add('on');
+  tr={plan,rep:0,startTs:Date.now(),vols:[],sim:false,timer:null,phase:'',t0:0,lastRep:-1,lastPh:''};lastSay='';
+  $('trainOv').classList.add('on');$('trainSnd').textContent=(sndOn?'🔊 ':'🔇 ')+L0(sndOn?'เสียงเปิด':'เสียงปิด',sndOn?'Sound on':'Sound off');
+  beep(660,160);say(L0('เริ่มฝึกนะครับ นั่งหลังตรง ผ่อนคลาย','Let us begin. Sit up straight and relax.'));
   const cyc=Math.max(4,Math.min(15,plan.minutes*60/plan.reps));         // seconds per breath: the doctor's minutes / breaths
   tr.inh=cyc/3;tr.exh=cyc*2/3;                                          // breathe out about twice as long as in
   if(plan.kind==='volume'){
     tr.sim=!live.connected;
     trainUi(live.connected?L0('เป่าลมออกให้ถึงเป้า','Blow out to the target'):L0('ยังไม่ได้ต่อเครื่อง กดจำลองเพื่อฝึกใช้งาน','Device not connected: press Practice'),
-      `${L0('เป้า','Target')} ${plan.target||'–'} L · ${L0('ครั้งที่','Breath')} 1/${plan.reps}`,0,'0.0 L');
+      `${L0('เป้า','Target')} ${plan.target||'–'} L`,0,'0.0 L',0,plan.reps);
     $('trainSim').style.display=live.connected?'none':'';
   }else{
-    $('trainSim').style.display='none';tr.t0=performance.now();tr.phase='in';trainTick();
+    $('trainSim').style.display='none';tr.t0=performance.now()+2500;tr.phase='in';trainTick();
   }
 }
 function trainTick(){
   if(!tr||tr.plan.kind==='volume')return;
   const p=tr.plan,el=(performance.now()-tr.t0)/1000;
+  if(el<0){trainUi(L0('เตรียมตัว','Get ready'),L0('เริ่มใน','Starting in')+' '+Math.ceil(-el)+' '+L0('วินาที','s'),0,Math.ceil(-el),0,p.reps);tr.timer=requestAnimationFrame(trainTick);return}
   const total=tr.inh+tr.exh,k=el%total,rep=Math.floor(el/total);
   if(rep>=p.reps){finishTraining();return}
   tr.rep=rep;
   const inh=k<tr.inh;
+  if(tr.lastRep!==rep){tr.lastRep=rep;tr.lastPh='';if(rep>0)say(numWord(rep))}
+  if(tr.lastPh!==(inh?'i':'o')){tr.lastPh=inh?'i':'o';beep(inh?520:400,140);buzz(inh?60:30);if(rep>0||!inh||true)setTimeout(()=>say(inh?L0('หายใจเข้า','Breathe in'):L0('เป่าออกช้าๆ','Breathe out slowly')),rep>0&&inh?900:0)}
   trainUi(inh?L0('หายใจเข้าทางจมูก','Breathe in through the nose'):L0('เป่าออกช้าๆ ทางปากเหมือนเป่าเทียน','Breathe out slowly, lips like blowing a candle'),
-    `${L0('ครั้งที่','Breath')} ${rep+1}/${p.reps}`,inh?100*k/tr.inh:100-100*(k-tr.inh)/tr.exh,inh?L0('เข้า','IN'):L0('ออก','OUT'));
+    `${L0('รอบนี้ประมาณ','About')} ${p.minutes} ${L0('นาที','min')}`,inh?100*k/tr.inh:100-100*(k-tr.inh)/tr.exh,inh?L0('เข้า','IN'):L0('ออก','OUT'),rep,p.reps);
   tr.timer=requestAnimationFrame(trainTick);
 }
 function trainBreath(volL){            // volume kind: one blow measured (device or practice)
   if(!tr||tr.plan.kind!=='volume')return;
-  tr.vols.push(volL);tr.rep++;const p=tr.plan;
+  tr.vols.push(volL);tr.rep++;const p=tr.plan;beep(volL>=(p.target||0)*0.8?760:300,200);say(numWord(tr.rep));
   const hit=!p.target||volL>=p.target*0.8;
-  trainUi(hit?L0('ดีมาก','Good'):L0('ลองอีกนิด','Try a little more'),`${L0('ครั้งที่','Breath')} ${Math.min(tr.rep+1,p.reps)}/${p.reps} · ${volL.toFixed(2)} L`,Math.min(100,100*volL/(p.target||volL||1)),volL.toFixed(1)+' L');
+  trainUi(hit?L0('ดีมาก','Good'):L0('ลองอีกนิด','Try a little more'),`${volL.toFixed(2)} L`,Math.min(100,100*volL/(p.target||volL||1)),volL.toFixed(1)+' L',tr.rep,p.reps);
   if(tr.rep>=p.reps)setTimeout(finishTraining,900);
 }
 async function finishTraining(){
@@ -71,11 +95,12 @@ async function finishTraining(){
   tr=null;
   if(!DEMO_Q){try{await SP.Trainings.add(rec)}catch(e){alert(e.message)}}
   myTrains.push(rec);
-  trainUi(L0('เก่งมาก ฝึกเสร็จแล้ว','Well done, finished'),`${rec.reps} ${L0('ครั้ง','breaths')} · ${Math.floor(rec.durationSec/60)}:${String(rec.durationSec%60).padStart(2,'0')}`,100,'✓');
+  beep(880,200);setTimeout(()=>beep(1100,260),240);buzz(200);lastSay='';say(L0('เก่งมากครับ ฝึกเสร็จแล้ว','Well done. You have finished.'));
+  trainUi(L0('เก่งมาก ฝึกเสร็จแล้ว','Well done, finished'),`${rec.reps} ${L0('ครั้ง','breaths')} · ${Math.floor(rec.durationSec/60)}:${String(rec.durationSec%60).padStart(2,'0')}`,100,'✓',rec.reps,p.reps);
   $('trainSim').style.display='none';
   setTimeout(()=>{$('trainOv').classList.remove('on');renderHome()},2500);
 }
-function stopTraining(){if(tr){cancelAnimationFrame(tr.timer);tr=null}$('trainOv').classList.remove('on');if(tab==='home')renderHome()}
+function stopTraining(){if(tr){cancelAnimationFrame(tr.timer);tr=null}try{speechSynthesis.cancel()}catch(e){}$('trainOv').classList.remove('on');if(tab==='home')renderHome()}
 function trainSimBlow(){if(!tr)return;const t=tr.plan.target||2;trainBreath(+(t*(0.7+Math.random()*0.5)).toFixed(2))}
 
 /* ---------- doctor: prescribe a training plan for a linked patient ---------- */
