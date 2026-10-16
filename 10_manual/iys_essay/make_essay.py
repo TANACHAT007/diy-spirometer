@@ -130,7 +130,7 @@ para('Spiro builds on a platform our team had already made work. Our earlier dev
      'device with a built-in display and sensor that sends its results to a web dashboard so that caregivers and clinicians can monitor '
      'elderly users remotely. It was developed through two prototype versions and won the Gold Award at WICO 2026 (World Invention '
      'Creativity Olympic, 15th edition, Seoul, 16-18 July 2026), a Silver Medal at iCAN 2026 (international invention competition, '
-     'online, August 2026) and the OFEED Special Award at iCAN 2026. These awards were given for SmartLung, a training device, '
+     'online, August 2026) and the OFEED Special Award at iCAN 2026 [12]. These awards were given for SmartLung, a training device, '
      'not for a spirometer. Spiro version 3 uses the same sensing principle and the same kind of remote-monitoring web application as SmartLung, '
      'which our team has already built and demonstrated, and applies them to a new purpose, lung-function screening. '
      'Its new work is concentrated on the part that creates the most waste, the single-use mouthpiece, made from agricultural waste, while '
@@ -237,6 +237,7 @@ refs = [
  '[9] Production of molded pulp packaging from rice straw and bagasse coated by chitosan. Burapha Science Journal. https://li05.tci-thaijo.org/index.php/buuscij/article/view/1311',
  '[10] US Patents 5,980,466 and 6,176,833. Biodegradable air tube and spirometer employing same. https://patents.google.com/patent/US6176833',
  '[11] University of Wisconsin-Madison Biomedical Engineering Design. Spirometer final poster (student project, not peer reviewed). https://bmedesign.engr.wisc.edu/public/projects/f09/spirometer/file/view/408e0168-4392-4fac-9b9c-8246935e60cf/Final_Poster_12_3.pdf',
+ '[12] SmartLung project and award page (team portfolio, with certificates and photos). https://tanachat007.github.io/poom-portfolio/smartlung.html',
 ]
 for r in refs:
     p = doc.add_paragraph(r); p.paragraph_format.left_indent = Cm(0.8); p.paragraph_format.first_line_indent = Cm(-0.8)
@@ -246,7 +247,8 @@ for r in refs:
 doc.add_heading('Attachments', 1)
 para('A. Product page and 3D viewer: https://spiro-medthai.web.app/', indent=False)
 para('B. Clinic and patient web application (sign-in): https://spiro-medthai.web.app/login.html', indent=False)
-para('C. Open design files (CAD scripts, STL, firmware, bill of materials): https://github.com/TANACHAT007/diy-spirometer', indent=False)
+para('C. Earlier project SmartLung and its award certificates: https://tanachat007.github.io/poom-portfolio/smartlung.html [add the iCAN 2026 results-announcement link here]', indent=False)
+para('D. Open design files (CAD scripts, STL, firmware, bill of materials): https://github.com/TANACHAT007/diy-spirometer', indent=False)
 para('Note: figures are CAD renders of the design, not photographs of a built device.', italic=True, indent=False)
 
 out = os.path.join(H, 'IYS7_Health_Spiro_essay.docx')
