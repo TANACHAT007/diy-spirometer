@@ -139,8 +139,16 @@ CARDS = [
   []),
 ]
 
+import os, base64
+IMGDIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'img', 'story')
+def photo(i, art):
+    f = os.path.join(IMGDIR, f's{i+1}.jpg')
+    if os.path.exists(f):
+        return '<img alt="" loading="lazy" style="width:100%;height:100%;object-fit:cover;display:block" src="data:image/jpeg;base64,' + base64.b64encode(open(f,'rb').read()).decode() + '">'
+    return art
 cards, tpls = [], []
 for i, (art, k, title, short, pts, srcs) in enumerate(CARDS):
+    art = photo(i, art)
     cards.append(f'<article class="sc" role="button" tabindex="0" data-i="{i}"><div class="sart">{art}</div><div class="sbody"><span class="sk">{k}</span><h3>{title}</h3><p>{short}</p><span class="more">ดูรายละเอียด +</span></div></article>')
     li = ''.join(f'<li>{p}</li>' for p in pts)
     sl = ('<h4>แหล่งอ้างอิง</h4><ul class="slinks">' + ''.join(src(*s) for s in srcs) + '</ul>') if srcs else ''

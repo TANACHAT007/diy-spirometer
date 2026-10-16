@@ -31,7 +31,10 @@ stl = {os.path.splitext(os.path.basename(f))[0]: base64.b64encode(open(f, 'rb').
 a = s.index('<div class="stage"><img src="{{HERO}}"'); b = s.index('</div>', a) + len('</div>')
 s = s[:a] + rd('hero3d.html').replace('{{STLDATA}}', json.dumps(stl)).replace('{{INTDATA}}', json.dumps({os.path.splitext(os.path.basename(f))[0]: base64.b64encode(open(f, 'rb').read()).decode() for f in sorted(glob.glob(os.path.join(H, 'internals', '*.stl')))})) + s[b:]
 uri = lambda n: 'data:image/jpeg;base64,' + base64.b64encode(open(os.path.join(H, 'img', n + '.jpg'), 'rb').read()).decode()
-for k, n in (('HERO', 'cu_hero'), ('OPEN', 'cu_open'), ('INSIDE', 'cu_inside'), ('DOCK', 'cu_dock')):
-    s = s.replace('{{' + k + '}}', uri(n))
+def uri_png(n):
+    f = os.path.join(H, 'img', 'v_' + n + '.png')
+    return 'data:image/png;base64,' + base64.b64encode(open(f, 'rb').read()).decode() if os.path.exists(f) else uri('cu_' + n)
+for k, n in (('HERO', 'hero'), ('OPEN', 'open'), ('INSIDE', 'inside'), ('DOCK', 'dock')):
+    s = s.replace('{{' + k + '}}', uri_png(n))
 open(os.path.join(H, 'product_page.html'), 'w', encoding='utf-8').write(s)
 print('built', len(s) // 1024, 'KB')
