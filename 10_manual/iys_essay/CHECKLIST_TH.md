@@ -13,9 +13,10 @@ Poster + พรีเซนต์ ใช้เฉพาะ Top 100 ในรอ�
 | 6 | **ยืนยันการส่งงานทาง WhatsApp เบอร์เดียวกัน** รูปแบบเดียวกัน | คุณส่งเอง |
 
 รูปแบบข้อความ (ข้อ 5 และ 6):
-`Health_7thIYS_Tanachat S._[ชื่อสถาบัน]_Thailand_Spiro A Low-Cost`
+`Health_7thIYS_Puttitada Pruetchayakul_Bodindecha (Sing Singhaseni) School_Thailand_Spiro A Low-Cost`
+(ถ้าเปลี่ยนหัวหน้าทีม ให้เปลี่ยนชื่อและสถาบันในข้อความตาม)
 
 เงื่อนไข: อายุ 15-27 ปี, ทีม 2-5 คน (หนึ่งคนเป็นหัวหน้า), บทความมากกว่า 10 หน้าจะไม่ถูกตรวจ
 
-ก่อนส่ง: เปิดไฟล์ .docx ใส่สถาบันของหัวหน้าทีม (แทน `[leader institution]`) และสมาชิกคนอื่นถ้ามี ในหน้าปก แล้วลบข้อความ "<- fill in"
-สมาชิกที่ใส่แล้ว: Puttitada Pruetchayakul (โรงเรียนบดินทรเดชา (สิงห์ สิงหเสนี)), Pimnara Roongsetthavitr (International Community School), Suchanan Kittikraisak (The Newton Sixth Form), Natnicha Taepucharoen (โรงเรียนสามเสนวิทยาลัย) — อีเมลและเบอร์โทรไม่ได้ใส่ในบทความ ใช้กรอกในฟอร์ม linktr.ee เท่านั้น
+ทีม (5 คน เกณฑ์ 2-5): หัวหน้าทีม Puttitada Pruetchayakul (Bodindecha); สมาชิก Pimnara Roongsetthavitr (International Community School), Suchanan Kittikraisak (The Newton Sixth Form), Natnicha Taepucharoen (Samsenwittayalai), Nabhat Sethaudom (International Community School); ที่ปรึกษา Tanachat S. (ไม่ลงแข่ง)
+ต้องเช็ก: สมาชิกทุกคนอายุ 15-27 ปี, อีเมล/เบอร์โทรใช้กรอกในฟอร์ม linktr.ee เท่านั้น ไม่ได้ใส่ในบทความ

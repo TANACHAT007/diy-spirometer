@@ -13,9 +13,11 @@ IMG = os.path.join(H, '..', 'web', 'img')
 
 TITLE = 'Spiro: A Low-Cost 3D-Printed IoT Spirometer with a Disposable Mouthpiece Made from Burned-Field Crop Residue'
 SUB = 'Bridging air pollution, lung health and circular materials for communities that cannot reach a hospital spirometer'
-LEADER = 'Tanachat S. ([leader institution])  <- fill in'
-MEMBERS = 'Puttitada Pruetchayakul (Bodindecha (Sing Singhaseni) School); Pimnara Roongsetthavitr (International Community School); Suchanan Kittikraisak (The Newton Sixth Form); Natnicha Taepucharoen (Samsenwittayalai School)'
-INST = 'Bodindecha (Sing Singhaseni) School; International Community School; The Newton Sixth Form; Samsenwittayalai School; [leader institution]'
+LEADER = 'Puttitada Pruetchayakul (Bodindecha (Sing Singhaseni) School)'
+MEMBERS = ('Pimnara Roongsetthavitr (International Community School); Suchanan Kittikraisak (The Newton Sixth Form); '
+           'Natnicha Taepucharoen (Samsenwittayalai School); Nabhat Sethaudom (International Community School)')
+INST = 'Bodindecha (Sing Singhaseni) School; International Community School; The Newton Sixth Form; Samsenwittayalai School'
+ADVISOR = 'Tanachat S. (teacher / project advisor, not a competitor)'
 
 doc = Document()
 sec = doc.sections[0]
@@ -87,7 +89,8 @@ para(SUB, italic=True, align='c', size=13, after=36)
 para('Team MEDTHAI', bold=True, align='c', size=13, after=2)
 para('Team leader: ' + LEADER, align='c', after=2)
 para('Members: ' + MEMBERS, align='c', after=2)
-para('Institution: ' + INST, align='c', after=2)
+para('Institutions: ' + INST, align='c', after=2)
+para('Advisor: ' + ADVISOR, align='c', after=2)
 para('Country: Thailand', align='c', after=30)
 para('Theme: "Bridging Ideas and Youth Creativity to Shape Solutions for Tomorrow\'s Challenges"', italic=True, align='c', size=11)
 doc.add_page_break()
