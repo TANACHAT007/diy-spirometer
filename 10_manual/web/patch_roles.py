@@ -23,9 +23,9 @@ rep('<!-- ============ DEVICE ============ -->', '<!-- ============ MY PROFILE (
 # 4 state with per-user keys + role boot
 OLD = "let patients=load('sp_patients',[]),tests=load('sp_tests',[]),activeP=localStorage.sp_active||'',cfg=load('sp_cfg',{});"
 rep(OLD, r"""const DEMO_Q=/[?&]demo/.test(location.search);
-const ME=DEMO_Q?{id:'demo',role:'doctor',name:'Example',status:'active',code:'DR-DEMO',meta:{}}:await SP.Auth.require(['doctor','patient']);
+const ME=DEMO_Q?{id:'demo',role:'doctor',name:'Example',status:'active',code:'DR-DEMO',meta:{}}:await SP.Auth.require(['doctor','patient','admin']);
 if(!DEMO_Q&&ME.status!=='active'){document.body.innerHTML='<p style="padding:48px 20px;text-align:center;font:16px sans-serif">บัญชียังไม่ได้รับอนุมัติจากผู้ดูแลระบบ · Account awaiting admin approval<br><br><a href="login.html">login</a></p>';throw new Error('pending')}
-const ROLE=ME.role,NS='_'+ME.id,PK='sp_patients'+NS,TK='sp_tests'+NS,AK='sp_active'+NS,CK='sp_cfg'+NS;
+const ROLE=ME.role==='admin'?'doctor':ME.role,NS='_'+ME.id,PK='sp_patients'+NS,TK='sp_tests'+NS,AK='sp_active'+NS,CK='sp_cfg'+NS;
 let patients=load(PK,[]),tests=load(TK,[]),activeP=localStorage[AK]||'',cfg=load(CK,{});""")
 rep("const fmt=(v,d=2)=>v==null||isNaN(v)?'–':(+v).toFixed(d);", r"""const fmt=(v,d=2)=>v==null||isNaN(v)?'–':(+v).toFixed(d);
 /* accounts: a patient account is a "linked" patient record; its tests live in the shared store (SP.Tests) */

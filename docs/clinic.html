@@ -292,9 +292,9 @@ const load=(k,d)=>{try{return JSON.parse(localStorage[k]||'')||d}catch(e){return
 let DEMO=false;
 const save=(k,v)=>{if(DEMO)return;try{localStorage[k]=JSON.stringify(v)}catch(e){}};
 const DEMO_Q=/[?&]demo/.test(location.search);
-const ME=DEMO_Q?{id:'demo',role:'doctor',name:'Example',status:'active',code:'DR-DEMO',meta:{}}:await SP.Auth.require(['doctor','patient']);
+const ME=DEMO_Q?{id:'demo',role:'doctor',name:'Example',status:'active',code:'DR-DEMO',meta:{}}:await SP.Auth.require(['doctor','patient','admin']);
 if(!DEMO_Q&&ME.status!=='active'){document.body.innerHTML='<p style="padding:48px 20px;text-align:center;font:16px sans-serif">บัญชียังไม่ได้รับอนุมัติจากผู้ดูแลระบบ · Account awaiting admin approval<br><br><a href="login.html">login</a></p>';throw new Error('pending')}
-const ROLE=ME.role,NS='_'+ME.id,PK='sp_patients'+NS,TK='sp_tests'+NS,AK='sp_active'+NS,CK='sp_cfg'+NS;
+const ROLE=ME.role==='admin'?'doctor':ME.role,NS='_'+ME.id,PK='sp_patients'+NS,TK='sp_tests'+NS,AK='sp_active'+NS,CK='sp_cfg'+NS;
 let patients=load(PK,[]),tests=load(TK,[]),activeP=localStorage[AK]||'',cfg=load(CK,{});
 let cur={pid:ROLE==='patient'?ME.id:'',trials:[],checks:[],comment:''};          // the test in progress
 let live={buf:[],connected:false,name:''};
