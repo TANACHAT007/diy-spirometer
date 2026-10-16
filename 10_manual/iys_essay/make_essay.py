@@ -14,8 +14,8 @@ IMG = os.path.join(H, '..', 'web', 'img')
 TITLE = 'Spiro: A Low-Cost 3D-Printed IoT Spirometer with a Disposable Mouthpiece Made from Burned-Field Crop Residue'
 SUB = 'Bridging air pollution, lung health and circular materials for communities that cannot reach a hospital spirometer'
 LEADER = 'Tanachat S. ([leader institution])  <- fill in'
-MEMBERS = 'Puttitada Pruetchayakul (Bodindecha (Sing Singhaseni) School); Pimnara Roongsetthavitr (International Community School)'
-INST = 'Bodindecha (Sing Singhaseni) School; International Community School; [leader institution]'
+MEMBERS = 'Puttitada Pruetchayakul (Bodindecha (Sing Singhaseni) School); Pimnara Roongsetthavitr (International Community School); Suchanan Kittikraisak (The Newton Sixth Form)'
+INST = 'Bodindecha (Sing Singhaseni) School; International Community School; The Newton Sixth Form; [leader institution]'
 
 doc = Document()
 sec = doc.sections[0]
