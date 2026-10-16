@@ -17,7 +17,7 @@ LEADER = 'Puttitada Pruetchayakul (Bodindecha (Sing Singhaseni) School)'
 MEMBERS = ('Pimnara Roongsetthavitr (International Community School); Suchanan Kittikraisak (The Newton Sixth Form); '
            'Natnicha Taepucharoen (Samsenwittayalai School); Nabhat Sethaudom (International Community School)')
 INST = 'Bodindecha (Sing Singhaseni) School; International Community School; The Newton Sixth Form; Samsenwittayalai School'
-ADVISOR = 'Tanachat S. (teacher / project advisor, not a competitor)'
+ADVISOR = 'Tanachat Srinurat'
 
 doc = Document()
 sec = doc.sections[0]

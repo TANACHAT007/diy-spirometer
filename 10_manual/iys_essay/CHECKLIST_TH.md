@@ -18,5 +18,5 @@ Poster + พรีเซนต์ ใช้เฉพาะ Top 100 ในรอ�
 
 เงื่อนไข: อายุ 15-27 ปี, ทีม 2-5 คน (หนึ่งคนเป็นหัวหน้า), บทความมากกว่า 10 หน้าจะไม่ถูกตรวจ
 
-ทีม (5 คน เกณฑ์ 2-5): หัวหน้าทีม Puttitada Pruetchayakul (Bodindecha); สมาชิก Pimnara Roongsetthavitr (International Community School), Suchanan Kittikraisak (The Newton Sixth Form), Natnicha Taepucharoen (Samsenwittayalai), Nabhat Sethaudom (International Community School); ที่ปรึกษา Tanachat S. (ไม่ลงแข่ง)
+ทีม (5 คน เกณฑ์ 2-5): หัวหน้าทีม Puttitada Pruetchayakul (Bodindecha); สมาชิก Pimnara Roongsetthavitr (International Community School), Suchanan Kittikraisak (The Newton Sixth Form), Natnicha Taepucharoen (Samsenwittayalai), Nabhat Sethaudom (International Community School); ที่ปรึกษา Tanachat Srinurat
 ต้องเช็ก: สมาชิกทุกคนอายุ 15-27 ปี, อีเมล/เบอร์โทรใช้กรอกในฟอร์ม linktr.ee เท่านั้น ไม่ได้ใส่ในบทความ

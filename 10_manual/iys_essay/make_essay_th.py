@@ -91,7 +91,7 @@ para('เชื่อมโยงมลพิษทางอากาศ สุ�
 para('ทีม MEDTHAI', bold=True, align='c', after=2)
 para('หัวหน้าทีม: Puttitada Pruetchayakul (โรงเรียนบดินทรเดชา (สิงห์ สิงหเสนี))', align='c', after=2)
 para('สมาชิก: Pimnara Roongsetthavitr (International Community School); Suchanan Kittikraisak (The Newton Sixth Form); Natnicha Taepucharoen (โรงเรียนสามเสนวิทยาลัย); Nabhat Sethaudom (International Community School)', align='c', after=2)
-para('ที่ปรึกษา: Tanachat S. (ครู/ที่ปรึกษาโครงงาน ไม่ลงแข่ง)', align='c', after=2)
+para('ที่ปรึกษา: Tanachat Srinurat', align='c', after=2)
 para('ประเทศ: ไทย', align='c', after=30)
 doc.add_page_break()
 
