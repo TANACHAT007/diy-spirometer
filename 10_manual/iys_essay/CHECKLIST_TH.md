@@ -5,7 +5,7 @@ Poster + พรีเซนต์ ใช้เฉพาะ Top 100 ในรอ�
 
 | # | รายการ | สถานะ |
 |---|---|---|
-| 1 | **บทความ (Essay)** `IYS7_Health_Spiro_essay.docx` (+ PDF) Times New Roman 12 มีเลขหน้า ตั้งแต่ Introduction ถึง Conclusion 3-10 หน้า (ตอนนี้ ~5 หน้า) | ทำแล้ว ต้องกรอกชื่อสมาชิก+สถาบันในหน้าปก |
+| 1 | **บทความ (Essay)** `IYS7_Health_Spiro_essay.docx` (+ PDF) Times New Roman 12 มีเลขหน้า ตั้งแต่ Introduction ถึง Conclusion 3-10 หน้า (ตอนนี้ 8 หน้า) | ทำแล้ว ต้องกรอกชื่อสมาชิก+สถาบันในหน้าปก |
 | 2 | **Registration Form** ที่ https://linktr.ee/InternationalYouthSummit_IYS | คุณกรอกเอง |
 | 3 | **Submission Form** (แนบบทความ) ที่ลิงก์เดียวกัน ต้องส่งใน Batch เดียวกับที่สมัคร | คุณกรอกเอง |
 | 4 | **โอนเงิน USD 10** BSI / Rizki Prima Sentosa / 1137118013 | คุณโอนเอง |

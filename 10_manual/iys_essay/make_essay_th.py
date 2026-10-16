@@ -180,7 +180,7 @@ para('ใช้เอกสารอ้างอิง [1]-[22] เดียว�
 doc.add_heading('ภาคผนวก', 1)
 para('ก. หน้าผลิตภัณฑ์และโมเดล 3 มิติ: https://medthai-spirometer.web.app/', indent=False)
 para('ข. เว็บแอปคลินิกและผู้ป่วย (เข้าสู่ระบบ): https://medthai-spirometer.web.app/login.html', indent=False)
-para('ค. โครงงานเดิม SmartLung และเกียรติบัตร: https://tanachat007.github.io/poom-portfolio/smartlung.html [เพิ่มลิงก์ประกาศผล iCAN 2026]', indent=False)
+para('ค. โครงงานเดิม SmartLung และเกียรติบัตร: https://tanachat007.github.io/poom-portfolio/smartlung.html', indent=False)
 para('ง. ไฟล์แบบเปิด (สคริปต์ CAD, STL, เฟิร์มแวร์, รายการอุปกรณ์): https://github.com/TANACHAT007/diy-spirometer', indent=False)
 para('หมายเหตุ: รูปเป็นภาพเรนเดอร์จากแบบ ไม่ใช่ภาพถ่ายเครื่องจริง', italic=True, indent=False)
 
