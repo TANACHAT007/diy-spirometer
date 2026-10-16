@@ -195,6 +195,20 @@ para('Our validation plan is straightforward: calibrate with the 3 L syringe at 
      'hospital spirometer with consent and teacher/physician supervision, measure the resistance of the pulp mouthpiece, and report '
      'the results whether or not they are favourable.')
 
+doc.add_heading('2.7 Novelty, impact and plan', 2)
+para('What is new is the combination, not any single part. Printed venturi spirometers, spirometer mouthpieces made of paper, and straw-pulp '
+     'packaging each exist separately; we found no design that links a washable measuring unit, a single-use mouthpiece made from field-burned '
+     'residue, and a patient-doctor web service in one low-cost system. The impact is intended on three levels, and each can be checked:')
+table([
+    ['Level', 'Intended effect', 'How we will check it'],
+    ['Health (SDG 3)', 'Early screening of lung function where a clinic spirometer is not available', 'Agreement with a reference spirometer in a supervised comparison'],
+    ['Waste and climate (SDG 12, 13)', 'Each mouthpiece is made from residue that would otherwise be burned and can be composted', 'Mass of residue per mouthpiece; compost test of the moulded part'],
+    ['Community (SDG 11, 17)', 'Farmers and schools share one loop: straw collection, moulding, screening', 'Pilot with one school and one village health post'],
+], [3.6, 6.4, 6.0])
+para('Timeline after the summit: weeks 1-4 print, assemble and calibrate version 3 with the 3 L syringe; weeks 5-8 prepare straw-pulp '
+     'mouthpiece samples and measure their airflow resistance; weeks 9-12 run a supervised comparison with a reference spirometer and publish '
+     'all results, including failures, in the open repository.')
+
 # ---------------------------------------------------------------- Conclusion
 doc.add_heading('3. Conclusion', 1)
 para('Spiro version 3 joins three ideas that are usually treated separately: a low-cost printed spirometer, an accounts-based service that connects '
