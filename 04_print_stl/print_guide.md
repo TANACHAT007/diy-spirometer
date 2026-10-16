@@ -26,3 +26,6 @@ Profile: 0.2 mm layer, 4 walls (≥1.6 mm), 20 % gyroid, 0.4 nozzle. Printed hol
 - Manifold channel Ø2.4 printed horizontally (bridging) may sag → ream it.
 - 2.4 mm shell wall is only 6 perimeters of 0.4 — OK for PETG but grip ridges are 1 mm deep.
 - Venturi surface roughness changes the discharge coefficient → calibrate K after every re-print.
+
+## Assembly order note (button + LED)
+Solder the 6x6 tact switch and the 3 mm LED to the 13x29 mm perfboard first (stem and LED face the same side, away from the board). Drop the board onto the two bosses on the inside of the left housing so the tact stem and the LED body pass through their wall holes, then lock it with two M2x6 self-tapping screws. Only then fit the display, battery and close the housings. Press the white button cap onto the stem last.

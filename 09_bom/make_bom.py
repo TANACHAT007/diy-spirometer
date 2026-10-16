@@ -12,6 +12,8 @@ rows = [  # group, item, spec, qty, unit THB (est.), status 'buy'|'buy?'|H, sear
     ('อิเล็กทรอนิกส์', 'แอมป์เสียง I2S MAX98357A breakout', '3 W class-D, ~19 x 18 mm, ไม่ต้องมี DAC', 1, 90, 'buy', 'MAX98357A I2S amplifier module', 'ต่อ BCLK/LRC/DIN เข้า D3/D6/D7, ใช้ 3.3 V จากบอร์ด, SD/GAIN ปล่อยค่าเดิม'),
     ('อิเล็กทรอนิกส์', 'ปุ่ม tact switch 6x6 สูง 7 mm', 'ก้านยาว 7 mm', 2, 3, 'buy', 'tact switch 6x6x7', 'ซื้อเผื่อ 1'),
     ('อิเล็กทรอนิกส์', 'LED 3 mm', 'สีเขียว/ฟ้า + R 330 ohm', 2, 2, 'buy', 'LED 3mm', 'บวกตัวต้านทาน 330 ohm'),
+    ('อิเล็กทรอนิกส์', 'แผงปุ่ม+LED (perfboard 13x29 mm)', 'บัดกรีปุ่ม tact + LED ลงแผงก่อน แล้ววางลงเสา 2 ต้นในตัวเครื่อง', 1, 5, 'buy', 'perfboard 2x8 cm', 'ตัดจากแผ่นยาว'),
+    ('ฮาร์ดแวร์', 'สกรู M2x6 หัวกลม (tapping)', 'ยึดแผงปุ่ม+LED 2 ตัว', 2, 2, 'buy', 'M2x6 self tapping screw', 'ซื้อเป็นชุด'),
     ('อิเล็กทรอนิกส์', 'ตัวต้านทาน 4.7 kohm', 'ดึงขึ้น I2C 2 ตัว + ตัวหาร R 100 kohm 2 ตัว (วัดแบต)', 6, 1, 'buy', 'resistor kit 1/4W', 'ซื้อเป็นชุด'),
     ('อิเล็กทรอนิกส์', 'สายไฟ 28-30 AWG / สาย silicone', 'หลายสี', 1, 40, 'buy', 'สายไฟ 28AWG silicone', ''),
     ('อิเล็กทรอนิกส์', 'USB-C breakout (แท่นชาร์จ)', 'ตัวเมีย 5 V', 1, 30, 'buy', 'USB-C breakout board', ''),
