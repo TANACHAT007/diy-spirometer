@@ -113,6 +113,12 @@ para('This essay presents Spiro, a student-designed prototype that tries to conn
      'reasoning behind it, an online system for patients, doctors and administrators, and - just as importantly - what has not yet been '
      'proven. Spiro is a learning and screening prototype. It is not a certified medical device and must not be used for diagnosis.')
 
+para('What makes Spiro different, in three points:', bold=True, after=2)
+for t in ['Eco-friendly material: the single-use part is designed to be made from rice straw and cane leaves that are burned in the field today, so waste becomes a product and the smoke that harms lungs is reduced at its source.',
+          'Made for the environment and health together: the same fields that cause the lung problem supply the material for screening it, which links air pollution, public health and circular economy in one design.',
+          'Affordable and accessible: the whole device is estimated at about 3,100 baht (about USD 85) in parts, uses a standard 3D printer and common electronics, and its open files let a school or health post build it locally.']:
+    p = doc.add_paragraph(t, style='List Bullet'); p.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
+
 # ---------------------------------------------------------------- Body
 doc.add_heading('2. Body', 1)
 doc.add_heading('2.1 The problem and the gap', 2)
@@ -187,8 +193,8 @@ para('Data are only useful if the right person can see them. We built a web serv
      'accounts, including attempts at privilege escalation, which were rejected. Health data are sensitive personal data, so real use '
      'would also require consent, a retention policy and independent review of the rules.')
 
-doc.add_heading('2.6 What is not proven yet', 2)
-para('The SmartLung prototypes were built and demonstrated by our team; the Spiro version 3 spirometer design and the straw-pulp mouthpiece have not yet been. The following limits are therefore important to state clearly:')
+doc.add_heading('2.6 Validation plan and known limits', 2)
+para('The SmartLung prototypes were built and demonstrated by our team; the Spiro version 3 spirometer design and the straw-pulp mouthpiece have not yet been. Because we want the numbers to be trusted, we state the remaining limits openly and show how each will be closed:')
 for t in [
     'The version 3 housing, electronics layout and web service have been designed and the firmware compiled, but this version has not yet been printed, assembled or measured. The constant K must be calibrated with a 3 L calibration syringe, and accuracy and repeatability must be checked against a reference spirometer.',
     'To stop at the end of a blow, the firmware ends the test when flow stays under 0.25 L/s. A model calculation showed this cuts the slow tail of a healthy blow, so FVC may read about 12% low and the FEV1/FVC ratio may read too high, which could hide mild obstruction. (This came from our own model calculation for version 3 settings.) The firmware now estimates the missing tail, but this correction is unvalidated.',
@@ -199,7 +205,15 @@ para('Our validation plan is straightforward: calibrate with the 3 L syringe at 
      'hospital spirometer with consent and teacher/physician supervision, measure the resistance of the pulp mouthpiece, and report '
      'the results whether or not they are favourable.')
 
-doc.add_heading('2.7 Novelty, impact and plan', 2)
+doc.add_heading('2.7 Affordable and accessible by design', 2)
+para('Access is a design goal, not an afterthought. The bill of materials lists 26 items totalling about 3,084 baht at estimated prices '
+     '(a design estimate from online marketplace prices, not receipts). The measuring unit is printed in about 27 hours on a hobby-class '
+     'printer using about 0.5 kg of filament, and nothing in it needs a special factory process. The part that is consumed - the mouthpiece - '
+     'costs about 5 baht in printed form for the prototype, and the proposal is to replace it with moulded residue pulp, a material that is '
+     'locally available and nearly free at the source. Because the design, firmware, web service and assembly instructions are published openly, a school or '
+     'health post can build, repair and extend the device without buying a licence. We have not benchmarked the price of commercial '
+     'spirometers in this essay, and a low price is meaningful only if accuracy is proven, which is why our validation plan comes first.')
+doc.add_heading('2.8 Novelty, impact and plan', 2)
 para('What is new is the combination, not any single part. Printed venturi spirometers, spirometer mouthpieces made of paper, and straw-pulp '
      'packaging each exist separately; we found no design that links a washable measuring unit, a single-use mouthpiece made from field-burned '
      'residue, and a patient-doctor web service in one low-cost system. The impact is intended on three levels, and each can be checked:')
