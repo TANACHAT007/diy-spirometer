@@ -125,12 +125,16 @@ para('Spirometry is the test used to detect and follow obstructive lung disease;
      'What is missing in the literature we found is a low-cost design that also deals with infection control and waste, and that is '
      'paired with an accounts-based service connecting patient and doctor.')
 
-doc.add_heading('2.2 Where Spiro comes from: versions 1 and 2', 2)
-para('Spiro is not a first attempt. Our team previously built two working prototypes, version 1 and version 2, whose measuring and IoT '
-     'system functioned as intended and which won an award in an earlier competition [award name, organiser and year - to be filled in by the team]. '
-     'Version 3, presented here, keeps that proven approach to measurement and data transfer and changes the part that creates the most waste: the '
-     'mouthpiece. Its goal is to turn agricultural waste into the single-use part that every patient needs, while the measuring unit is reused. '
-     'The remainder of this section describes the version 3 design in detail.')
+doc.add_heading('2.2 Where Spiro comes from: our earlier prototypes', 2)
+para('Spiro builds on a platform our team had already made work. Our earlier device, SmartLung, is a respiratory-muscle training '
+     'device with a built-in display and sensor that sends its results to a web dashboard so that caregivers and clinicians can monitor '
+     'elderly users remotely. It was developed through two prototype versions and won the Gold Award at WICO 2026 (World Invention '
+     'Creativity Olympic, 15th edition, Seoul, 16-18 July 2026), a Silver Medal at iCAN 2026 (international invention competition, '
+     'online, August 2026) and the OFEED Special Award at iCAN 2026. These awards were given for SmartLung, a training device, '
+     'not for a spirometer; we cite them only as evidence that the team can build and demonstrate a working sensor, display and '
+     'remote-monitoring system. Spiro version 3 carries that experience into a new purpose, lung-function screening, and '
+     'concentrates its new work on the part that creates the most waste: the single-use mouthpiece, made from agricultural waste, while '
+     'the measuring unit is reused. The rest of this section describes the version 3 design.')
 doc.add_heading('2.3 How version 3 works', 2)
 para('Spiro uses a venturi: a tube that narrows to a throat. When air is blown through it, the air speeds up at the throat and its pressure '
      'drops. A Sensirion SDP810-500Pa differential-pressure sensor measures the pressure difference between the wide part (28 mm) and the '
@@ -184,7 +188,7 @@ para('Data are only useful if the right person can see them. We built a web serv
      'would also require consent, a retention policy and independent review of the rules.')
 
 doc.add_heading('2.6 What is not proven yet', 2)
-para('Versions 1 and 2 were built and tested by our team; the version 3 redesign and the straw-pulp mouthpiece have not yet been. The following limits are therefore important to state clearly:')
+para('The SmartLung prototypes were built and demonstrated by our team; the Spiro version 3 spirometer design and the straw-pulp mouthpiece have not yet been. The following limits are therefore important to state clearly:')
 for t in [
     'The version 3 housing, electronics layout and web service have been designed and the firmware compiled, but this version has not yet been printed, assembled or measured. The constant K must be calibrated with a 3 L calibration syringe, and accuracy and repeatability must be checked against a reference spirometer.',
     'To stop at the end of a blow, the firmware ends the test when flow stays under 0.25 L/s. A model calculation showed this cuts the slow tail of a healthy blow, so FVC may read about 12% low and the FEV1/FVC ratio may read too high, which could hide mild obstruction. (This came from our own model calculation for version 3 settings.) The firmware now estimates the missing tail, but this correction is unvalidated.',
