@@ -207,6 +207,9 @@ def body_prism(comp, name, color):
 SCREWS = [(122.0, -30.0), xz(160, 11), xz(186, 40), xz(84, 11)]         # M3 csk + insert, along +y
 DISP_C = (97.0, -50.0)                                                   # GC9A01 round TFT (left side)
 BTN_C, LED_C = (97.0, -78.0), (111.0, -78.0)
+SW_X0, SW_X1, SW_Z0, SW_Z1 = 89.5, 118.5, -87.5, -74.5                  # button+LED daughter board 29 x 13 x 1.2 (perfboard), sits on 2 wall bosses behind the tact body
+SW_Y0, SW_T = -8.8, 1.2                                                  # board y -8.8..-7.6 (component side toward the wall)
+SW_HOLES = ((92.0, -84.5), (116.0, -84.5))                               # M2 self-tapping screws (x, z)
 MB_X0, MB_X1, MB_HW, MB_Z1 = 49.0, 86.0, 6.0, -26.0                    # manifold block under the flow tube: x range, half width, bottom z
 SENS_X0, SENS_Z0 = X_TAP2 - 17.0, -46.0                                  # carrier pcb 26 x 14; barbs at +9 / +17
 XIAO_U1, XIAO_W0, XIAO_Y0 = 197.3, 16.1, -6.0                            # pcb u 176.3..197.3, y -6.0..-4.8
@@ -316,18 +319,13 @@ def housing_half(side):
             join(c, b, box(c, 'clip', cx - 2.5, -YI - 0.3, cz - 2.5, 5, YI - 9.0 + 0.3, 5, 'lilac'))
             lx, lz = DISP_C[0] + 17.6 * math.cos(a), DISP_C[1] + 17.6 * math.sin(a)
             join(c, b, box(c, 'lip', lx - 2.0, -10.0, lz - 2.0, 4.0, 1.2, 4.0, 'lilac'))
-        # button (6x6 tact, stem out) + bracket, LED 3 mm
+        # button (6x6 tact, stem out) + LED 3 mm are SOLDERED TO A DAUGHTER BOARD first; the board drops onto two wall bosses
+        # (tact stem + LED body go through their wall holes) and two M2 screws lock it. No part is trapped behind a printed rib.
         drill(c, b, 'y', BTN_C[0], BTN_C[1], -BODY_T / 2 - 1, -YI + 0.1, 4.0)
-        drill(c, b, 'y', LED_C[0], LED_C[1], -BODY_T / 2 - 1, -YI + 0.1, 3.0)
-        bx, bz = BTN_C
-        for zz in (bz - 7, bz + 5):
-            join(c, b, box(c, 'btn_post', bx - 4, -YI - 0.3, zz, 8, YI - 5.2 + 0.3, 2, 'lilac'))
-        join(c, b, box(c, 'btn_bar', bx - 4, -7.2, bz - 5, 8, 2.0, 10, 'lilac'))
-        # LED retainer: 1.4 mm rib directly behind the LED flange (between the two legs), held by two wall posts
-        lx, lz = LED_C
-        for zz in (lz - 6, lz + 5):
-            join(c, b, box(c, 'led_post', lx - 0.7, -YI - 0.3, zz, 1.4, 2.7 + 0.3, 1, 'lilac'))
-        join(c, b, box(c, 'led_rib', lx - 0.7, -YI + 1.0, lz - 6, 1.4, 1.4, 12, 'lilac'))
+        drill(c, b, 'y', LED_C[0], LED_C[1], -BODY_T / 2 - 1, -YI + 0.1, 3.3)
+        for hx, hz in SW_HOLES:
+            join(c, b, cyl_y(c, 'sw_boss', hx, -YI - 0.3, hz, 5.0, (SW_Y0 + YI) + 0.3, 'lilac'))
+            cut_with(c, b, cyl_y(c, 'tmp_sw_pilot', hx, -YI - 1.2, hz, 1.8, SW_Y0 + YI + 1.2 + 0.0, None))
         # XIAO: short rails at both pcb ends (pads in the middle stay free for soldering) + top stop
         for u0, du in ((XIAO_U1 - 2.0, 2.0), (XIAO_U1 - 21.4, 2.2)):      # 2nd pair overlaps the stop block (no edge-only contact)
             for lo_w, lip_w, web_w in ((XIAO_W0, XIAO_W0, XIAO_W0 - 1.6), (XIAO_W0 + 16.4, XIAO_W0 + 17.2, XIAO_W0 + 17.8)):
@@ -524,7 +522,18 @@ LD = new_comp('E6_LED_3mm')
 cyl_y(LD, 'E6_led_body', LED_C[0], -BODY_T / 2 - 1.4, LED_C[1], 3.0, 4.8, 'green')
 cyl_y(LD, 'E6_led_flange', LED_C[0], -YI, LED_C[1], 3.8, 1.0, 'green')
 for dx in (-1.27, 1.27):
-    cyl_y(LD, 'E6_led_leg', LED_C[0] + dx, -YI + 1.0, LED_C[1], 0.5, 6, 'steel')
+    cyl_y(LD, 'E6_led_leg', LED_C[0] + dx, -YI + 1.0, LED_C[1], 0.5, 4.6, 'steel')       # trimmed 0.6 past the board
+
+SB = new_comp('E7_Button_LED_Board')
+sw_pcb = box(SB, 'E7_sw_pcb', SW_X0, SW_Y0, SW_Z0, SW_X1 - SW_X0, SW_T, SW_Z1 - SW_Z0, 'pcb')
+for hx, hz in SW_HOLES:
+    cut_with(SB, sw_pcb, cyl_y(SB, 'tmp_sw_hole', hx, SW_Y0 - 0.5, hz, 2.2, SW_T + 1.0, None))
+    cyl_y(SB, 'E7_sw_screw_head', hx, SW_Y0 + SW_T, hz, 3.8, 1.3, 'steel')                  # M2 pan head, y -7.6..-6.3
+    cyl_y(SB, 'E7_sw_screw_shank', hx, SW_Y0 - 4.8, hz, 2.0, 4.8 + SW_T, 'steel')           # into the 1.8 pilot, 4.8 deep
+for dx_, dz_ in ((-3.25, -2.25), (2.55, -2.25), (-3.25, 1.55), (2.55, 1.55)):
+    cyl_y(SB, 'E7_sw_solder', BTN_C[0] + dx_ + 0.35, SW_Y0 + SW_T, BTN_C[1] + dz_ + 0.35, 1.6, 0.5, 'steel')
+for dx_ in (-1.27, 1.27):
+    cyl_y(SB, 'E7_sw_solder', LED_C[0] + dx_, SW_Y0 + SW_T, LED_C[1], 1.6, 0.5, 'steel')
 
 # E8 speaker 16 mm (front on the wall, sound through the holes) + E9 MAX98357A I2S amp
 SP = new_comp('E8_Speaker_16mm')
