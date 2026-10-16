@@ -38,5 +38,5 @@ The committed `docs/firebase-config.js` points at the MEDTHAI project. **Do not 
 - Rules are not yet covered by automated emulator tests. Do that before a real deployment.
 
 ## Hosting (live site)
-The site is served by **Firebase Hosting**: https://spiro-medthai.web.app (also https://spiro-medthai.firebaseapp.com). Publish after any change in `docs/`:
+The site is served by **Firebase Hosting**: https://medthai-spirometer.web.app (also https://spiro-medthai.firebaseapp.com). Publish after any change in `docs/`:
 `npx firebase-tools deploy --only hosting --project spiro-medthai` (rules: `--only firestore`). HTML/JS are sent with `Cache-Control: no-cache` so users get new versions immediately. The default domains are already authorised for sign-in; add any custom domain under Authentication > Settings > Authorized domains.

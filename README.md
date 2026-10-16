@@ -24,4 +24,4 @@ so all numbers are calculations or datasheet values. Not a certified medical dev
 Calibrate the venturi constant K with a 3 L syringe before trusting any reading (see `08_firmware/README.md`).
 
 
-**เว็บ:** https://spiro-medthai.web.app/
+**เว็บ:** https://medthai-spirometer.web.app/

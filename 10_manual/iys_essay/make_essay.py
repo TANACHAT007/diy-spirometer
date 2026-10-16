@@ -281,8 +281,8 @@ for r in refs:
 
 # ---------------------------------------------------------------- Attachments
 doc.add_heading('Attachments', 1)
-para('A. Product page and 3D viewer: https://spiro-medthai.web.app/', indent=False)
-para('B. Clinic and patient web application (sign-in): https://spiro-medthai.web.app/login.html', indent=False)
+para('A. Product page and 3D viewer: https://medthai-spirometer.web.app/', indent=False)
+para('B. Clinic and patient web application (sign-in): https://medthai-spirometer.web.app/login.html', indent=False)
 para('C. Earlier project SmartLung and its award certificates: https://tanachat007.github.io/poom-portfolio/smartlung.html [add the iCAN 2026 results-announcement link here]', indent=False)
 para('D. Open design files (CAD scripts, STL, firmware, bill of materials): https://github.com/TANACHAT007/diy-spirometer', indent=False)
 para('Note: figures are CAD renders of the design, not photographs of a built device.', italic=True, indent=False)
