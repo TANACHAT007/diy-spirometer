@@ -121,7 +121,22 @@ for t in ['Eco-friendly material: the single-use part is designed to be made fro
 
 # ---------------------------------------------------------------- Body
 doc.add_heading('2. Body', 1)
-doc.add_heading('2.1 The problem and the gap', 2)
+doc.add_heading('2.1 Why this device is needed, and why access and price matter', 2)
+para('Chronic obstructive pulmonary disease (COPD) is the third leading cause of death in the world, causing about 3.4 million deaths in 2023, '
+     'roughly 6% of all deaths; nearly 90% of COPD deaths under the age of 70 occur in low- and middle-income countries. The World Health '
+     'Organization states that COPD should be confirmed with spirometry, and that in low- and middle-income countries spirometry is often not '
+     'available, so the diagnosis may be missed [17]. Thailand shows the consequence. A community survey of 1,014 adults in Pathumthani '
+     'province using spirometry found COPD in 8.3% and asthma in 10.3%, yet only 9.5% of the people with COPD (8 of 84) and 24.0% of those '
+     'with asthma (25 of 104) had ever been diagnosed [18]. In other words, most people with a measurable lung disease did not know they had it. '
+     'The reason is mostly access: the test is done where the machine is, and the machine is where the budget is.')
+para('This is why price and access are not a side feature but the core of the design. A device that costs a fraction of a clinic spirometer, '
+     'that a school or village health post can build and repair itself, and whose results reach a doctor through a phone, moves the first lung test '
+     'from the hospital to the community, where the smoke is. Early detection matters because the harm of smoke is cumulative: a farmer or '
+     'child who learns early that their airflow is reduced can change exposure, treat asthma, stop smoking and be referred before disability. '
+     'The reusable measuring body keeps the price of each test low, and the single-use mouthpiece, made from straw instead of plastic, keeps the '
+     'cost per person low and the environmental cost close to zero. Making the device both cheap and green is therefore the same goal seen from '
+     'two sides: reach more people without creating more waste or more smoke.')
+doc.add_heading('2.2 The problem and the gap', 2)
 para('Spirometry is the test used to detect and follow obstructive lung disease; international standards from the American Thoracic '
      'Society and European Respiratory Society (ATS/ERS) define how it should be performed, including at least three acceptable '
      'blows that repeat within 0.15 L [3][4]. Commercial spirometers meet these standards but are designed for clinics. Our goal is '
@@ -131,7 +146,7 @@ para('Spirometry is the test used to detect and follow obstructive lung disease;
      'What is missing in the literature we found is a low-cost design that also deals with infection control and waste, and that is '
      'paired with an accounts-based service connecting patient and doctor.')
 
-doc.add_heading('2.2 Where Spiro comes from: our earlier prototypes', 2)
+doc.add_heading('2.3 Where Spiro comes from: our earlier prototypes', 2)
 para('Spiro builds on a platform our team had already made work. Our earlier device, SmartLung, is a respiratory-muscle training '
      'device with a built-in display and sensor that sends its results to a web dashboard so that caregivers and clinicians can monitor '
      'elderly users remotely. It was developed through two prototype versions and won the Gold Award at WICO 2026 (World Invention '
@@ -141,7 +156,7 @@ para('Spiro builds on a platform our team had already made work. Our earlier dev
      'which our team has already built and demonstrated, and applies them to a new purpose, lung-function screening. '
      'Its new work is concentrated on the part that creates the most waste, the single-use mouthpiece, made from agricultural waste, while '
      'the measuring unit is reused. The rest of this section describes the version 3 design.')
-doc.add_heading('2.3 How version 3 works', 2)
+doc.add_heading('2.4 How version 3 works', 2)
 para('Spiro uses a venturi: a tube that narrows to a throat. When air is blown through it, the air speeds up at the throat and its pressure '
      'drops. A Sensirion SDP810-500Pa differential-pressure sensor measures the pressure difference between the wide part (28 mm) and the '
      'throat (23 mm). Flow follows Q = K * sqrt(dP), and integrating flow over time gives volume. From one blow the firmware reports '
@@ -156,7 +171,7 @@ para('The body is printed in PETG as ten parts held by M3 screws into brass heat
      'design estimate, not a purchase receipt.')
 fig(os.path.join(IMG, 'v_inside.png'), 'Figure 2. Transparent view of the internal parts: sensor, round display, battery, microcontroller and wiring.', 11)
 
-doc.add_heading('2.4 From burned fields to the mouthpiece', 2)
+doc.add_heading('2.5 From burned fields to the mouthpiece', 2)
 para('Each person must blow into a clean mouthpiece, so a spirometer generates a stream of single-use parts. Our design makes the mouthpiece '
      'a separate, replaceable piece that the device counts (a reminder appears after 20 blows or 7 days). The prototype mouthpiece is '
      'printed in PETG to check size and fit, but it is not biodegradable. Our proposal for production is to replace it with moulded '
@@ -177,11 +192,17 @@ table([
     ['Production', 'Moulded pulp from rice straw / cane leaves', 'Compostable, uses field-burned residue', 'Proposal; supplier and hygiene testing needed'],
     ['Fallback', 'Standard cardboard spirometer mouthpiece', 'Available on the market today', 'Needs socket size check (ours 30.4 mm)'],
 ], [2.4, 4.6, 5.2, 3.8])
+para('Plant fibre is not new to medicine, which supports the safety direction of our choice. Cellulose, the main component of straw and bagasse, '
+     'is widely studied and used as a biocompatible, biodegradable material for wound dressings [19][20], and cellulose nanocrystals made from sugarcane bagasse '
+     'have been formed into wound-dressing films in a peer-reviewed study [21]. Single-use moulded-pulp products are also an established class of '
+     'hospital disposables: manufacturers sell moulded-fibre bedpans and liners, and a British standard (PAS 29) covers disposable pulp products for '
+     'healthcare [22]. These examples concern purified cellulose or recycled-paper pulp, not rice-straw mouthpieces in a breathing circuit, so they show '
+     'that the material family is accepted in healthcare, not that our part is already approved.')
 para('Two honest cautions apply. First, a mouthpiece is not a bacterial filter, so single-person use and hygiene rules still matter. '
      'Second, we found no peer-reviewed measurement of airflow resistance or accuracy for crop-residue pulp mouthpieces in a spirometer; '
      'the studies above support the material, not the medical use. That measurement is part of our plan.')
 
-doc.add_heading('2.5 An online system for patients, doctors and administrators', 2)
+doc.add_heading('2.6 An online system for patients, doctors and administrators', 2)
 para('Data are only useful if the right person can see them. We built a web service with three roles. A patient registers, blows into the '
      'device or follows the on-screen coaching, and sees a history and trend. A doctor, after approval by an administrator, '
      'uses a clinic mode that guides a visit (select a patient, prepare, at least three blows, repeatability check), shows a live '
@@ -193,7 +214,7 @@ para('Data are only useful if the right person can see them. We built a web serv
      'accounts, including attempts at privilege escalation, which were rejected. Health data are sensitive personal data, so real use '
      'would also require consent, a retention policy and independent review of the rules.')
 
-doc.add_heading('2.6 Validation plan and known limits', 2)
+doc.add_heading('2.7 Validation plan and known limits', 2)
 para('The SmartLung prototypes were built and demonstrated by our team; the Spiro version 3 spirometer design and the straw-pulp mouthpiece have not yet been. Because we want the numbers to be trusted, we state the remaining limits openly and show how each will be closed:')
 for t in [
     'The version 3 housing, electronics layout and web service have been designed and the firmware compiled, but this version has not yet been printed, assembled or measured. The constant K must be calibrated with a 3 L calibration syringe, and accuracy and repeatability must be checked against a reference spirometer.',
@@ -205,7 +226,7 @@ para('Our validation plan is straightforward: calibrate with the 3 L syringe at 
      'hospital spirometer with consent and teacher/physician supervision, measure the resistance of the pulp mouthpiece, and report '
      'the results whether or not they are favourable.')
 
-doc.add_heading('2.7 Why we believe it will work: evidence and risk plan', 2)
+doc.add_heading('2.8 Why we believe it will work: evidence and risk plan', 2)
 para('A design is credible if its riskiest assumptions are supported by independent evidence and each remaining risk has a way to be closed. '
      'We list the three riskiest assumptions below.')
 table([
@@ -220,7 +241,13 @@ table([
      'Hospital guidance recommends a single-use in-line bacterial/viral filter for spirometry [15]. Cardboard mouthpieces alone are described in patent literature as an older practice [10].',
      'We will not claim the straw mouthpiece is a filter. In a hospital pilot it is used together with a standard disposable filter on the reusable side, and cleaning follows the hospital protocol.'],
 ], [3.8, 6.4, 5.8], size=9.5)
-doc.add_heading('2.8 Affordable and accessible by design', 2)
+para('How confident are we? We do not quote a percentage chance of success, because an invented number would be less honest than a graded one. '
+     'Our reading of the evidence is: HIGH for the measuring principle (several independent printed-venturi studies), MEDIUM for moulding a '
+     'usable mouthpiece from straw (the material is proven, the shape and wet strength are not), and LOW-TO-MEDIUM for clinical-grade infection '
+     'control without a filter, which is why a filter is part of the plan. A mouthpiece touches the lips and mouth for a few minutes, so we expect it to be '
+     'assessed under the ISO 10993-1 biocompatibility framework for mucosal-contact devices; this must be confirmed with the regulator before any '
+     'patient use, and no pulp-specific ISO 10993 data for rice straw were found.')
+doc.add_heading('2.9 Affordable and accessible by design', 2)
 para('Access is a design goal, not an afterthought. The bill of materials lists 26 items totalling about 3,084 baht at estimated prices '
      '(a design estimate from online marketplace prices, not receipts). The measuring unit is printed in about 27 hours on a hobby-class '
      'printer using about 0.5 kg of filament, and nothing in it needs a special factory process. The part that is consumed - the mouthpiece - '
@@ -228,7 +255,7 @@ para('Access is a design goal, not an afterthought. The bill of materials lists 
      'locally available and nearly free at the source. Because the design, firmware, web service and assembly instructions are published openly, a school or '
      'health post can build, repair and extend the device without buying a licence. We have not benchmarked the price of commercial '
      'spirometers in this essay, and a low price is meaningful only if accuracy is proven, which is why our validation plan comes first.')
-doc.add_heading('2.9 Novelty, impact and plan', 2)
+doc.add_heading('2.10 Novelty, impact and plan', 2)
 para('What is new is the combination, not any single part. Printed venturi spirometers, spirometer mouthpieces made of paper, and straw-pulp '
      'packaging each exist separately; we found no design that links a washable measuring unit, a single-use mouthpiece made from field-burned '
      'residue, and a patient-doctor web service in one low-cost system. The impact is intended on three levels, and each can be checked:')
@@ -274,6 +301,12 @@ refs = [
  '[14] Sustainable water- and oil-repellent coating for disposable meal boxes based on highly deacetylated chitosan. https://www.ncbi.nlm.nih.gov/pmc/articles/PMC12195517/',
  '[15] NHS BSW Integrated Care Board. Infection prevention and control best practice guidance for spirometry. 2022. https://bsw.icb.nhs.uk/wp-content/uploads/sites/6/2022/06/Bath-North-East-Somerset-Swindon-and-Wiltshire-BSW-Infection-Prevention-and-Control-Best-Practice-guidance-for-Spirometry-2022.pdf',
  '[16] SmartLung project and award page (team portfolio, with certificates and photos). https://tanachat007.github.io/poom-portfolio/smartlung.html',
+ '[17] World Health Organization. Chronic obstructive pulmonary disease (COPD) fact sheet. https://www.who.int/news-room/fact-sheets/detail/chronic-obstructive-pulmonary-disease-(copd)',
+ '[18] Prevalence of chronic obstructive pulmonary disease and asthma in the community of Pathumthani, Thailand. Diseases (MDPI). 2025;13(5):130. https://pmc.ncbi.nlm.nih.gov/articles/PMC12109837/',
+ '[19] An overview of cellulose derivatives-based dressings for wound-healing management. Pharmaceuticals. https://www.ncbi.nlm.nih.gov/pmc/articles/PMC8706040/',
+ '[20] Cellulose-based biomaterials for wound healing (clinically oriented review). Applied Sciences. 2021;11(17):7769. https://www.mdpi.com/2076-3417/11/17/7769',
+ '[21] Sugarcane bagasse-derived cellulose nanocrystal / polyvinyl alcohol / gum tragacanth composite film for wound dressing. Int J Biomaterials. 2023. https://www.ncbi.nlm.nih.gov/pmc/articles/PMC10359141/',
+ '[22] Vernacare / Ebos Healthcare product listings for single-use moulded-pulp bedpans and liners citing PAS 29:1999 (manufacturer information, not independent evidence). https://www.eboshealthcare.com.au/catalogue-products/infection-prevention--control/bedpans--urinals/liner/bedpan-liners-75s/',
 ]
 for r in refs:
     p = doc.add_paragraph(r); p.paragraph_format.left_indent = Cm(0.8); p.paragraph_format.first_line_indent = Cm(-0.8)
