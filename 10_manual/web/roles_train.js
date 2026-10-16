@@ -1,3 +1,4 @@
+document.body.classList.add('role-'+(DEMO_Q?'demo':ROLE));   // lets calm.css give patients the friendlier look
 /* ---------- count gauges ---------- */
 function ringSvg(done,total,size,label){const R=size/2-9,C=2*Math.PI*R,f=total?Math.min(1,done/total):0;
   return '<svg viewBox="0 0 '+size+' '+size+'" width="'+size+'" height="'+size+'" role="img" aria-label="'+done+'/'+total+'"><circle cx="'+size/2+'" cy="'+size/2+'" r="'+R+'" fill="none" stroke="#cfe3f5" stroke-width="14"/><circle cx="'+size/2+'" cy="'+size/2+'" r="'+R+'" fill="none" stroke="'+(f>=1?'#1a8a52':'#0a5fb0')+'" stroke-width="14" stroke-linecap="round" stroke-dasharray="'+(C*f).toFixed(1)+' '+C.toFixed(1)+'" transform="rotate(-90 '+size/2+' '+size/2+')"/><text x="50%" y="48%" text-anchor="middle" dominant-baseline="middle" font-size="'+size*0.3+'" font-weight="800" fill="#0b1e33">'+done+'/'+total+'</text><text x="50%" y="70%" text-anchor="middle" font-size="'+size*0.11+'" fill="#42586f">'+label+'</text></svg>';}
@@ -18,14 +19,21 @@ async function renderHome(){
   await loadPlans();
   const plan=myPlans[0],done=plan?doneToday(plan.id):0,left=plan?Math.max(0,plan.sessionsPerDay-done):0;
   const last=tests.slice().sort((a,b)=>b.ts-a.ts)[0];
+  const hr=new Date().getHours(),first=String(ME.name||'').trim().split(/\s+/)[0]||'';
+  const hi=lang==='th'?(hr<11?'อรุณสวัสดิ์':hr<16?'สวัสดีตอนบ่าย':hr<19?'สวัสดีตอนเย็น':'สวัสดีตอนค่ำ'):(hr<12?'Good morning':hr<18?'Good afternoon':'Good evening');
+  const allDone=plan&&left===0;
   $('homeBox').innerHTML=`
+  <div class="hello"><img src="icons/${hr>=6&&hr<18?'sun':'smiling_face_with_smiling_eyes'}.svg" alt="" width="84" height="84"><div>
+    <h1>${hi} ${lang==='th'?'คุณ':''}${esc(first)}</h1>
+    <p>${L0('วันนี้เป็นอย่างไรบ้างครับ เลือกสิ่งที่อยากทำได้เลย','How are you today? Choose what you would like to do.')}</p>
+    ${allDone?`<span class="chip"><img src="icons/glowing_star.svg" alt="" width="22" height="22"> ${L0('วันนี้ฝึกครบแล้ว เก่งมาก','All done today, well done')}</span>`:''}</div></div>
   <div class="bigGrid">
-    <button class="bigBtn" id="hTest"><span class="ic">🫁</span><b>${L0('ตรวจคุณภาพปอด','Check my lungs')}</b><small>${L0('เป่าวัดปอด 3 ครั้ง','Blow 3 times')}</small></button>
-    <button class="bigBtn alt" id="hTrain"><span class="ic">🌬️</span><b>${L0('ฝึกตามตารางแพทย์','Practice (doctor plan)')}</b>
-      <small>${plan?(left>0?L0(`วันนี้เหลืออีก ${left} รอบ`,`${left} session(s) left today`):L0('วันนี้ฝึกครบแล้ว เก่งมาก','Done for today, well done')):L0('แพทย์ยังไม่ได้สั่งตาราง','No plan from your doctor yet')}</small></button>
+    <button class="bigBtn" id="hTest"><span class="ic"><img src="icons/lungs.svg" alt=""></span><b>${L0('ตรวจคุณภาพปอด','Check my lungs')}</b><small>${L0('เป่าวัดปอด 3 ครั้ง','Blow 3 times')}</small><span class="go2">${L0('เริ่มตรวจ','Start')} →</span></button>
+    <button class="bigBtn alt" id="hTrain"><span class="ic"><img src="icons/wind_face.svg" alt=""></span><b>${L0('ฝึกตามตารางแพทย์','Practice (doctor plan)')}</b>
+      <small>${plan?(left>0?L0(`วันนี้เหลืออีก ${left} รอบ`,`${left} session(s) left today`):L0('วันนี้ฝึกครบแล้ว เก่งมาก','Done for today, well done')):L0('แพทย์ยังไม่ได้สั่งตาราง','No plan from your doctor yet')}</small><span class="go2">${L0('เริ่มฝึก','Start')} →</span></button>
   </div>
-  ${plan?`<div class="card planCard" style="margin-top:16px"><div class="ringBox">${ringSvg(Math.min(done,plan.sessionsPerDay),plan.sessionsPerDay,150,L0('รอบวันนี้','today'))}</div><div style="flex:1;min-width:220px"><h2>${L0('ตารางของฉัน','My plan')}</h2><p style="font-size:1.15rem;margin:0">${planText(plan)}</p>${weekStrip(plan.id,plan.sessionsPerDay)}</div></div><div class="card" style="margin-top:16px" hidden><p style="margin:0">${plan.note?`<p class="note">${L0('ข้อความจากแพทย์','Doctor note')}: ${esc(plan.note)}</p>`:''}</p></div>`:''}
-  ${last?`<div class="card" style="margin-top:16px"><h2>${L0('ผลล่าสุด','Latest result')}</h2><div class="kpis"><div class="kpi"><span>FEV1</span><b>${fmt(last.best.fev1)}<small style="font-size:14px"> L</small></b></div><div class="kpi"><span>FVC</span><b>${fmt(last.best.fvc)}<small style="font-size:14px"> L</small></b></div><div class="kpi"><span>FEV1/FVC</span><b>${fmt(last.best.ratio,0)}<small style="font-size:14px"> %</small></b></div></div><p class="note">${fdate(last.ts)}</p></div>`:''}
+  ${plan?`<div class="card planCard" style="margin-top:20px"><div class="ringBox">${ringSvg(Math.min(done,plan.sessionsPerDay),plan.sessionsPerDay,150,L0('รอบวันนี้','today'))}</div><div style="flex:1;min-width:220px"><h2 class="ih"><img src="icons/calendar.svg" alt="" width="36" height="36">${L0('ตารางของฉัน','My plan')}</h2><p style="font-size:1.15rem;margin:0">${planText(plan)}</p>${weekStrip(plan.id,plan.sessionsPerDay)}</div></div>${plan.note?`<div class="card docNote" style="margin-top:16px"><span class="ic2"><img src="icons/stethoscope.svg" alt="" width="34" height="34"></span><div><b>${L0('ข้อความจากแพทย์','Note from your doctor')}</b><p>${esc(plan.note)}</p></div></div>`:''}`:''}
+  ${last?`<div class="card" style="margin-top:16px"><h2 class="ih"><img src="icons/memo.svg" alt="" width="36" height="36">${L0('ผลล่าสุด','Latest result')}</h2><div class="kpis"><div class="kpi"><span>FEV1</span><b>${fmt(last.best.fev1)}<small style="font-size:16px"> L</small></b></div><div class="kpi"><span>FVC</span><b>${fmt(last.best.fvc)}<small style="font-size:16px"> L</small></b></div><div class="kpi"><span>FEV1/FVC</span><b>${fmt(last.best.ratio,0)}<small style="font-size:16px"> %</small></b></div></div><p class="note" style="margin:0">${fdate(last.ts)}</p></div>`:''}
   <p class="note" style="margin-top:14px">${L0('ผลนี้เป็นการคัดกรองเบื้องต้น ไม่ใช่การวินิจฉัย ถ้ามีอาการเหนื่อยหอบ ให้พบแพทย์','Screening only, not a diagnosis. If you feel short of breath, see a doctor.')}</p>`;
   $('hTest').onclick=()=>{startTest(ME.id);cur.checks=CHECKS.slice();setTab('test')};
   $('hTrain').onclick=()=>{if(!plan){alert(L0('แพทย์ยังไม่ได้สั่งตารางฝึก ให้ถามแพทย์ หรือเชื่อมแพทย์ที่เมนู "ข้อมูลของฉัน"','Your doctor has not set a plan. Ask your doctor, or link a doctor in "My profile".'));return}startTraining(plan)};
@@ -72,7 +80,7 @@ function trainTick(){
   const p=tr.plan,el=(performance.now()-tr.t0)/1000;
   if(el<0){trainUi(L0('เตรียมตัว','Get ready'),L0('เริ่มใน','Starting in')+' '+Math.ceil(-el)+' '+L0('วินาที','s'),0,Math.ceil(-el),0,p.reps);tr.timer=requestAnimationFrame(trainTick);return}
   const total=tr.inh+tr.exh,k=el%total,rep=Math.floor(el/total);
-  if(rep>=p.reps){finishTraining();return}
+  if(rep>=p.reps){tr.rep=p.reps;finishTraining();return}
   tr.rep=rep;
   const inh=k<tr.inh;
   if(tr.lastRep!==rep){tr.lastRep=rep;tr.lastPh='';if(rep>0)say(numWord(rep))}
@@ -98,9 +106,14 @@ async function finishTraining(){
   beep(880,200);setTimeout(()=>beep(1100,260),240);buzz(200);lastSay='';say(L0('เก่งมากครับ ฝึกเสร็จแล้ว','Well done. You have finished.'));
   trainUi(L0('เก่งมาก ฝึกเสร็จแล้ว','Well done, finished'),`${rec.reps} ${L0('ครั้ง','breaths')} · ${Math.floor(rec.durationSec/60)}:${String(rec.durationSec%60).padStart(2,'0')}`,100,'✓',rec.reps,p.reps);
   $('trainSim').style.display='none';
-  setTimeout(()=>{$('trainOv').classList.remove('on');renderHome()},2500);
+  yay(true);
+  setTimeout(()=>{$('trainOv').classList.remove('on');yay(false);renderHome()},3200);
 }
-function stopTraining(){if(tr){cancelAnimationFrame(tr.timer);tr=null}try{speechSynthesis.cancel()}catch(e){}$('trainOv').classList.remove('on');if(tab==='home')renderHome()}
+/* small CSS-only celebration (confetti + star); motion is switched off by prefers-reduced-motion in calm.css */
+function yay(on){const o=$('trainOv');o.classList.toggle('yay',on);const old=o.querySelector('.yayBurst');if(old)old.remove();const s=o.querySelector('.yayStar');if(s)s.remove();
+  if(!on)return;let h='';for(let i=0;i<28;i++)h+=`<i style="left:${(i*37)%97}%;top:${(i*53)%92}%;animation-delay:${(i%7)*0.1}s"></i>`;
+  o.insertAdjacentHTML('afterbegin','<div class="yayBurst" aria-hidden="true">'+h+'</div><img class="yayStar" src="icons/party_popper.svg" alt="" width="120" height="120">')}
+function stopTraining(){if(tr){cancelAnimationFrame(tr.timer);tr=null}try{speechSynthesis.cancel()}catch(e){}yay(false);$('trainOv').classList.remove('on');if(tab==='home')renderHome()}
 function trainSimBlow(){if(!tr)return;const t=tr.plan.target||2;trainBreath(+(t*(0.7+Math.random()*0.5)).toFixed(2))}
 
 /* ---------- doctor: prescribe a training plan for a linked patient ---------- */

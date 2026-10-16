@@ -77,7 +77,7 @@ rep("  ['manual','sim'].forEach(k=>$(k).disabled=!p||cur.trials.length>=8);", " 
 
 # 8 nav + text + render map
 rep("function buildNav(){$('nav').innerHTML=['test','patients','reports','device'].map(k=>`<button data-t=\"${k}\">${t('tabs')[k]}</button>`).join('');",
-    "const tabName=k=>ROLE==='patient'?({test:L('เป่าวัดปอด','Blow test'),reports:L('ประวัติของฉัน','My history'),me:L('ข้อมูลของฉัน','My profile'),device:t('tabs').device})[k]:t('tabs')[k];\nfunction buildNav(){$('nav').innerHTML=(ROLE==='patient'?['test','reports','me','device']:['test','patients','reports','device']).map(k=>`<button data-t=\"${k}\">${tabName(k)}</button>`).join('');")
+    "const tabName=k=>ROLE==='patient'?({test:L('เป่าวัดปอด','Blow test'),reports:L('ประวัติของฉัน','My history'),me:L('ข้อมูลของฉัน','My profile'),device:t('tabs').device})[k]:t('tabs')[k];\nfunction buildNav(){$('nav').innerHTML=(ROLE==='patient'?['test','reports','me','device']:['test','patients','reports','device']).map(k=>`<button data-t=\"${k}\"${k===tab?' class=\"on\"':''}>${tabName(k)}</button>`).join('');")
 rep("$('appName').textContent=t('app');", "$('appName').textContent=ROLE==='patient'?'Spiro · '+L0('ผู้ป่วย','Patient'):t('app');")
 rep("function render(){pill();({test:renderTest,patients:renderPatients,reports:renderReports,device:renderDevice})[tab]()}", "function render(){pill();({test:renderTest,patients:renderPatients,reports:renderReports,device:renderDevice,me:renderMe})[tab]()}")
 

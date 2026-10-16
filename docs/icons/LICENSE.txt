@@ -1,0 +1,2 @@
+Icons in this folder are Microsoft "Fluent Emoji" (colour set), MIT License, https://github.com/microsoft/fluentui-emoji
+Copyright (c) Microsoft Corporation. Permission is granted under the MIT licence to use, copy, modify and distribute these files with this notice.
