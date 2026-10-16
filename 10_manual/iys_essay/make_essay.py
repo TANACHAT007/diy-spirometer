@@ -136,7 +136,7 @@ para('Spiro builds on a platform our team had already made work. Our earlier dev
      'device with a built-in display and sensor that sends its results to a web dashboard so that caregivers and clinicians can monitor '
      'elderly users remotely. It was developed through two prototype versions and won the Gold Award at WICO 2026 (World Invention '
      'Creativity Olympic, 15th edition, Seoul, 16-18 July 2026), a Silver Medal at iCAN 2026 (international invention competition, '
-     'online, August 2026) and the OFEED Special Award at iCAN 2026 [12]. These awards were given for SmartLung, a training device, '
+     'online, August 2026) and the OFEED Special Award at iCAN 2026 [16]. These awards were given for SmartLung, a training device, '
      'not for a spirometer. Spiro version 3 uses the same sensing principle and the same kind of remote-monitoring web application as SmartLung, '
      'which our team has already built and demonstrated, and applies them to a new purpose, lung-function screening. '
      'Its new work is concentrated on the part that creates the most waste, the single-use mouthpiece, made from agricultural waste, while '
@@ -205,7 +205,22 @@ para('Our validation plan is straightforward: calibrate with the 3 L syringe at 
      'hospital spirometer with consent and teacher/physician supervision, measure the resistance of the pulp mouthpiece, and report '
      'the results whether or not they are favourable.')
 
-doc.add_heading('2.7 Affordable and accessible by design', 2)
+doc.add_heading('2.7 Why we believe it will work: evidence and risk plan', 2)
+para('A design is credible if its riskiest assumptions are supported by independent evidence and each remaining risk has a way to be closed. '
+     'We list the three riskiest assumptions below.')
+table([
+    ['Assumption', 'Supporting evidence found', 'Open risk and how we close it'],
+    ['A printed venturi with a differential-pressure sensor can measure FVC and FEV1 accurately enough for screening',
+     'A 3D-printed venturi with ESP32 reported about 1.5% error against a 2 L pump [5]. A venturi home spirometer on 8 healthy adults reported r = 0.992 (FVC) and 0.968 (FEV1) against standard equipment [12]. A frugal printed venturi on 30 participants reported ICC 0.97 for FEV1 against a CE-marked spirometer, but peak flow was less accurate (mean error 18%) [13].',
+     'Our own K constant and end-of-blow rule are unvalidated. Close with 3 L syringe calibration, then a supervised comparison with a reference spirometer in a hospital. Peak flow will be reported with a caution until proven.'],
+    ['A moulded rice-straw pulp mouthpiece can be made strong and moisture-tolerant',
+     'Straw trays with up to 80% straw were stronger in tension than polystyrene and lost about 20% of mass in 4 weeks in soil [8]. In a Thai study, a chitosan coating lowered water absorption of rice-straw packaging from 27% to 4% [9]. A fluorine-free chitosan coating on moulded-pulp boxes gave a water contact angle of about 115 degrees [14].',
+     'No study measured this material inside a spirometer. Close by moulding samples, weighing and wetting them, and measuring airflow resistance and leak against a standard cardboard mouthpiece. The fallback is a standard cardboard mouthpiece.'],
+    ['A single-use mouthpiece is enough for infection control',
+     'Hospital guidance recommends a single-use in-line bacterial/viral filter for spirometry [15]. Cardboard mouthpieces alone are described in patent literature as an older practice [10].',
+     'We will not claim the straw mouthpiece is a filter. In a hospital pilot it is used together with a standard disposable filter on the reusable side, and cleaning follows the hospital protocol.'],
+], [3.8, 6.4, 5.8], size=9.5)
+doc.add_heading('2.8 Affordable and accessible by design', 2)
 para('Access is a design goal, not an afterthought. The bill of materials lists 26 items totalling about 3,084 baht at estimated prices '
      '(a design estimate from online marketplace prices, not receipts). The measuring unit is printed in about 27 hours on a hobby-class '
      'printer using about 0.5 kg of filament, and nothing in it needs a special factory process. The part that is consumed - the mouthpiece - '
@@ -213,7 +228,7 @@ para('Access is a design goal, not an afterthought. The bill of materials lists 
      'locally available and nearly free at the source. Because the design, firmware, web service and assembly instructions are published openly, a school or '
      'health post can build, repair and extend the device without buying a licence. We have not benchmarked the price of commercial '
      'spirometers in this essay, and a low price is meaningful only if accuracy is proven, which is why our validation plan comes first.')
-doc.add_heading('2.8 Novelty, impact and plan', 2)
+doc.add_heading('2.9 Novelty, impact and plan', 2)
 para('What is new is the combination, not any single part. Printed venturi spirometers, spirometer mouthpieces made of paper, and straw-pulp '
      'packaging each exist separately; we found no design that links a washable measuring unit, a single-use mouthpiece made from field-burned '
      'residue, and a patient-doctor web service in one low-cost system. The impact is intended on three levels, and each can be checked:')
@@ -223,9 +238,12 @@ table([
     ['Waste and climate (SDG 12, 13)', 'Each mouthpiece is made from residue that would otherwise be burned and can be composted', 'Mass of residue per mouthpiece; compost test of the moulded part'],
     ['Community (SDG 11, 17)', 'Farmers and schools share one loop: straw collection, moulding, screening', 'Pilot with one school and one village health post'],
 ], [3.6, 6.4, 6.0])
-para('Timeline after the summit: weeks 1-4 print, assemble and calibrate version 3 with the 3 L syringe; weeks 5-8 prepare straw-pulp '
-     'mouthpiece samples and measure their airflow resistance; weeks 9-12 run a supervised comparison with a reference spirometer and publish '
-     'all results, including failures, in the open repository.')
+para('The path to the hospital is deliberately staged. Stage 1 (weeks 1-4): print, assemble and calibrate version 3 with the 3 L syringe, '
+     'and publish the error. Stage 2 (weeks 5-8): mould straw-pulp mouthpiece samples and measure their strength when wet, leak and airflow '
+     'resistance against a standard cardboard mouthpiece. Stage 3 (weeks 9-12 and after): apply for ethics approval with a hospital '
+     'partner and a physician supervisor, then run a supervised comparison with the hospital reference spirometer on volunteers who '
+     'give informed consent, using an in-line disposable filter. No patient will use the device before Stages 1 and 2 are passed and '
+     'ethics approval is granted. All results, including failures, will be published in the open repository.')
 
 # ---------------------------------------------------------------- Conclusion
 doc.add_heading('3. Conclusion', 1)
@@ -251,7 +269,11 @@ refs = [
  '[9] Production of molded pulp packaging from rice straw and bagasse coated by chitosan. Burapha Science Journal. https://li05.tci-thaijo.org/index.php/buuscij/article/view/1311',
  '[10] US Patents 5,980,466 and 6,176,833. Biodegradable air tube and spirometer employing same. https://patents.google.com/patent/US6176833',
  '[11] University of Wisconsin-Madison Biomedical Engineering Design. Spirometer final poster (student project, not peer reviewed). https://bmedesign.engr.wisc.edu/public/projects/f09/spirometer/file/view/408e0168-4392-4fac-9b9c-8246935e60cf/Final_Poster_12_3.pdf',
- '[12] SmartLung project and award page (team portfolio, with certificates and photos). https://tanachat007.github.io/poom-portfolio/smartlung.html',
+ '[12] Design and evaluation of a novel Venturi-based spirometer for home respiratory monitoring. Sensors. 2024. https://www.ncbi.nlm.nih.gov/pmc/articles/PMC11398045/',
+ '[13] A frugal Arduino-based spirometer for low-resource settings: design, development and validation of a preliminary prototype. https://www.ncbi.nlm.nih.gov/pmc/articles/PMC12816365/',
+ '[14] Sustainable water- and oil-repellent coating for disposable meal boxes based on highly deacetylated chitosan. https://www.ncbi.nlm.nih.gov/pmc/articles/PMC12195517/',
+ '[15] NHS BSW Integrated Care Board. Infection prevention and control best practice guidance for spirometry. 2022. https://bsw.icb.nhs.uk/wp-content/uploads/sites/6/2022/06/Bath-North-East-Somerset-Swindon-and-Wiltshire-BSW-Infection-Prevention-and-Control-Best-Practice-guidance-for-Spirometry-2022.pdf',
+ '[16] SmartLung project and award page (team portfolio, with certificates and photos). https://tanachat007.github.io/poom-portfolio/smartlung.html',
 ]
 for r in refs:
     p = doc.add_paragraph(r); p.paragraph_format.left_indent = Cm(0.8); p.paragraph_format.first_line_indent = Cm(-0.8)
