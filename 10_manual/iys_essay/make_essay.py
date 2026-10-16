@@ -131,9 +131,9 @@ para('Spiro builds on a platform our team had already made work. Our earlier dev
      'elderly users remotely. It was developed through two prototype versions and won the Gold Award at WICO 2026 (World Invention '
      'Creativity Olympic, 15th edition, Seoul, 16-18 July 2026), a Silver Medal at iCAN 2026 (international invention competition, '
      'online, August 2026) and the OFEED Special Award at iCAN 2026. These awards were given for SmartLung, a training device, '
-     'not for a spirometer; we cite them only as evidence that the team can build and demonstrate a working sensor, display and '
-     'remote-monitoring system. Spiro version 3 carries that experience into a new purpose, lung-function screening, and '
-     'concentrates its new work on the part that creates the most waste: the single-use mouthpiece, made from agricultural waste, while '
+     'not for a spirometer. Spiro version 3 uses the same sensing principle and the same kind of remote-monitoring web application as SmartLung, '
+     'which our team has already built and demonstrated, and applies them to a new purpose, lung-function screening. '
+     'Its new work is concentrated on the part that creates the most waste, the single-use mouthpiece, made from agricultural waste, while '
      'the measuring unit is reused. The rest of this section describes the version 3 design.')
 doc.add_heading('2.3 How version 3 works', 2)
 para('Spiro uses a venturi: a tube that narrows to a throat. When air is blown through it, the air speeds up at the throat and its pressure '
