@@ -157,7 +157,7 @@ def custom_color(key, rgb, base=('Plastic - Glossy (White)', 'Plastic - Matte (W
 
 
 custom_color('lilac', (95, 170, 230))   # medical sky-blue (key name kept so the whole model re-colours)
-custom_color('leaf', (150, 195, 105))   # plant-based PLA mouthpiece (disposable)
+custom_color('leaf', (205, 170, 120))   # bagasse/agri-waste pulp tone (disposable mouthpiece; prototype PETG)
 
 # ---------------------------------------------------------------- body outline (side profile in x-z)
 T_PT, A_PT, Q_PT = (150.0, -8.0), (150.0, -24.0), (130.0, -28.0)
