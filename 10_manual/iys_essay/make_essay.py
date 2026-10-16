@@ -125,7 +125,13 @@ para('Spirometry is the test used to detect and follow obstructive lung disease;
      'What is missing in the literature we found is a low-cost design that also deals with infection control and waste, and that is '
      'paired with an accounts-based service connecting patient and doctor.')
 
-doc.add_heading('2.2 How Spiro works', 2)
+doc.add_heading('2.2 Where Spiro comes from: versions 1 and 2', 2)
+para('Spiro is not a first attempt. Our team previously built two working prototypes, version 1 and version 2, whose measuring and IoT '
+     'system functioned as intended and which won an award in an earlier competition [award name, organiser and year - to be filled in by the team]. '
+     'Version 3, presented here, keeps that proven approach to measurement and data transfer and changes the part that creates the most waste: the '
+     'mouthpiece. Its goal is to turn agricultural waste into the single-use part that every patient needs, while the measuring unit is reused. '
+     'The remainder of this section describes the version 3 design in detail.')
+doc.add_heading('2.3 How version 3 works', 2)
 para('Spiro uses a venturi: a tube that narrows to a throat. When air is blown through it, the air speeds up at the throat and its pressure '
      'drops. A Sensirion SDP810-500Pa differential-pressure sensor measures the pressure difference between the wide part (28 mm) and the '
      'throat (23 mm). Flow follows Q = K * sqrt(dP), and integrating flow over time gives volume. From one blow the firmware reports '
@@ -140,7 +146,7 @@ para('The body is printed in PETG as ten parts held by M3 screws into brass heat
      'design estimate, not a purchase receipt.')
 fig(os.path.join(IMG, 'v_inside.png'), 'Figure 2. Transparent view of the internal parts: sensor, round display, battery, microcontroller and wiring.', 11)
 
-doc.add_heading('2.3 From burned fields to the mouthpiece', 2)
+doc.add_heading('2.4 From burned fields to the mouthpiece', 2)
 para('Each person must blow into a clean mouthpiece, so a spirometer generates a stream of single-use parts. Our design makes the mouthpiece '
      'a separate, replaceable piece that the device counts (a reminder appears after 20 blows or 7 days). The prototype mouthpiece is '
      'printed in PETG to check size and fit, but it is not biodegradable. Our proposal for production is to replace it with moulded '
@@ -165,7 +171,7 @@ para('Two honest cautions apply. First, a mouthpiece is not a bacterial filter, 
      'Second, we found no peer-reviewed measurement of airflow resistance or accuracy for crop-residue pulp mouthpieces in a spirometer; '
      'the studies above support the material, not the medical use. That measurement is part of our plan.')
 
-doc.add_heading('2.4 An online system for patients, doctors and administrators', 2)
+doc.add_heading('2.5 An online system for patients, doctors and administrators', 2)
 para('Data are only useful if the right person can see them. We built a web service with three roles. A patient registers, blows into the '
      'device or follows the on-screen coaching, and sees a history and trend. A doctor, after approval by an administrator, '
      'uses a clinic mode that guides a visit (select a patient, prepare, at least three blows, repeatability check), shows a live '
@@ -177,11 +183,11 @@ para('Data are only useful if the right person can see them. We built a web serv
      'accounts, including attempts at privilege escalation, which were rejected. Health data are sensitive personal data, so real use '
      'would also require consent, a retention policy and independent review of the rules.')
 
-doc.add_heading('2.5 What is not proven yet', 2)
-para('Because the device has not been built and measured, the following limits are important to state clearly:')
+doc.add_heading('2.6 What is not proven yet', 2)
+para('Versions 1 and 2 were built and tested by our team; the version 3 redesign and the straw-pulp mouthpiece have not yet been. The following limits are therefore important to state clearly:')
 for t in [
-    'The device has been designed, simulated and the firmware compiled, but it has not yet been printed, assembled or measured. The constant K must be calibrated with a 3 L calibration syringe, and accuracy and repeatability must be checked against a reference spirometer.',
-    'To stop at the end of a blow, the firmware ends the test when flow stays under 0.25 L/s. A model calculation showed this cuts the slow tail of a healthy blow, so FVC may read about 12% low and the FEV1/FVC ratio may read too high, which could hide mild obstruction. The firmware now estimates the missing tail, but this correction is unvalidated.',
+    'The version 3 housing, electronics layout and web service have been designed and the firmware compiled, but this version has not yet been printed, assembled or measured. The constant K must be calibrated with a 3 L calibration syringe, and accuracy and repeatability must be checked against a reference spirometer.',
+    'To stop at the end of a blow, the firmware ends the test when flow stays under 0.25 L/s. A model calculation showed this cuts the slow tail of a healthy blow, so FVC may read about 12% low and the FEV1/FVC ratio may read too high, which could hide mild obstruction. (This came from our own model calculation for version 3 settings.) The firmware now estimates the missing tail, but this correction is unvalidated.',
     'Our acceptance rule requires at least 2 s of blowing, looser than the 6 s in ATS/ERS guidance, and the interpretation uses a fixed FEV1/FVC cut-off of 0.70 with predicted values typed in by the user because we did not include reference equations whose coefficients we could not verify.',
     'No clinical study has been done, and no regulatory approval exists. Spiro is for education and screening only.']:
     p = doc.add_paragraph(t, style='List Bullet'); p.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
@@ -191,7 +197,7 @@ para('Our validation plan is straightforward: calibrate with the 3 L syringe at 
 
 # ---------------------------------------------------------------- Conclusion
 doc.add_heading('3. Conclusion', 1)
-para('Spiro joins three ideas that are usually treated separately: a low-cost printed spirometer, an accounts-based service that connects '
+para('Spiro version 3 joins three ideas that are usually treated separately: a low-cost printed spirometer, an accounts-based service that connects '
      'patients with doctors, and a mouthpiece that turns burned crop residue into a useful, compostable product. The first design '
      'choice - a washable measuring body with a replaceable mouthpiece - makes the third idea possible. If calibration and validation confirm '
      'acceptable accuracy, schools and health posts in smoke-affected areas could screen lungs early, and farming communities would have a '
