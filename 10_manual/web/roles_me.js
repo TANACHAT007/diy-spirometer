@@ -29,3 +29,16 @@ async function renderMe(){
   $('m_del').onclick=async()=>{const pw=prompt(L0('พิมพ์รหัสผ่านเพื่อยืนยันการลบบัญชีและผลตรวจทั้งหมด (ลบแล้วกู้คืนไม่ได้)','Type your password to delete your account and all results (cannot be undone)'));if(!pw)return;
     if(!(await SP.Auth.verify(ME.id,pw))){alert(L0('รหัสผ่านไม่ถูกต้อง','Wrong password'));return}
     await SP.Tests.removeAllFor(ME.id);await SP.Audit.add('self_delete',ME.id);await SP.Auth.deleteSelf(ME.id);location.href='login.html'}}
+
+/* ---------- my devices (claim by the code shown on the device screen) ---------- */
+async function renderMyDev(){
+  const box=$('myDev');if(!box||DEMO_Q)return;
+  let list=[];try{list=await SP.Devices.mine()}catch(e){}
+  box.innerHTML=`<h2>${L0('เครื่องของฉัน','My devices')}</h2>
+   <p class="note">${L0('กดปุ่มที่เครื่องค้าง 8 วินาที จอจะแสดงรหัสเครื่อง (เช่น SP-7K4QW-M2X9R) กรอกรหัสนั้นที่นี่เพื่อผูกเครื่องกับบัญชีนี้ ใครเห็นรหัสบนจอเครื่องเท่านั้นที่ผูกได้ ผลที่เป่าจากเครื่องนี้จะเข้าบัญชีของคุณ','Hold the device button for 8 seconds; the screen shows its code (e.g. SP-7K4QW-M2X9R). Enter it here to link the device to this account. Only someone who can see the device screen can claim it; results from this device go to your account.')}</p>
+   <div class="row"><input id="dv_code" placeholder="SP-XXXXX-XXXXX" style="max-width:220px;text-transform:uppercase"><input id="dv_label" placeholder="${L0('ชื่อเรียก (ไม่บังคับ)','Nickname (optional)')}" style="max-width:220px"><button class="b pri" id="dv_add">${L0('ผูกเครื่อง','Link device')}</button></div>
+   <div id="dv_msg" class="note" style="margin-top:6px"></div>
+   <div style="overflow:auto;margin-top:8px"><table>${list.length?`<tr><th>${L0('รหัสเครื่อง','Code')}</th><th>${L0('ชื่อเรียก','Nickname')}</th><th>${L0('ผูกเมื่อ','Linked')}</th><th></th></tr>`+list.map(d=>`<tr><td><code>${esc(d.code)}</code></td><td>${esc(d.label||'–')}</td><td>${fdate(d.claimed)}</td><td><button class="b danger" data-un="${esc(d.code)}" style="padding:2px 9px">${L0('เลิกผูก','Unlink')}</button></td></tr>`).join(''):`<tr><td class="empty">${L0('ยังไม่มีเครื่องที่ผูกไว้','No linked devices yet')}</td></tr>`}</table></div>`;
+  $('dv_add').onclick=async()=>{try{await SP.Devices.claim($('dv_code').value,$('dv_label').value);renderMyDev()}catch(e){$('dv_msg').textContent=e.message}};
+  box.querySelectorAll('[data-un]').forEach(b=>b.onclick=async()=>{if(confirm(L0('เลิกผูกเครื่องนี้?','Unlink this device?'))){await SP.Devices.release(b.dataset.un);renderMyDev()}});
+}

@@ -25,6 +25,9 @@
     if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) throw new Error('อีเมลไม่ถูกต้อง');
     if (String(name || '').trim().length < 2) throw new Error('กรุณากรอกชื่อ');
   };
+  const DEVRE = /^SP-[A-HJ-NP-Z2-9]{5}-[A-HJ-NP-Z2-9]{5}$/;     // 10 random chars (about 50 bits), printed on the device screen on request
+  const normCode = (c) => String(c || '').trim().toUpperCase().replace(/\s+/g, '');
+  const checkCode = (c) => { c = normCode(c); if (!DEVRE.test(c)) throw new Error('รหัสเครื่องไม่ถูกต้อง (รูปแบบ SP-XXXXX-XXXXX)'); return c; };
   const home = (u) => !u ? 'login.html' : u.role === 'admin' ? 'admin.html' : 'clinic.html';
 
   /* ================= LOCAL BACK END ================= */
@@ -105,6 +108,17 @@
       async removeAllFor(patientUid) { LS.set(K.tests, LS.get(K.tests, []).filter(t => t.patientUid !== patientUid)); },
       async remove(id) { LS.set(K.tests, LS.get(K.tests, []).filter(t => t.id !== id)); }
     };
+    const K_DEV = 'sp2_devices';
+    const Devices = {
+      async mine() { const me = Auth.cur && Auth.cur.id; return LS.get(K_DEV, []).filter(d => d.owner === me); },
+      async all() { return LS.get(K_DEV, []); },
+      async claim(code, label) {
+        code = checkCode(code); const me = Auth.cur && Auth.cur.id; if (!me) throw new Error('ต้องเข้าสู่ระบบก่อน');
+        const a = LS.get(K_DEV, []); if (a.find(d => d.code === code)) throw new Error('รหัสเครื่องนี้ถูกผูกกับบัญชีอื่นแล้ว');
+        a.push({ code, owner: me, label: String(label || '').slice(0, 60), claimed: Date.now() }); LS.set(K_DEV, a); await Audit.add('device_claim', code);
+      },
+      async release(code) { const me = Auth.cur && Auth.cur.id; LS.set(K_DEV, LS.get(K_DEV, []).filter(d => !(d.code === code && (d.owner === me || (Auth.cur && Auth.cur.role === 'admin'))))); await Audit.add('device_release', code); }
+    };
     const Data = {
       async exportAll() { return { v: 2, ts: Date.now(), note: 'credentials are never exported', users: LS.get(K.users, []).map(strip), tests: LS.get(K.tests, []), audit: LS.get(K.audit, []), settings: LS.get(K.settings, {}) }; },
       async importAll(j) {
@@ -117,7 +131,7 @@
       async wipe() { Object.values(K).forEach(k => localStorage.removeItem(k)); Object.keys(localStorage).filter(k => /^sp_(patients|tests|active|cfg)_/.test(k)).forEach(k => localStorage.removeItem(k)); },
       usage() { let n = 0; for (let i = 0; i < localStorage.length; i++) { const k = localStorage.key(i); n += k.length + (localStorage.getItem(k) || '').length; } return n * 2; }
     };
-    return { Auth, Users, Tests, Audit, Settings, Data };
+    return { Auth, Users, Tests, Audit, Settings, Data, Devices };
   }
 
   /* ================= CLOUD BACK END (Firebase Auth + Firestore) ================= */
@@ -212,13 +226,25 @@
       removeAllFor: guard(async (patientUid) => { const rs = await all(col('tests').where('patientUid', '==', patientUid)); const b = db.batch(); rs.forEach(r => b.delete(col('tests').doc(r.id))); await b.commit(); }),
       remove: guard(async (id) => { await col('tests').doc(id).delete(); })
     };
+    const Devices = {
+      mine: guard(async () => all(col('devices').where('owner', '==', auth.currentUser.uid))),
+      all: guard(async () => all(col('devices'))),
+      claim: guard(async (code, label) => {
+        code = checkCode(code); const me = auth.currentUser; if (!me) throw new Error('ต้องเข้าสู่ระบบก่อน');
+        const ref = col('devices').doc(code);
+        try { await ref.set({ code, owner: me.uid, label: String(label || '').slice(0, 60), claimed: Date.now() }); }
+        catch (e) { throw new Error('ผูกเครื่องไม่สำเร็จ: รหัสนี้อาจถูกผูกกับบัญชีอื่นแล้ว หรือรหัสไม่ถูกต้อง'); }
+        await Audit.add('device_claim', code);
+      }),
+      release: guard(async (code) => { await col('devices').doc(code).delete(); await Audit.add('device_release', code); })
+    };
     const Data = {
       exportAll: guard(async () => ({ v: 2, ts: Date.now(), note: 'credentials are held by Firebase Auth and never exported', users: await Users.list(), tests: await Tests.all(), audit: await Audit.list(), settings: await Settings.get() })),
       importAll: guard(async (j) => { if (!j || !Array.isArray(j.tests)) throw new Error('ไฟล์ไม่ถูกต้อง'); for (const t of j.tests) if (t.id) await col('tests').doc(t.id).set(t, { merge: true }); }),
       async wipe() { throw new Error('โหมดคลาวด์: ลบข้อมูลทั้งหมดจาก Firebase Console เท่านั้น'); },
       usage() { return 0; }
     };
-    return { Auth, Users, Tests, Audit, Settings, Data };
+    return { Auth, Users, Tests, Audit, Settings, Data, Devices };
   }
 
   /* ================= facade: pages call SP.* synchronously-available, methods wait for the back end ================= */
@@ -228,7 +254,8 @@
     Auth: ['init', 'hasAdmin', 'register', 'login', 'logout', 'changePassword', 'adminSetPassword', 'verify', 'sendReset', 'deleteSelf'],
     Users: ['list', 'get', 'update', 'remove', 'doctorByCode', 'linkedPatients', 'adminCreate'],
     Tests: ['all', 'add', 'forPatient', 'forDoctor', 'setDoctor', 'removeAllFor', 'remove'],
-    Audit: ['add', 'list'], Settings: ['get', 'set'], Data: ['exportAll', 'importAll', 'wipe']
+    Audit: ['add', 'list'], Settings: ['get', 'set'], Data: ['exportAll', 'importAll', 'wipe'],
+    Devices: ['mine', 'all', 'claim', 'release']
   };
   const SP = { mode: CLOUD ? 'cloud' : 'local', ready, rnd, uid, K, CFG };
   for (const g in names) { SP[g] = {}; for (const n of names[g]) SP[g][n] = async (...a) => (await ready)[g][n](...a); }
@@ -242,5 +269,6 @@
     if (roles && !roles.includes(u.role)) { location.replace(home(u)); return new Promise(() => {}); }
     return u;
   };
+  SP.normCode = normCode; SP.DEVRE = DEVRE;
   window.SP = SP;
 })();

@@ -20,6 +20,10 @@ rep('<button class="tbtn" id="theme">◐</button>\n</div></header>', '<button cl
 rep('<section class="tab" id="tab-patients">\n', '<section class="tab" id="tab-patients">\n  <div class="alert" id="docCode" style="margin-bottom:14px;display:none"></div>\n')
 rep('<!-- ============ DEVICE ============ -->', '<!-- ============ MY PROFILE (patient) ============ -->\n<section class="tab" id="tab-me"><div id="meBox"></div></section>\n\n<!-- ============ DEVICE ============ -->')
 
+# 3b my devices card on the device tab
+rep('<section class="tab" id="tab-device">\n', '<section class="tab" id="tab-device">\n  <div class="card" id="myDev" style="margin-bottom:16px"></div>\n')
+rep("function renderDevice(){", "function renderDevice(){renderMyDev();")
+
 # 4 state with per-user keys + role boot
 OLD = "let patients=load('sp_patients',[]),tests=load('sp_tests',[]),activeP=localStorage.sp_active||'',cfg=load('sp_cfg',{});"
 rep(OLD, r"""const DEMO_Q=/[?&]demo/.test(location.search);

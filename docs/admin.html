@@ -90,6 +90,10 @@ code{font-family:"IBM Plex Mono",monospace;background:var(--soft);padding:1px 6p
     <div class="tw"><table id="tT"></table></div></div>
 </section>
 
+<section class="tab" id="tab-dev2">
+  <div class="card"><h2>เครื่องที่ผูกกับบัญชี</h2><p class="note">ผู้ใช้ผูกเครื่องเองด้วยรหัสที่แสดงบนจอเครื่อง แอดมินยกเลิกการผูกได้ถ้ามีปัญหา</p><div class="tw"><table id="dvT"></table></div></div>
+</section>
+
 <section class="tab" id="tab-sys">
   <div class="two">
     <div class="card"><h2>การสมัครและอนุมัติ</h2>
@@ -128,11 +132,11 @@ const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&g
 const fd=ts=>ts?new Date(ts).toLocaleString('th-TH',{dateStyle:'short',timeStyle:'short'}):'–';
 const RL={admin:'แอดมิน',doctor:'แพทย์',patient:'ผู้ป่วย'},ST={active:'ใช้งาน',pending:'รออนุมัติ',disabled:'ระงับ'};
 let me,tab='over';
-const TABS=[['over','ภาพรวม'],['users','ผู้ใช้'],['data','ข้อมูลการตรวจ'],['sys','ตั้งค่า'],['dev','นักพัฒนา']];
+const TABS=[['over','ภาพรวม'],['users','ผู้ใช้'],['data','ข้อมูลการตรวจ'],['dev2','เครื่อง'],['sys','ตั้งค่า'],['dev','นักพัฒนา']];
 function setTab(x){tab=x;document.querySelectorAll('section.tab').forEach(s=>s.classList.toggle('on',s.id==='tab-'+x));
   $('nav').innerHTML=TABS.map(([k,v])=>`<button data-t="${k}" class="${k===x?'on':''}">${v}</button>`).join('');
   $('nav').querySelectorAll('button').forEach(b=>b.onclick=()=>setTab(b.dataset.t));render()}
-const R={over:renderOver,users:renderUsers,data:renderData,sys:renderSys,dev:renderDev};
+const R={over:renderOver,users:renderUsers,data:renderData,dev2:renderDevices,sys:renderSys,dev:renderDev};
 function render(){return R[tab]()}
 
 async function renderOver(){
@@ -167,11 +171,7 @@ async function userAct(a,id){
   if(a==='ap'){await SP.Users.update(id,{status:'active'});await SP.Audit.add('approve',u.email)}
   else if(a==='dis'){await SP.Users.update(id,{status:'disabled'});await SP.Audit.add('disable',u.email)}
   else if(a==='en'){await SP.Users.update(id,{status:'active'});await SP.Audit.add('enable',u.email)}
-  else if(a==='pw'){if(SP.mode==='cloud'){await SP.Auth.sendReset(u.email);alert('ส่งอีเมลรีเซ็ตรหัสผ่านไปที่ '+u.email+' แล้ว (แอดมินไม่เห็นรหัสผ่านของใคร)')}else{const p=SP.rnd(10);await SP.Auth.adminSetPassword(id,p);alert('รหัสผ่านชั่วคราวของ '+u.email+' คือ
-
-'+p+'
-
-(แสดงครั้งเดียว ให้ผู้ใช้เปลี่ยนหลังเข้าสู่ระบบ)')}}
+  else if(a==='pw'){if(SP.mode==='cloud'){await SP.Auth.sendReset(u.email);alert('ส่งอีเมลรีเซ็ตรหัสผ่านไปที่ '+u.email+' แล้ว (แอดมินไม่เห็นรหัสผ่านของใคร)')}else{const p=SP.rnd(10);await SP.Auth.adminSetPassword(id,p);alert('รหัสผ่านชั่วคราวของ '+u.email+' คือ\n\n'+p+'\n\n(แสดงครั้งเดียว ให้ผู้ใช้เปลี่ยนหลังเข้าสู่ระบบ)')}}
   else if(a==='del'){if(!confirm('ลบโปรไฟล์ '+u.email+' และผลตรวจที่ผูกกับบัญชี?'))return;
     await SP.Tests.removeAllFor(id);await SP.Users.remove(id);await SP.Audit.add('delete_user',u.email)}
   render()}
@@ -192,6 +192,10 @@ $('expCsv').onclick=async()=>{const ts=await SP.Tests.all(),us=await SP.Users.li
   let s='time,patient,doctor,fev1_L,fvc_L,ratio_pct,pef_Lps,src\n';for(const t of ts)if(t.best)s+=[new Date(t.ts).toISOString(),nm(t.patientUid),nm(t.doctorUid),t.best.fev1,t.best.fvc,t.best.ratio.toFixed(1),t.best.pef,t.src||''].join(',')+'\n';dl('spiro_tests.csv',s,'text/csv')};
 $('imp').onchange=async e=>{try{await SP.Data.importAll(JSON.parse(await e.target.files[0].text()),true);await SP.Audit.add('import','merge');render();alert('นำเข้าแล้ว')}catch(err){alert(err.message)}};
 
+async function renderDevices(){
+  const ds=(await SP.Devices.all()).sort((a,b)=>b.claimed-a.claimed),us=await SP.Users.list(),nm=id=>{const u=us.find(x=>x.id===id);return u?u.name+' ('+u.email+')':id};
+  $('dvT').innerHTML='<tr><th>รหัสเครื่อง</th><th>เจ้าของ</th><th>ชื่อเรียก</th><th>ผูกเมื่อ</th><th></th></tr>'+(ds.map(d=>`<tr><td><code>${esc(d.code)}</code></td><td>${esc(nm(d.owner))}</td><td>${esc(d.label||'–')}</td><td>${fd(d.claimed)}</td><td><button class="b danger sm" data-rel="${esc(d.code)}">ยกเลิกการผูก</button></td></tr>`).join('')||'<tr><td colspan="5" class="note">ยังไม่มีเครื่องที่ผูก</td></tr>');
+  $('dvT').querySelectorAll('[data-rel]').forEach(b=>b.onclick=async()=>{if(confirm('ยกเลิกการผูกเครื่องนี้?')){await SP.Devices.release(b.dataset.rel);await SP.Audit.add('admin_release_device',b.dataset.rel);renderDevices()}})}
 async function renderSys(){const s=await SP.Settings.get();$('s_reg').checked=s.registrationOpen;$('s_appr').checked=s.doctorNeedsApproval;$('s_ann').value=s.announcement;
   $('modeBox').innerHTML=SP.mode==='cloud'?`<div class="msg ok">☁️ โหมดคลาวด์: Firebase โปรเจกต์ <code>${esc(SP.CFG.projectId)}</code></div><p class="note">รหัสผ่านอยู่ที่ Firebase Authentication เท่านั้น (เข้ารหัสแบบ hash) เว็บนี้ไม่เก็บ ไม่แสดง ไม่ส่งออก ผู้ใช้เปลี่ยนเองหรือขอรีเซ็ตทางอีเมล แอดมินตั้งรหัสแทนไม่ได้ การลบผู้ใช้จากหน้านี้ลบโปรไฟล์และผลตรวจ แต่บัญชีเข้าสู่ระบบต้องลบจาก Firebase Console</p>`:`<div class="msg warn">💾 โหมดเครื่องนี้ (ไม่มี Firebase): ข้อมูลอยู่ในเบราว์เซอร์นี้ ใส่ค่าใน <code>firebase-config.js</code> เพื่อใช้คลาวด์ ดู <code>FIREBASE.md</code></div>`}
 $('s_save').onclick=async()=>{await SP.Settings.set({registrationOpen:$('s_reg').checked,doctorNeedsApproval:$('s_appr').checked,announcement:$('s_ann').value.trim()});await SP.Audit.add('settings','registration/approval/announcement');$('s_msg').innerHTML='<div class="msg ok">บันทึกแล้ว</div>'};

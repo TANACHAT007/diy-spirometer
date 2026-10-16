@@ -40,6 +40,19 @@ service cloud.firestore {
       allow write: if isAdmin();
     }
 
+    // ---- device ownership: the code (10 random characters) is shown only on the device's own screen, so possession proves the right to claim it
+    match /devices/{code} {
+      allow read: if signedIn() && (resource.data.owner == request.auth.uid || isAdmin());
+      allow create: if hasProfile() && me().status == 'active' && (me().role == 'patient' || me().role == 'doctor' || me().role == 'admin')
+        && code.matches('^SP-[A-HJ-NP-Z2-9]{5}-[A-HJ-NP-Z2-9]{5}$')
+        && request.resource.data.keys().hasOnly(['code', 'owner', 'label', 'claimed'])
+        && request.resource.data.code == code && request.resource.data.owner == request.auth.uid
+        && request.resource.data.label is string && request.resource.data.label.size() <= 60;
+      allow update: if signedIn() && resource.data.owner == request.auth.uid && request.resource.data.owner == resource.data.owner
+        && request.resource.data.code == resource.data.code;
+      allow delete: if signedIn() && (resource.data.owner == request.auth.uid || isAdmin());
+    }
+
     // ---- results
     match /tests/{id} {
       allow read: if signedIn() && (resource.data.patientUid == request.auth.uid || isAdmin()
