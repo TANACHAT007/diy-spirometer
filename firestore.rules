@@ -1,0 +1,75 @@
+rules_version = '2';
+// Spiro MEDTHAI - Cloud Firestore rules. Roles live in users/{uid}.role and can only be changed by an active admin.
+// Passwords are NOT in the database at all (Firebase Authentication holds them).
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() { return request.auth != null; }
+    function me() { return get(/databases/$(database)/documents/users/$(request.auth.uid)).data; }
+    function hasProfile() { return signedIn() && exists(/databases/$(database)/documents/users/$(request.auth.uid)); }
+    function isAdmin() { return hasProfile() && me().role == 'admin' && me().status == 'active'; }
+    function isDoctor() { return hasProfile() && me().role == 'doctor' && me().status == 'active'; }
+    function isSelf(uid) { return signedIn() && request.auth.uid == uid; }
+    function regOpen() { return get(/databases/$(database)/documents/settings/public).data.registrationOpen == true; }
+    function ok(v, n) { return v is string && v.size() > 0 && v.size() <= n; }
+
+    // ---- profiles
+    match /users/{uid} {
+      allow read: if isSelf(uid) || isAdmin() || (isDoctor() && resource.data.doctorId == request.auth.uid);
+
+      // self sign-up: only as patient (active) or doctor (pending); never admin; admin may create any
+      allow create: if isAdmin() || (isSelf(uid) && regOpen()
+        && ((request.resource.data.role == 'patient' && request.resource.data.status == 'active')
+         || (request.resource.data.role == 'doctor'  && request.resource.data.status == 'pending'))
+        && ok(request.resource.data.name, 120) && ok(request.resource.data.email, 200)
+        && request.resource.data.email == request.auth.token.email.lower());
+
+      // a user cannot change own role/status/code; admin can change anything; a linked doctor may edit clinical meta and unlink
+      allow update: if isAdmin()
+        || (isSelf(uid) && request.resource.data.role == resource.data.role && request.resource.data.status == resource.data.status
+            && request.resource.data.get('code', '') == resource.data.get('code', '') && request.resource.data.email == resource.data.email && ok(request.resource.data.name, 120))
+        || (isDoctor() && resource.data.doctorId == request.auth.uid
+            && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['meta', 'doctorId', 'doctorName']));
+
+      allow delete: if isAdmin() || isSelf(uid);
+    }
+
+    // ---- doctor code -> doctor uid (written only while the doctor is approved, by an admin)
+    match /doctorCodes/{code} {
+      allow read: if signedIn();
+      allow write: if isAdmin();
+    }
+
+    // ---- results
+    match /tests/{id} {
+      allow read: if signedIn() && (resource.data.patientUid == request.auth.uid || isAdmin()
+                    || (isDoctor() && resource.data.doctorUid == request.auth.uid));
+
+      allow create: if signedIn() && request.resource.data.keys().hasAll(['patientUid', 'ts', 'best'])
+        && ((request.resource.data.patientUid == request.auth.uid && request.resource.data.src == 'self')
+         || (isDoctor() && request.resource.data.doctorUid == request.auth.uid
+             && get(/databases/$(database)/documents/users/$(request.resource.data.patientUid)).data.doctorId == request.auth.uid));
+
+      // the patient may re-point doctorUid when linking/unlinking; admin anything
+      allow update: if isAdmin() || (isSelf(resource.data.patientUid)
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['doctorUid']));
+
+      allow delete: if isAdmin() || isSelf(resource.data.patientUid);
+    }
+
+    // ---- audit trail: anyone signed in may append their own entry; only admins read; nobody edits
+    match /audit/{id} {
+      allow create: if signedIn() && request.resource.data.actor == request.auth.uid;
+      allow read: if isAdmin();
+      allow update, delete: if false;
+    }
+
+    // ---- public settings (announcement, registration switch, hasAdmin flag): readable before login
+    match /settings/public {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /{other=**} { allow read, write: if false; }
+  }
+}

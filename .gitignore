@@ -2,3 +2,13 @@
 __pycache__/
 *.pyc
 _README.txt
+
+# secrets / local tooling: never commit these
+serviceAccount*.json
+*-adminsdk-*.json
+.env
+.env.*
+*.pem
+firebase-debug.log
+.firebase/
+**/firebase-config.local.js

@@ -71,7 +71,7 @@ footer{text-align:center;font-size:12px;color:var(--mute);padding:14px}
       <label><span id="lPw"></span><input id="inPw" type="password" autocomplete="current-password" required></label>
       <button class="go" id="goIn"></button>
       <div class="msg hide" id="mIn" role="alert"></div>
-      <p class="note" id="nForgot"></p>
+      <p class="note"><a href="#" id="nForgot" style="color:var(--acc)"></a></p>
     </form>
 
     <form id="fUp" class="hide" autocomplete="on">
@@ -103,35 +103,36 @@ footer{text-align:center;font-size:12px;color:var(--mute);padding:14px}
   </div>
 </div>
 <footer>ออกแบบโดย Tanachat S. (TANACHAT007) · ทีม MEDTHAI · 2026 · ไม่ใช่เครื่องมือแพทย์ที่ผ่านการรับรอง</footer>
+<script src="firebase-config.js"></script>
 <script src="core.js"></script>
 <script>
 const $=id=>document.getElementById(id);
 let lang=localStorage.sp_lang||'th';
 const D={th:{home:'← หน้าแรก',demo:'ลองดูตัวอย่าง',eyebrow:'SPIRO · ระบบตรวจสมรรถภาพปอด',h1:'เข้าสู่ระบบ',lead:'บัญชีเดียวใช้ได้ตามบทบาท: ผู้ป่วยเป่าวัดเอง หมอตรวจคนไข้ ผู้ดูแลระบบจัดการผู้ใช้',
  r1:['🫁','ผู้ป่วย','เป่าวัดปอดเอง ดูประวัติ แนวโน้ม แชร์ผลกับแพทย์ด้วยรหัสแพทย์'],r2:['🩺','แพทย์ / บุคลากร','ตรวจผู้ป่วยทีละคน พิมพ์รายงาน ดูผลของผู้ป่วยที่ผูกบัญชี (ต้องรอผู้ดูแลอนุมัติ)'],r3:['🛠️','ผู้ดูแลระบบ','อนุมัติแพทย์ จัดการบัญชี ดูข้อมูลระบบ ตั้งค่า และเครื่องมือนักพัฒนา'],
- tIn:'เข้าสู่ระบบ',tUp:'สมัครใช้งาน',email:'อีเมล',pw:'รหัสผ่าน',goIn:'เข้าสู่ระบบ',forgot:'ลืมรหัสผ่าน: ติดต่อผู้ดูแลระบบให้ตั้งรหัสผ่านใหม่',
+ tIn:'เข้าสู่ระบบ',tUp:'สมัครใช้งาน',email:'อีเมล',pw:'รหัสผ่าน',goIn:'เข้าสู่ระบบ',forgot:'ลืมรหัสผ่าน? ส่งอีเมลรีเซ็ตให้',forgotLocal:'ลืมรหัสผ่าน: ติดต่อผู้ดูแลระบบให้ตั้งรหัสผ่านใหม่',resetSent:'ถ้าอีเมลนี้มีบัญชี ระบบส่งลิงก์ตั้งรหัสผ่านใหม่ให้แล้ว (ตรวจกล่องสแปมด้วย)',resetNeed:'กรอกอีเมลในช่องด้านบนก่อน',
  rPat:'🫁 ผู้ป่วย',rDoc:'🩺 แพทย์ / บุคลากร',name:'ชื่อ-สกุล',pw2:'รหัสผ่าน (≥ 8 ตัว)',pw3:'ยืนยันรหัสผ่าน',sex:'เพศ',male:'ชาย',female:'หญิง',age:'อายุ (ปี)',ht:'ส่วนสูง (ซม.)',doc:'รหัสแพทย์ (ถ้ามี)',lic:'เลขที่ใบประกอบวิชาชีพ',org:'สถานพยาบาล / โรงเรียน',
  agree:'ฉันเข้าใจว่านี่เป็นต้นแบบเพื่อการเรียนรู้/คัดกรอง ไม่ใช่เครื่องมือแพทย์ และข้อมูลในโหมดนี้เก็บในเบราว์เซอร์เครื่องนี้',goUp:'สมัครใช้งาน',
- local:'โหมดปัจจุบัน: เก็บข้อมูลในเบราว์เซอร์เครื่องนี้ ผู้ใช้ต่างเครื่องมองไม่เห็นกัน และรหัสผ่านไม่ใช่ระบบความปลอดภัยจริง ห้ามใส่ข้อมูลผู้ป่วยจริงจนกว่าจะย้ายไประบบคลาวด์',
- firstT:'ยังไม่มีผู้ดูแลระบบ: บัญชีแรกที่สมัครจะเป็นผู้ดูแลระบบ (แอดมิน) อัตโนมัติ',
+ local:'โหมดปัจจุบัน: เก็บข้อมูลในเบราว์เซอร์เครื่องนี้ ผู้ใช้ต่างเครื่องมองไม่เห็นกัน และรหัสผ่านไม่ใช่ระบบความปลอดภัยจริง ห้ามใส่ข้อมูลผู้ป่วยจริงจนกว่าจะย้ายไประบบคลาวด์',cloud:'🔒 รหัสผ่านเป็นความลับ: เก็บเฉพาะที่ Firebase Authentication (เข้ารหัสแบบ hash) เว็บนี้ไม่เก็บและไม่เห็นรหัสผ่านของคุณ ข้อมูลสุขภาพเป็นข้อมูลอ่อนไหว ผู้อื่นเห็นได้เฉพาะแพทย์ที่คุณเชื่อมไว้และแอดมิน',
+ firstT:'ยังไม่มีผู้ดูแลระบบ: บัญชีแรกที่สมัครจะเป็นผู้ดูแลระบบ (แอดมิน) อัตโนมัติ',firstC:'ระบบยังไม่ได้ตั้งผู้ดูแล: เจ้าของโปรเจกต์ต้องกำหนดแอดมินคนแรกจากคอนโซล (ดู FIREBASE.md)',
  pwMismatch:'รหัสผ่านไม่ตรงกัน',pending:'สมัครแล้ว: บัญชีแพทย์ต้องรอผู้ดูแลระบบอนุมัติก่อนเข้าใช้งาน',okUp:'สมัครสำเร็จ กำลังเข้าสู่ระบบ…'},
 en:{home:'← Home',demo:'Try an example',eyebrow:'SPIRO · LUNG FUNCTION SYSTEM',h1:'Sign in',lead:'One account, three roles: patients blow on their own, doctors test patients, admins run the system',
  r1:['🫁','Patient','Blow on your own, see history and trend, share results with your doctor via a doctor code'],r2:['🩺','Doctor / staff','Test patients, print reports, see linked patients (needs admin approval)'],r3:['🛠️','Admin','Approve doctors, manage accounts, system data, settings and developer tools'],
- tIn:'Sign in',tUp:'Register',email:'Email',pw:'Password',goIn:'Sign in',forgot:'Forgot password: ask an admin to set a new one',
+ tIn:'Sign in',tUp:'Register',email:'Email',pw:'Password',goIn:'Sign in',forgot:'Forgot password? E-mail me a reset link',forgotLocal:'Forgot password: ask an admin to set a new one',resetSent:'If this e-mail has an account, a reset link was sent (check spam)',resetNeed:'Type your e-mail above first',
  rPat:'🫁 Patient',rDoc:'🩺 Doctor / staff',name:'Full name',pw2:'Password (≥ 8 chars)',pw3:'Confirm password',sex:'Sex',male:'Male',female:'Female',age:'Age (y)',ht:'Height (cm)',doc:'Doctor code (optional)',lic:'Licence number',org:'Hospital / school',
  agree:'I understand this is a learning/screening prototype, not a medical device, and data in this mode stays in this browser.',goUp:'Register',
- local:'Current mode: data stays in this browser. Users on different devices cannot see each other and passwords are not real security. Do not enter real patient data until the cloud version exists.',
- firstT:'No admin yet: the first account registered becomes the admin automatically',
+ local:'Current mode: data stays in this browser. Users on different devices cannot see each other and passwords are not real security. Do not enter real patient data until the cloud version exists.',cloud:'🔒 Passwords are secret: kept only inside Firebase Authentication (hashed). This site never stores or sees your password. Health data is sensitive: only your linked doctor and admins can see it.',
+ firstT:'No admin yet: the first account registered becomes the admin automatically',firstC:'No admin is set yet: the project owner must promote the first admin from the console (see FIREBASE.md)',
  pwMismatch:'Passwords do not match',pending:'Registered: doctor accounts need admin approval before use',okUp:'Registered, signing in…'}};
 const t=k=>D[lang][k];
 const next=new URLSearchParams(location.search).get('next');
 function apply(){
   document.documentElement.lang=lang;
-  const m={home:'home',demo:'demo',eyebrow:'eyebrow',h1:'h1',lead:'lead',tIn:'tIn',tUp:'tUp',lEmail:'email',lEmail2:'email',lPw:'pw',goIn:'goIn',nForgot:'forgot',rPat:'rPat',rDoc:'rDoc',lName:'name',lPw2:'pw2',lPw3:'pw3',lSex:'sex',lAge:'age',lHt:'ht',lDoc:'doc',lLic:'lic',lOrg:'org',lAgree:'agree',goUp:'goUp',nLocal:'local'};
+  const m={home:'home',demo:'demo',eyebrow:'eyebrow',h1:'h1',lead:'lead',tIn:'tIn',tUp:'tUp',lEmail:'email',lEmail2:'email',lPw:'pw',goIn:'goIn',nForgot:'forgot',rPat:'rPat',rDoc:'rDoc',lName:'name',lPw2:'pw2',lPw3:'pw3',lSex:'sex',lAge:'age',lHt:'ht',lDoc:'doc',lLic:'lic',lOrg:'org',lAgree:'agree',goUp:'goUp',nLocal:SP.mode==='cloud'?'cloud':'local',nForgot:SP.mode==='cloud'?'forgot':'forgotLocal'};
   for(const k in m)$(k).textContent=t(m[k]);
   $('roles').innerHTML=['r1','r2','r3'].map(k=>`<div><i>${t(k)[0]}</i><p style="margin:0"><b>${t(k)[1]}</b><span>${t(k)[2]}</span></p></div>`).join('');
   [...$('upSex').options].forEach((o,i)=>o.textContent=t(['male','female'][i]));
-  SP.Auth.hasAdmin().then(h=>{$('first').classList.toggle('hide',h);$('first').textContent=t('firstT')});
+  SP.Auth.hasAdmin().then(h=>{$('first').classList.toggle('hide',h);$('first').textContent=t(SP.mode==='cloud'?'firstC':'firstT')});
   SP.Settings.get().then(s=>{$('ann').classList.toggle('hide',!s.announcement);$('ann').textContent=s.announcement});
 }
 function tab(x){$('fIn').classList.toggle('hide',x!=='in');$('fUp').classList.toggle('hide',x!=='up');$('tIn').classList.toggle('on',x==='in');$('tUp').classList.toggle('on',x==='up')}
@@ -145,8 +146,9 @@ $('fUp').onsubmit=async e=>{e.preventDefault();if($('upPw').value!==$('upPw2').v
   $('goUp').disabled=true;const role=document.querySelector('input[name=role]:checked').value;
   try{const extra=role==='doctor'?{license:$('upLic').value.trim(),org:$('upOrg').value.trim()}:{sex:$('upSex').value,age:+$('upAge').value||'',ht:+$('upHt').value||'',doctorCode:$('upCode').value.trim()};
     const u=await SP.Auth.register({email:$('upEmail').value,name:$('upName').value,password:$('upPw').value,role,extra});
-    if(u.status==='pending'){show('mUp',t('pending'),'warn')}else{show('mUp',t('okUp'),'ok');await SP.Auth.login($('upEmail').value,$('upPw').value);go(u)}}
+    if(u.status==='pending'){await SP.Auth.logout();show('mUp',t('pending'),'warn')}else{show('mUp',t('okUp'),'ok');await SP.Auth.login($('upEmail').value,$('upPw').value);go(u)}}
   catch(err){show('mUp',err.message)}$('goUp').disabled=false};
+$('nForgot').onclick=async e=>{e.preventDefault();if(SP.mode!=='cloud')return;const em=$('inEmail').value.trim();if(!em){show('mIn',t('resetNeed'),'warn');return}try{await SP.Auth.sendReset(em)}catch(err){}show('mIn',t('resetSent'),'ok')};
 $('lang').onclick=()=>{lang=lang==='th'?'en':'th';localStorage.sp_lang=lang;apply()};
 $('theme').onclick=()=>{const r=document.documentElement;r.dataset.theme=r.dataset.theme==='dark'?'light':'dark';localStorage.sp_th=r.dataset.theme};
 if(localStorage.sp_th)document.documentElement.dataset.theme=localStorage.sp_th;

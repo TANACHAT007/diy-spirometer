@@ -10,7 +10,7 @@ def rep(a, b):
 
 
 # 1 script -> module + core.js
-rep('<script>\nconst $=id=>document.getElementById(id);', '<script src="core.js"></script>\n<script type="module">\nconst $=id=>document.getElementById(id);')
+rep('<script>\nconst $=id=>document.getElementById(id);', '<script src="firebase-config.js"></script>\n<script src="core.js"></script>\n<script type="module">\nconst $=id=>document.getElementById(id);')
 
 # 2 header chip + logout
 rep('<button class="tbtn" id="lang">TH/EN</button>', '<span class="pill on" id="who" style="display:none"><i></i><span id="whoT"></span></span><button class="tbtn" id="lang">TH/EN</button>')
@@ -33,7 +33,7 @@ const recOf=(u,hn)=>{const m=u.meta||{};return{id:u.id,hn:hn,name:u.name,sex:m.s
 const persistTests=()=>save(TK,tests.filter(x=>!x.linked));
 if(!DEMO_Q){
   if(ROLE==='patient'){patients=[recOf(ME,'')];patients[0].self=true;activeP=ME.id;tests=(await SP.Tests.forPatient(ME.id)).map(x=>({...x,pid:ME.id,linked:true}))}
-  else{const us=(await SP.Users.list()).filter(u=>u.role==='patient'&&u.doctorId===ME.id),ids=us.map(u=>u.id);
+  else{const us=await SP.Users.linkedPatients(ME.id),ids=us.map(u=>u.id);
     patients=patients.concat(us.map(u=>recOf(u,L0('บัญชี','Acct'))));tests=tests.concat((await SP.Tests.forDoctor(ME.id)).filter(x=>ids.includes(x.patientUid)).map(x=>({...x,pid:x.patientUid,linked:true})))}
 }""")
 rep("let lang=localStorage.sp_lang||'th';const t=k=>D[lang][k]??k;", "let lang=localStorage.sp_lang||'th';const t=k=>D[lang][k]??k;const L0=(a,b)=>lang==='th'?a:b;")
