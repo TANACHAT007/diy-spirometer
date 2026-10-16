@@ -187,7 +187,7 @@ para('Data are only useful if the right person can see them. We built a web serv
      'uses a clinic mode that guides a visit (select a patient, prepare, at least three blows, repeatability check), shows a live '
      'flow-volume curve, and prints an A4 report. A patient can share results with one doctor by entering a doctor code, and can '
      'unlink, export or delete their data at any time. An administrator approves doctors, manages accounts and settings, and can '
-     'review an audit log. The site runs on GitHub Pages with Firebase Authentication and Cloud Firestore. Passwords are held only inside '
+     'review an audit log. The site is hosted on Firebase Hosting with Firebase Authentication and Cloud Firestore. Passwords are held only inside '
      'Firebase Authentication; the application never stores, shows or exports them. Database rules enforce that a patient sees only their '
      'own results, a doctor sees only linked patients, and no one can promote themselves to administrator. We tested these rules with live '
      'accounts, including attempts at privilege escalation, which were rejected. Health data are sensitive personal data, so real use '
