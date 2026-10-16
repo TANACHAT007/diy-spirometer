@@ -119,6 +119,19 @@
       },
       async release(code) { const me = Auth.cur && Auth.cur.id; LS.set(K_DEV, LS.get(K_DEV, []).filter(d => !(d.code === code && (d.owner === me || (Auth.cur && Auth.cur.role === 'admin'))))); await Audit.add('device_release', code); }
     };
+    const K_PLAN = 'sp2_plans', K_TRN = 'sp2_trainings';
+    const Plans = {
+      async forPatient(id) { return LS.get(K_PLAN, []).filter(p => p.patientUid === id); },
+      async forDoctor(id) { return LS.get(K_PLAN, []).filter(p => p.doctorUid === id); },
+      async save(plan) { const a = LS.get(K_PLAN, []); const i = a.findIndex(p => p.id === plan.id); if (i >= 0) a[i] = plan; else a.push(plan); LS.set(K_PLAN, a); await Audit.add('plan_save', plan.patientUid); },
+      async remove(id) { LS.set(K_PLAN, LS.get(K_PLAN, []).filter(p => p.id !== id)); }
+    };
+    const Trainings = {
+      async forPatient(id) { return LS.get(K_TRN, []).filter(t => t.patientUid === id); },
+      async forDoctor(id) { return LS.get(K_TRN, []).filter(t => t.doctorUid === id); },
+      async add(rec) { const a = LS.get(K_TRN, []); a.push(rec); LS.set(K_TRN, a); },
+      async removeAllFor(id) { LS.set(K_TRN, LS.get(K_TRN, []).filter(t => t.patientUid !== id)); LS.set(K_PLAN, LS.get(K_PLAN, []).filter(p => p.patientUid !== id)); }
+    };
     const Data = {
       async exportAll() { return { v: 2, ts: Date.now(), note: 'credentials are never exported', users: LS.get(K.users, []).map(strip), tests: LS.get(K.tests, []), audit: LS.get(K.audit, []), settings: LS.get(K.settings, {}) }; },
       async importAll(j) {
@@ -131,7 +144,7 @@
       async wipe() { Object.values(K).forEach(k => localStorage.removeItem(k)); Object.keys(localStorage).filter(k => /^sp_(patients|tests|active|cfg)_/.test(k)).forEach(k => localStorage.removeItem(k)); },
       usage() { let n = 0; for (let i = 0; i < localStorage.length; i++) { const k = localStorage.key(i); n += k.length + (localStorage.getItem(k) || '').length; } return n * 2; }
     };
-    return { Auth, Users, Tests, Audit, Settings, Data, Devices };
+    return { Auth, Users, Tests, Audit, Settings, Data, Devices, Plans, Trainings };
   }
 
   /* ================= CLOUD BACK END (Firebase Auth + Firestore) ================= */
@@ -238,13 +251,27 @@
       }),
       release: guard(async (code) => { await col('devices').doc(code).delete(); await Audit.add('device_release', code); })
     };
+    const Plans = {
+      forPatient: guard(async (id) => all(col('plans').where('patientUid', '==', id))),
+      forDoctor: guard(async (id) => all(col('plans').where('doctorUid', '==', id))),
+      save: guard(async (plan) => { await col('plans').doc(plan.id).set(plan); await Audit.add('plan_save', plan.patientUid); }),
+      remove: guard(async (id) => { await col('plans').doc(id).delete(); })
+    };
+    const Trainings = {
+      forPatient: guard(async (id) => all(col('trainings').where('patientUid', '==', id))),
+      forDoctor: guard(async (id) => all(col('trainings').where('doctorUid', '==', id))),
+      add: guard(async (rec) => { await col('trainings').doc(rec.id).set(rec); }),
+      removeAllFor: guard(async (id) => {
+        for (const c of ['trainings', 'plans']) { const rs = await all(col(c).where('patientUid', '==', id)); const b = db.batch(); rs.forEach(x => b.delete(col(c).doc(x.id))); await b.commit(); }
+      })
+    };
     const Data = {
       exportAll: guard(async () => ({ v: 2, ts: Date.now(), note: 'credentials are held by Firebase Auth and never exported', users: await Users.list(), tests: await Tests.all(), audit: await Audit.list(), settings: await Settings.get() })),
       importAll: guard(async (j) => { if (!j || !Array.isArray(j.tests)) throw new Error('ไฟล์ไม่ถูกต้อง'); for (const t of j.tests) if (t.id) await col('tests').doc(t.id).set(t, { merge: true }); }),
       async wipe() { throw new Error('โหมดคลาวด์: ลบข้อมูลทั้งหมดจาก Firebase Console เท่านั้น'); },
       usage() { return 0; }
     };
-    return { Auth, Users, Tests, Audit, Settings, Data, Devices };
+    return { Auth, Users, Tests, Audit, Settings, Data, Devices, Plans, Trainings };
   }
 
   /* ================= facade: pages call SP.* synchronously-available, methods wait for the back end ================= */
@@ -255,7 +282,9 @@
     Users: ['list', 'get', 'update', 'remove', 'doctorByCode', 'linkedPatients', 'adminCreate'],
     Tests: ['all', 'add', 'forPatient', 'forDoctor', 'setDoctor', 'removeAllFor', 'remove'],
     Audit: ['add', 'list'], Settings: ['get', 'set'], Data: ['exportAll', 'importAll', 'wipe'],
-    Devices: ['mine', 'all', 'claim', 'release']
+    Devices: ['mine', 'all', 'claim', 'release'],
+    Plans: ['forPatient', 'forDoctor', 'save', 'remove'],
+    Trainings: ['forPatient', 'forDoctor', 'add', 'removeAllFor']
   };
   const SP = { mode: CLOUD ? 'cloud' : 'local', ready, rnd, uid, K, CFG };
   for (const g in names) { SP[g] = {}; for (const n of names[g]) SP[g][n] = async (...a) => (await ready)[g][n](...a); }

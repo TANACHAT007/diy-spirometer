@@ -89,5 +89,20 @@ rep("setTab(tab);applyText();pullCloud();", r"""if(!DEMO_Q){$('who').style.displ
   if(ROLE==='doctor'){$('docCode').style.display='';$('docCode').innerHTML=L0('รหัสแพทย์ของคุณ','Your doctor code')+': <b style="font-size:17px">'+esc(ME.code||'')+'</b> · '+L0('ให้ผู้ป่วยกรอกตอนสมัครหรือในแท็บ "ข้อมูลของฉัน" ผลการเป่าของเขาจะแสดงในรายชื่อผู้ป่วยและรายงาน','patients enter it at sign-up or in "My profile"; their results then appear in your patient list and reports')}}
 setTab(tab);applyText();pullCloud();""")
 rep("$('lang').onclick=()=>{lang=lang==='th'?'en':'th';localStorage.sp_lang=lang;applyText()};", "$('lang').onclick=()=>{lang=lang==='th'?'en':'th';localStorage.sp_lang=lang;applyText();if(!DEMO_Q)$('logout').textContent=L0('ออก','Sign out')};")
+
+# ---- v2: patient home (2 big buttons), guided training, doctor prescription box
+TRAIN_JS = open('roles_train.js', encoding='utf-8').read()
+rep("/* ---------- boot ---------- */", TRAIN_JS + "\n/* ---------- boot ---------- */")
+rep('<!-- ============ MY PROFILE (patient) ============ -->', '<section class="tab" id="tab-home"><div id="homeBox"></div></section>\n\n<!-- ============ MY PROFILE (patient) ============ -->')
+rep('<div class="coach" id="coach">', '<div class="coach" id="trainOv"><div class="sub tsub"></div><div class="msg tmsg"></div><div class="num tnum">0</div><div class="bar2 tbar"><i></i></div><button class="b big" id="trainSim" style="display:none">Practice blow</button><button class="b big" id="trainStop"></button></div>\n<div class="coach" id="coach">')
+rep("      <div id=\"phist\" style=\"margin-top:16px\"></div>", "      <div id=\"phist\" style=\"margin-top:16px\"></div>\n      <div id=\"planBox\"></div>") if False else None
+rep('<div id="phist" style="margin-top:16px"></div>', '<div id="phist" style="margin-top:16px"></div>\n      <div id="planBox"></div>')
+rep("  $('phist').querySelectorAll('tr.clk').forEach(r=>r.onclick=()=>{repSel=r.dataset.t;setTab('reports')})}", "  $('phist').querySelectorAll('tr.clk').forEach(r=>r.onclick=()=>{repSel=r.dataset.t;setTab('reports')});renderPlanBox()}")
+rep("let tab='test';", "let tab=ROLE==='patient'&&!DEMO_Q?'home':'test';")
+rep("(ROLE==='patient'?['test','reports','me','device']:", "(ROLE==='patient'?['home','test','reports','me','device']:")
+rep("({test:L('เป่าวัดปอด','Blow test'),", "({home:L('หน้าหลัก','Home'),test:L('เป่าวัดปอด','Blow test'),")
+rep("device:renderDevice,me:renderMe})[tab]()}", "device:renderDevice,me:renderMe,home:renderHome})[tab]()}")
+rep("addTrial({fvc:+p[1],fev1:+p[2],pef:+p[4],dur,curve,quality:p[5],src:'ble'});coachDone()", "if(tr&&tr.plan.kind==='volume'){trainBreath(+p[1])}else{addTrial({fvc:+p[1],fev1:+p[2],pef:+p[4],dur,curve,quality:p[5],src:'ble'});coachDone()}")
+rep("setTab(tab);applyText();pullCloud();", "$('trainStop').onclick=stopTraining;$('trainSim').onclick=trainSimBlow;$('trainStop').textContent=L0('หยุด','Stop');$('trainSim').textContent=L0('จำลองการเป่า (ฝึกใช้งาน)','Practice blow');\nsetTab(tab);applyText();pullCloud();")
 open('clinic.html', 'w', encoding='utf-8').write(s)
 print('ok', len(s))

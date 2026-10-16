@@ -70,6 +70,33 @@ service cloud.firestore {
       allow delete: if isAdmin() || isSelf(resource.data.patientUid);
     }
 
+    // ---- training plans prescribed by the patient's own (approved) doctor; the patient can read and follow them
+    match /plans/{id} {
+      allow read: if signedIn() && (resource.data.patientUid == request.auth.uid || isAdmin()
+                    || (isDoctor() && resource.data.doctorUid == request.auth.uid));
+      allow create: if isDoctor() && request.resource.data.doctorUid == request.auth.uid
+        && get(/databases/$(database)/documents/users/$(request.resource.data.patientUid)).data.doctorId == request.auth.uid
+        && request.resource.data.sessionsPerDay is number && request.resource.data.sessionsPerDay >= 1 && request.resource.data.sessionsPerDay <= 6
+        && request.resource.data.reps is number && request.resource.data.reps >= 1 && request.resource.data.reps <= 30
+        && request.resource.data.minutes is number && request.resource.data.minutes >= 1 && request.resource.data.minutes <= 30;
+      allow update: if isDoctor() && resource.data.doctorUid == request.auth.uid && request.resource.data.doctorUid == request.auth.uid
+        && request.resource.data.patientUid == resource.data.patientUid
+        && request.resource.data.sessionsPerDay >= 1 && request.resource.data.sessionsPerDay <= 6
+        && request.resource.data.reps >= 1 && request.resource.data.reps <= 30
+        && request.resource.data.minutes >= 1 && request.resource.data.minutes <= 30;
+      allow delete: if isAdmin() || (isDoctor() && resource.data.doctorUid == request.auth.uid) || isSelf(resource.data.patientUid);
+    }
+
+    // ---- finished training sessions (written by the patient, read by the patient, the linked doctor and admins)
+    match /trainings/{id} {
+      allow read: if signedIn() && (resource.data.patientUid == request.auth.uid || isAdmin()
+                    || (isDoctor() && resource.data.doctorUid == request.auth.uid));
+      allow create: if signedIn() && request.resource.data.patientUid == request.auth.uid
+        && request.resource.data.keys().hasAll(['patientUid', 'planId', 'ts', 'reps', 'durationSec']);
+      allow delete: if isAdmin() || isSelf(resource.data.patientUid);
+      allow update: if false;
+    }
+
     // ---- audit trail: anyone signed in may append their own entry; only admins read; nobody edits
     match /audit/{id} {
       allow create: if signedIn() && request.resource.data.actor == request.auth.uid;
