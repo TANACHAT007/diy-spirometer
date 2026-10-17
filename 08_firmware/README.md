@@ -54,3 +54,9 @@ Compiled only; **not tested on hardware**. Pin map assumed from the XIAO ESP32-S
 - Display redraw during a blow is throttled to ~11 Hz; the 400 Hz sample clock catches up so the volume integral is not lost, but flow samples can be stale by a few ms while the screen is drawing — check against the 3 L syringe.
 - ESP32-C3 build keeps the old behaviour (no display/speaker; too few free pins).
 - Library needed: **LovyanGFX** (Library Manager). Arduino-ESP32 core 2.0.x (legacy `driver/i2s.h`).
+
+## v1.3 — device code + Wi-Fi setup over Bluetooth (compiles S3 + C3, not tested on hardware)
+- On first boot the device makes a random code `SP-XXXXX-XXXXX` (stored in flash, never in the repo). Serial: `code`.
+- Hold the button 8 s: the screen shows the code and a 5-minute pairing window opens (serial `pair` does the same).
+- BLE config characteristic `6e400004-…`: write `W|<code>|<ssid>|<password>` — accepted only while the window is open AND the code matches; read returns `SP1|open/closed|<id>|<ssid>` (no code/password). SSID must not contain `|`; 2.4 GHz only.
+- Web: patient page → device tab → "ตั้งค่า Wi-Fi" (Web Bluetooth; Chrome Android/desktop, not iOS). Then link the device to the account with the same code.

@@ -603,6 +603,23 @@ async function renderMyDev(){
    <div class="row"><input id="dv_code" placeholder="SP-XXXXX-XXXXX" style="max-width:220px;text-transform:uppercase"><input id="dv_label" placeholder="${L0('ชื่อเรียก (ไม่บังคับ)','Nickname (optional)')}" style="max-width:220px"><button class="b pri" id="dv_add">${L0('ผูกเครื่อง','Link device')}</button></div>
    <div id="dv_msg" class="note" style="margin-top:6px"></div>
    <div style="overflow:auto;margin-top:8px"><table>${list.length?`<tr><th>${L0('รหัสเครื่อง','Code')}</th><th>${L0('ชื่อเรียก','Nickname')}</th><th>${L0('ผูกเมื่อ','Linked')}</th><th></th></tr>`+list.map(d=>`<tr><td><code>${esc(d.code)}</code></td><td>${esc(d.label||'–')}</td><td>${fdate(d.claimed)}</td><td><button class="b danger" data-un="${esc(d.code)}" style="padding:2px 9px">${L0('เลิกผูก','Unlink')}</button></td></tr>`).join(''):`<tr><td class="empty">${L0('ยังไม่มีเครื่องที่ผูกไว้','No linked devices yet')}</td></tr>`}</table></div>`;
+  box.insertAdjacentHTML('beforeend',`<h2 style="margin-top:18px">${L0('ตั้งค่า Wi-Fi ให้เครื่อง (ผ่านบลูทูธ)','Set the device Wi-Fi (via Bluetooth)')}</h2>
+   <p class="note">${L0('1) กดปุ่มที่เครื่องค้าง 8 วินาที (เปิดช่องตั้งค่า 5 นาที และจอแสดงรหัส) 2) กรอกรหัส ชื่อ Wi-Fi และรหัส Wi-Fi 3) กดส่ง แล้วเลือก Spiro-xxxx ในหน้าต่างบลูทูธ ต้องใช้ Chrome บน Android/คอมพิวเตอร์ (iPhone ไม่รองรับ) Wi-Fi ต้องเป็น 2.4 GHz และชื่อห้ามมีเครื่องหมาย |','1) Hold the device button 8 s (opens a 5-minute setup window and shows the code). 2) Enter the code, Wi-Fi name and password. 3) Press Send and pick Spiro-xxxx in the Bluetooth dialog. Needs Chrome on Android/desktop (not iPhone). Wi-Fi must be 2.4 GHz and the name must not contain |')}</p>
+   <div class="row"><input id="wf_code" placeholder="SP-XXXXX-XXXXX" style="max-width:200px;text-transform:uppercase"><input id="wf_ssid" placeholder="${L0('ชื่อ Wi-Fi','Wi-Fi name')}" style="max-width:200px" autocomplete="off"><input id="wf_pass" type="password" placeholder="${L0('รหัส Wi-Fi','Wi-Fi password')}" style="max-width:200px" autocomplete="off"><button class="b pri" id="wf_go">${L0('ส่งไปที่เครื่อง','Send to device')}</button></div>
+   <div id="wf_msg" class="note" style="margin-top:6px"></div>`);
+  $('wf_go').onclick=async()=>{const m=$('wf_msg'),code=$('wf_code').value.trim().toUpperCase(),ssid=$('wf_ssid').value,pass=$('wf_pass').value;
+    if(!navigator.bluetooth){m.textContent=L0('เบราว์เซอร์นี้ไม่รองรับ Web Bluetooth (ใช้ Chrome บน Android/คอมพิวเตอร์)','This browser has no Web Bluetooth (use Chrome on Android/desktop)');return}
+    if(!/^SP-[A-HJ-NP-Z2-9]{5}-[A-HJ-NP-Z2-9]{5}$/.test(code)){m.textContent=L0('รหัสเครื่องไม่ถูกรูปแบบ','Device code format is wrong');return}
+    if(!ssid||ssid.includes('|')){m.textContent=L0('ชื่อ Wi-Fi ว่างหรือมี |','Wi-Fi name is empty or contains |');return}
+    try{m.textContent=L0('กำลังค้นหาเครื่อง…','Looking for the device…');
+      const dev=await navigator.bluetooth.requestDevice({filters:[{namePrefix:'Spiro-'}],optionalServices:['6e400001-b5a3-f393-e0a9-e50e24dcca9e']});
+      const sv=await (await dev.gatt.connect()).getPrimaryService('6e400001-b5a3-f393-e0a9-e50e24dcca9e'),ch=await sv.getCharacteristic('6e400004-b5a3-f393-e0a9-e50e24dcca9e');
+      const st=new TextDecoder().decode(await ch.readValue());
+      if(st.split('|')[1]!=='open'){m.textContent=L0('ช่องตั้งค่ายังปิดอยู่ กดปุ่มที่เครื่องค้าง 8 วินาทีก่อน','Setup window is closed - hold the device button 8 s first');dev.gatt.disconnect();return}
+      await ch.writeValue(new TextEncoder().encode('W|'+code+'|'+ssid+'|'+pass));
+      await new Promise(r=>setTimeout(r,800));dev.gatt.disconnect();
+      m.textContent=L0('ส่งแล้ว เครื่องจะเชื่อม Wi-Fi เอง (ถ้ารหัสเครื่องผิด เครื่องจะไม่รับ) ผูกเครื่องกับบัญชีด้านบนด้วย','Sent. The device will join Wi-Fi (it ignores a wrong code). Also link the device to your account above.')}
+    catch(e){m.textContent=(e&&e.message)||String(e)}};
   $('dv_add').onclick=async()=>{try{await SP.Devices.claim($('dv_code').value,$('dv_label').value);renderMyDev()}catch(e){$('dv_msg').textContent=e.message}};
   box.querySelectorAll('[data-un]').forEach(b=>b.onclick=async()=>{if(confirm(L0('เลิกผูกเครื่องนี้?','Unlink this device?'))){await SP.Devices.release(b.dataset.un);renderMyDev()}});
 }
