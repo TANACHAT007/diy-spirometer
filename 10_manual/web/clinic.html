@@ -681,6 +681,7 @@ const VOICE={
  weak:{th:'ไม่เป็นไรค่ะ ลองใหม่อีกครั้งนะคะ',en:'That is okay. Let us try once more.'},
  done:{th:'ยอดเยี่ยมเลยค่ะ ฝึกเสร็จแล้ว พักสักครู่นะคะ',en:'Wonderful! You have finished. Take a short rest.'},
  on:{th:'เปิดเสียงแล้วค่ะ',en:'Sound on.'}};
+['ศูนย์','หนึ่ง','สอง','สาม','สี่','ห้า','หก','เจ็ด','แปด','เก้า','สิบ'].forEach((t,i)=>{VOICE['n'+i]={th:t,en:['zero','one','two','three','four','five','six','seven','eight','nine','ten'][i]}});
 const NUMTH=['ศูนย์','หนึ่ง','สอง','สาม','สี่','ห้า','หก','เจ็ด','แปด','เก้า','สิบ'];
 let curAudio=null;
 function say(key){
@@ -723,7 +724,7 @@ function trainTick(){
   if(rep>=p.reps){tr.rep=p.reps;finishTraining();return}
   tr.rep=rep;
   const inh=k<tr.inh;
-  if(tr.lastRep!==rep){tr.lastRep=rep;tr.lastPh='';if(rep>0)say(numWord(rep))}
+  if(tr.lastRep!==rep){tr.lastRep=rep;tr.lastPh='';if(rep>0)say(rep<=10?'n'+rep:String(rep))}
   if(tr.lastPh!==(inh?'i':'o')){tr.lastPh=inh?'i':'o';beep(inh?520:400,140);buzz(inh?60:30);if(rep>0||!inh||true)setTimeout(()=>say(inh?'in':'out'),rep>0&&inh?900:0)}
   trainUi(inh?L0('หายใจเข้าทางจมูก','Breathe in through the nose'):L0('เป่าออกช้าๆ ทางปากเหมือนเป่าเทียน','Breathe out slowly, lips like blowing a candle'),
     `${L0('รอบนี้ประมาณ','About')} ${p.minutes} ${L0('นาที','min')}`,inh?100*k/tr.inh:100-100*(k-tr.inh)/tr.exh,inh?L0('เข้า','IN'):L0('ออก','OUT'),rep,p.reps);
@@ -731,7 +732,7 @@ function trainTick(){
 }
 function trainBreath(volL){            // volume kind: one blow measured (device or practice)
   if(!tr||tr.plan.kind!=='volume')return;
-  tr.vols.push(volL);tr.rep++;const p=tr.plan;beep(volL>=(p.target||0)*0.8?760:300,200);say(numWord(tr.rep));
+  tr.vols.push(volL);tr.rep++;const p=tr.plan;beep(volL>=(p.target||0)*0.8?760:300,200);say(tr.rep<=10?'n'+tr.rep:String(tr.rep));
   const hit=!p.target||volL>=p.target*0.8;
   trainUi(hit?L0('ดีมาก','Good'):L0('ลองอีกนิด','Try a little more'),`${volL.toFixed(2)} L`,Math.min(100,100*volL/(p.target||volL||1)),volL.toFixed(1)+' L',tr.rep,p.reps);
   if(tr.rep>=p.reps)setTimeout(finishTraining,900);
