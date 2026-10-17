@@ -397,8 +397,7 @@ void cmd(String l) {
   else if (l.startsWith("dev ")) { saveStr("dev", l.substring(4)); loadCfg(); Serial.println("device id saved (reboot)"); }
   else if (l.startsWith("k ")) { K_VENT = l.substring(2).toFloat(); saveF("k", K_VENT); Serial.printf("K=%.4f\n", K_VENT); }
   else if (l.startsWith("vol ")) { volPct = constrain(l.substring(4).toInt(), 0, 100); mpSave(); sndClick(); Serial.printf("volume %d\n", volPct); }
-  else if (l == "code") Serial.printf("device code: %s
-", DEV_CODE.c_str());
+  else if (l == "code") Serial.printf("device code: %s\n", DEV_CODE.c_str());
   else if (l == "pair") { pairOpen = true; pairUntil = millis() + 300000; Serial.println("pairing window open for 5 min"); }
   else if (l == "mp new") { mpNew(); Serial.println("new mouthpiece: counter reset"); }
   else if (l == "info")
