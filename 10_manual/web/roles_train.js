@@ -25,7 +25,7 @@ async function renderHome(){
   $('homeBox').innerHTML=`
   <div class="hello"><img src="icons/${hr>=6&&hr<18?'sun':'smiling_face_with_smiling_eyes'}.svg" alt="" width="84" height="84"><div>
     <h1>${hi} ${lang==='th'?'คุณ':''}${esc(first)}</h1>
-    <p>${L0('วันนี้เป็นอย่างไรบ้างครับ เลือกสิ่งที่อยากทำได้เลย','How are you today? Choose what you would like to do.')}</p>
+    <p>${L0('วันนี้เป็นอย่างไรบ้างคะ เลือกสิ่งที่อยากทำได้เลย','How are you today? Choose what you would like to do.')}</p>
     ${allDone?`<span class="chip"><img src="icons/glowing_star.svg" alt="" width="22" height="22"> ${L0('วันนี้ฝึกครบแล้ว เก่งมาก','All done today, well done')}</span>`:''}</div></div>
   <div class="bigGrid">
     <button class="bigBtn" id="hTest"><span class="ic"><img src="icons/lungs.svg" alt=""></span><b>${L0('ตรวจคุณภาพปอด','Check my lungs')}</b><small>${L0('เป่าวัดปอด 3 ครั้ง','Blow 3 times')}</small><span class="go2">${L0('เริ่มตรวจ','Start')} →</span></button>
@@ -46,15 +46,29 @@ function planText(p){
 /* ---------- voice + beeps for training (works in any modern phone browser; no data leaves the device) ---------- */
 let sndOn=(()=>{try{return localStorage.sp_snd!=='0'}catch(e){return true}})(),actx=null,lastSay='';
 function beep(f,ms,v){if(!sndOn)return;try{actx=actx||new (window.AudioContext||window.webkitAudioContext)();const o=actx.createOscillator(),g=actx.createGain();o.frequency.value=f;o.type='sine';g.gain.value=v||0.08;o.connect(g);g.connect(actx.destination);o.start();o.stop(actx.currentTime+ms/1000)}catch(e){}}
-function say(text){
-  if(!sndOn||!('speechSynthesis' in window)||text===lastSay)return;lastSay=text;
-  try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);u.lang=lang==='th'?'th-TH':'en-US';u.rate=0.9;u.volume=1;
-    const v=speechSynthesis.getVoices().find(x=>x.lang&&x.lang.toLowerCase().startsWith(u.lang.slice(0,2).toLowerCase()));if(v)u.voice=v;speechSynthesis.speak(u)}catch(e){}
+/* Nurse-style warm script. Each key can have a recorded file voice/<th|en>/<key>.mp3; if the file is missing the browser voice reads the same text. */
+const VOICE={
+ start:{th:'สวัสดีค่ะ เรามาเริ่มฝึกกันนะคะ นั่งหลังตรง ไหล่ผ่อนคลายค่ะ',en:'Hello! Let us begin. Sit up straight and relax your shoulders.'},
+ in:{th:'หายใจเข้าช้าๆ ค่ะ',en:'Breathe in slowly.'},
+ out:{th:'เป่าออกช้าๆ เรื่อยๆ ค่ะ',en:'Now blow out slowly and steadily.'},
+ good:{th:'เก่งมากค่ะ',en:'Very good!'},
+ weak:{th:'ไม่เป็นไรค่ะ ลองใหม่อีกครั้งนะคะ',en:'That is okay. Let us try once more.'},
+ done:{th:'ยอดเยี่ยมเลยค่ะ ฝึกเสร็จแล้ว พักสักครู่นะคะ',en:'Wonderful! You have finished. Take a short rest.'},
+ on:{th:'เปิดเสียงแล้วค่ะ',en:'Sound on.'}};
+const NUMTH=['ศูนย์','หนึ่ง','สอง','สาม','สี่','ห้า','หก','เจ็ด','แปด','เก้า','สิบ'];
+let curAudio=null;
+function say(key){
+  if(!sndOn||key===lastSay)return;lastSay=key;
+  const v=VOICE[key],text=v?v[lang==='th'?'th':'en']:String(key);
+  const tts=()=>{if(!('speechSynthesis' in window))return;try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);u.lang=lang==='th'?'th-TH':'en-US';u.rate=0.92;u.pitch=1.1;u.volume=1;
+    const f=speechSynthesis.getVoices().filter(x=>x.lang&&x.lang.toLowerCase().startsWith(u.lang.slice(0,2).toLowerCase()));
+    u.voice=f.find(x=>/female|premwadee|kanya|narisa|achara|google/i.test(x.name))||f[0]||null;speechSynthesis.speak(u)}catch(e){}};
+  if(!v){tts();return}
+  try{if(curAudio)curAudio.pause();const a=new Audio('voice/'+(lang==='th'?'th':'en')+'/'+key+'.mp3');curAudio=a;a.onerror=tts;a.play().catch(tts)}catch(e){tts()}
 }
 function buzz(ms){try{if(navigator.vibrate)navigator.vibrate(ms)}catch(e){}}
-const NUMTH=['ศูนย์','หนึ่ง','สอง','สาม','สี่','ห้า','หก','เจ็ด','แปด','เก้า','สิบ'];
 const numWord=n=>lang==='th'?(n<=10?NUMTH[n]:String(n)):String(n);
-function toggleSound(){sndOn=!sndOn;try{localStorage.sp_snd=sndOn?'1':'0'}catch(e){}$('trainSnd').textContent=(sndOn?'🔊 ':'🔇 ')+L0(sndOn?'เสียงเปิด':'เสียงปิด',sndOn?'Sound on':'Sound off');if(!sndOn&&'speechSynthesis' in window)speechSynthesis.cancel();else say(L0('เปิดเสียงแล้ว','Sound on'))}
+function toggleSound(){sndOn=!sndOn;try{localStorage.sp_snd=sndOn?'1':'0'}catch(e){}$('trainSnd').textContent=(sndOn?'🔊 ':'🔇 ')+L0(sndOn?'เสียงเปิด':'เสียงปิด',sndOn?'Sound on':'Sound off');if(!sndOn&&'speechSynthesis' in window)speechSynthesis.cancel();else say('on')}
 
 /* ---------- guided training session (full screen) ---------- */
 let tr=null;
@@ -63,7 +77,7 @@ function startTraining(plan){
   if(tr)return;
   tr={plan,rep:0,startTs:Date.now(),vols:[],sim:false,timer:null,phase:'',t0:0,lastRep:-1,lastPh:''};lastSay='';
   $('trainOv').classList.add('on');$('trainSnd').textContent=(sndOn?'🔊 ':'🔇 ')+L0(sndOn?'เสียงเปิด':'เสียงปิด',sndOn?'Sound on':'Sound off');
-  beep(660,160);say(L0('เริ่มฝึกนะครับ นั่งหลังตรง ผ่อนคลาย','Let us begin. Sit up straight and relax.'));
+  beep(660,160);say('start');
   const cyc=Math.max(4,Math.min(15,plan.minutes*60/plan.reps));         // seconds per breath: the doctor's minutes / breaths
   tr.inh=cyc/3;tr.exh=cyc*2/3;                                          // breathe out about twice as long as in
   if(plan.kind==='volume'){
@@ -84,7 +98,7 @@ function trainTick(){
   tr.rep=rep;
   const inh=k<tr.inh;
   if(tr.lastRep!==rep){tr.lastRep=rep;tr.lastPh='';if(rep>0)say(numWord(rep))}
-  if(tr.lastPh!==(inh?'i':'o')){tr.lastPh=inh?'i':'o';beep(inh?520:400,140);buzz(inh?60:30);if(rep>0||!inh||true)setTimeout(()=>say(inh?L0('หายใจเข้า','Breathe in'):L0('เป่าออกช้าๆ','Breathe out slowly')),rep>0&&inh?900:0)}
+  if(tr.lastPh!==(inh?'i':'o')){tr.lastPh=inh?'i':'o';beep(inh?520:400,140);buzz(inh?60:30);if(rep>0||!inh||true)setTimeout(()=>say(inh?'in':'out'),rep>0&&inh?900:0)}
   trainUi(inh?L0('หายใจเข้าทางจมูก','Breathe in through the nose'):L0('เป่าออกช้าๆ ทางปากเหมือนเป่าเทียน','Breathe out slowly, lips like blowing a candle'),
     `${L0('รอบนี้ประมาณ','About')} ${p.minutes} ${L0('นาที','min')}`,inh?100*k/tr.inh:100-100*(k-tr.inh)/tr.exh,inh?L0('เข้า','IN'):L0('ออก','OUT'),rep,p.reps);
   tr.timer=requestAnimationFrame(trainTick);
@@ -103,7 +117,7 @@ async function finishTraining(){
   tr=null;
   if(!DEMO_Q){try{await SP.Trainings.add(rec)}catch(e){alert(e.message)}}
   myTrains.push(rec);
-  beep(880,200);setTimeout(()=>beep(1100,260),240);buzz(200);lastSay='';say(L0('เก่งมากครับ ฝึกเสร็จแล้ว','Well done. You have finished.'));
+  beep(880,200);setTimeout(()=>beep(1100,260),240);buzz(200);lastSay='';say('done');
   trainUi(L0('เก่งมาก ฝึกเสร็จแล้ว','Well done, finished'),`${rec.reps} ${L0('ครั้ง','breaths')} · ${Math.floor(rec.durationSec/60)}:${String(rec.durationSec%60).padStart(2,'0')}`,100,'✓',rec.reps,p.reps);
   $('trainSim').style.display='none';
   yay(true);
