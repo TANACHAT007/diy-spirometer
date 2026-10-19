@@ -11,6 +11,10 @@ from matplotlib.collections import LineCollection, PolyCollection
 R = pathlib.Path(__file__).resolve().parents[2]
 STL = R / "04_print_stl"
 OUT = pathlib.Path(__file__).parent
+FEAT = {}
+_fp = R / "02_design" / "_brep_features.json"
+if _fp.exists():
+    FEAT = json.loads(_fp.read_text())
 STATS = {p["file"]: p for p in json.loads((STL / "print_stats.json").read_text())["parts"]}
 NAMES = {"housing_left": "Housing, left half", "housing_right": "Housing, right half", "top_cover": "Top cover (magnetic)",
          "flow_tube": "Venturi flow tube D28/d23", "mouthpiece": "Mouthpiece (single use)", "bezel": "Display bezel",
@@ -33,9 +37,30 @@ def edges_for(mesh, drop):
     return mesh.vertices[e[pick]]               # (k,2,3)
 
 
-def draw_view(ax, mesh, drop, h, v, title, scale):
+def draw_holes(ax, feats, drop, h, v):
+    ai = "xyz".index
+    for f in feats:
+        if f["kind"] != "hole" or ai(f["axis"]) != drop or f["d"] < 1.2:
+            continue
+        cx, cy = f["center"][h], f["center"][v]; r = f["d"] / 2
+        ax.add_patch(plt.Circle((cx, cy), r, fill=False, lw=0.5, color="#06c"))
+        ax.plot([cx - r * 1.5, cx + r * 1.5], [cy, cy], color="#06c", lw=0.3, dashes=(6, 1.5, 1, 1.5))
+        ax.plot([cx, cx], [cy - r * 1.5, cy + r * 1.5], color="#06c", lw=0.3, dashes=(6, 1.5, 1, 1.5))
+        ax.text(cx + r * 1.15, cy + r * 1.15, f"{f['d']:g}", fontsize=5, color="#06c")
+
+
+def hole_table(feats):
+    g = {}
+    for f in feats:
+        if f["kind"] == "hole" and f["d"] >= 1.2:
+            g.setdefault((f["d"], f["axis"]), []).append(f)
+    return sorted(g.items())
+
+
+def draw_view(ax, mesh, drop, h, v, title, scale, feats=()):
     seg = edges_for(mesh, drop)[:, :, [h, v]]
     ax.add_collection(LineCollection(seg, colors="k", linewidths=0.35))
+    draw_holes(ax, feats, drop, h, v)
     lo = mesh.bounds[0][[h, v]]; hi = mesh.bounds[1][[h, v]]
     pad = 0.12 * (hi - lo).max() + 6
     ax.set_xlim(lo[0] - pad, hi[0] + pad); ax.set_ylim(lo[1] - pad, hi[1] + pad)
@@ -59,13 +84,18 @@ def sheet(pdf, stl, idx, total):
     fig.add_artist(plt.Rectangle((0.015, 0.02), 0.97, 0.96, fill=False, lw=1.4, transform=fig.transFigure))
     gs = fig.add_gridspec(2, 2, left=0.05, right=0.95, top=0.93, bottom=0.2, wspace=0.18, hspace=0.12)
     for i, (t, d, h, v) in enumerate(VIEWS):
-        draw_view(fig.add_subplot(gs[i // 2, i % 2]), mesh, d, h, v, t, 1)
+        draw_view(fig.add_subplot(gs[i // 2, i % 2]), mesh, d, h, v, t, 1, FEAT.get(key, []))
     ax = fig.add_subplot(gs[1, 1]); ax.axis("off")
-    ax.text(0, 0.9, "Overall size X x Y x Z (mm)", fontsize=10, weight="bold")
-    ax.text(0, 0.72, " x ".join(f"{x:.1f}" for x in mesh.extents), fontsize=14)
-    ax.text(0, 0.5, f"Volume {mesh.volume/1000:.1f} cm3", fontsize=10)
-    ax.text(0, 0.34, f"Print: {st.get('grams','?')} g, {st.get('hours','?')} h (PETG, Bambu A1)", fontsize=10)
-    ax.text(0, 0.12, "General tolerance +/-0.2 mm (FDM). Dimensions in mm.\nHidden edges not shown. See print_guide.md for orientation.", fontsize=8, color="#555")
+    ax.text(0, 1.0, "Overall size X x Y x Z (mm)", fontsize=10, weight="bold")
+    ax.text(0, 0.88, " x ".join(f"{x:.1f}" for x in mesh.extents), fontsize=14)
+    ax.text(0, 0.7, f"Volume {mesh.volume/1000:.1f} cm3", fontsize=10)
+    ax.text(0, 0.62, f"Print: {st.get('grams','?')} g, {st.get('hours','?')} h (PETG, Bambu A1)", fontsize=10)
+    rows = hole_table(FEAT.get(key, []))
+    if rows:
+        import textwrap
+        txt = "Holes (blue) dia mm / axis / qty:  " + ";  ".join(f"{d:g}/{a}/{len(v)}" for (d, a), v in rows)
+        ax.text(0, 0.42, chr(10).join(textwrap.wrap(txt, 78)), fontsize=7, color="#06c", va="top")
+    ax.text(0, 0.02, "General tolerance +/-0.2 mm (FDM). Dimensions in mm.\nHidden edges not shown. See print_guide.md for orientation.", fontsize=8, color="#555")
     tb = fig.add_axes([0.05, 0.035, 0.9, 0.14]); tb.axis("off"); tb.set_xlim(0, 1); tb.set_ylim(0, 1)
     tb.add_patch(plt.Rectangle((0, 0), 1, 1, fill=False, lw=1.2))
     for x in (0.55, 0.72, 0.86):
