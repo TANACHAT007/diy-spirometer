@@ -1,0 +1,78 @@
+<!doctype html><html><head><meta charset="utf-8"><title>Spiro IYS7 Poster A1</title>
+<style>
+@page{size:594mm 841mm;margin:0}
+*{box-sizing:border-box}
+body{margin:0;width:594mm;height:841mm;font-family:Arial,Helvetica,sans-serif;color:#12263a;background:#f4f9fc;overflow:hidden}
+header{height:120mm;background:linear-gradient(120deg,#0b4f8a,#2a9fd6);color:#fff;padding:14mm 20mm;position:relative}
+h1{margin:0;font-size:25mm;line-height:1}
+.sub{font-size:9.5mm;margin-top:5mm;max-width:430mm;line-height:1.25}
+.team{position:absolute;right:20mm;top:14mm;text-align:right;font-size:6.2mm;line-height:1.45;max-width:120mm}
+.team b{font-size:9mm}
+main{padding:9mm 20mm 0;display:grid;grid-template-columns:1fr 1fr;gap:8mm}
+section{background:#fff;border-radius:6mm;padding:7mm 10mm;border:.6mm solid #cfe3ef}
+h2{margin:0 0 5mm;font-size:11mm;color:#0b4f8a}
+p,li{font-size:6.6mm;line-height:1.4;margin:0 0 3mm}
+ul{margin:0;padding-left:8mm}
+.wide{grid-column:1/3}
+img{width:100%;height:135mm;object-fit:cover;border-radius:4mm;display:block}
+.stats{display:flex;gap:6mm}
+.stat{flex:1;background:#e8f4fb;border-radius:4mm;padding:5mm;text-align:center}
+.stat b{display:block;font-size:15mm;color:#0b4f8a}
+.stat span{font-size:5.6mm}
+table{width:100%;border-collapse:collapse;font-size:5.8mm}
+td,th{border:.4mm solid #cfe3ef;padding:2.5mm 3mm;text-align:left;vertical-align:top}
+th{background:#e8f4fb}
+.warn{background:#fff6e0;border-color:#f0cf7a}
+footer{position:absolute;bottom:0;left:0;right:0;height:26mm;background:#0b4f8a;color:#fff;padding:5mm 20mm;font-size:5.6mm;line-height:1.4}
+</style></head><body>
+<header>
+<h1>Spiro</h1>
+<div class="sub">A low-cost 3D-printed IoT spirometer with a disposable mouthpiece designed from burned-field crop residue</div>
+<div class="sub" style="font-size:6.5mm">7th International Youth Summit 2026 · Sub-theme: Health</div>
+<div class="team"><b>Team MEDTHAI</b><br>Puttitada Pruetchayakul (leader) · Pimnara Roongsetthavitr<br>Suchanan Kittikraisak · Natnicha Taepucharoen · Nabhat Sethaudom<br>Advisor: Tanachat Srinurat · Thailand</div>
+</header>
+<main>
+<section><h2>1 · Problem</h2>
+<p>Smoke from burning rice straw and cane leaves carries PM2.5 deep into the lung, linked to cough, asthma and COPD.</p>
+<ul><li>COPD: ~3.4 million deaths in 2023, ~6% of all deaths (WHO)</li>
+<li>Pathumthani survey (n=1,014): COPD 8.3%, but only 9.5% of them had been diagnosed</li>
+<li>Open burning of crop residue: ~524 billion baht/year damage in Thailand</li></ul>
+<p>Spirometry is the confirming test, but it stays where the machine and budget are.</p></section>
+<section><h2>2 · Our idea</h2>
+<p>A handheld spirometer a school or village health post can build, with results sent to a doctor by phone.</p>
+<ul><li><b>Eco-friendly:</b> single-use mouthpiece planned from rice straw / cane leaves</li>
+<li><b>Environment + health:</b> the fields that cause the problem supply the material to screen it</li>
+<li><b>Affordable:</b> ~3,100 baht (~USD 85) in parts, 26 items</li></ul>
+<div class="stats" style="margin-top:5mm"><div class="stat"><b>3,084฿</b><span>estimated BOM</span></div><div class="stat"><b>10</b><span>printed PETG parts</span></div><div class="stat"><b>400 Hz</b><span>sensor sampling</span></div></div></section>
+<section class="wide"><h2>3 · Design (version 3)</h2>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:8mm"><div><img src="diy-spirometer_iso.png"><p style="font-size:5mm;margin-top:2mm">CAD render: handheld unit on magnetic charging dock</p></div>
+<div><img src="diy-spirometer_cu_inside.png"><p style="font-size:5mm;margin-top:2mm">Internals: sensor, round display, battery, ESP32-S3</p></div></div>
+<ul style="margin-top:5mm"><li>Printed venturi (28 mm → 23 mm throat) + Sensirion SDP810-500Pa; Q = K·√ΔP, integrate for volume</li>
+<li>Reports FVC, FEV1, FEV1/FVC and PEF; XIAO ESP32-S3 with 1.28" round display, speaker prompt, BLE + Wi-Fi</li>
+<li>Washable venturi tube; replaceable mouthpiece counted by firmware (reminder at 20 blows / 7 days)</li></ul></section>
+<section><h2>4 · Mouthpiece from burned fields</h2>
+<table><tr><th>Stage</th><th>Material</th></tr>
+<tr><td>Prototype</td><td>PETG print (fit check)</td></tr>
+<tr><td>Production</td><td>Moulded rice-straw / cane-leaf pulp (proposal)</td></tr>
+<tr><td>Fallback</td><td>Standard cardboard mouthpiece</td></tr></table>
+<p style="margin-top:4mm">Straw trays (up to 80% straw) beat polystyrene in tension and lost ~20% mass in 4 weeks in soil. A mouthpiece is not a filter: a standard disposable filter is part of the plan.</p></section>
+<section><h2>5 · Online system</h2>
+<ul><li><b>Patient:</b> register, blow or follow coaching, history and trend</li>
+<li><b>Doctor</b> (admin-approved): clinic mode, ≥3 blows, repeatability 0.15 L, live curve, A4 report</li>
+<li><b>Admin:</b> approvals, audit log</li>
+<li>Firebase Hosting + Auth + Firestore; rules tested incl. privilege-escalation attempts</li>
+<li>Voice-guided nurse-style training script (Thai / English)</li></ul></section>
+<section><h2>6 · Evidence</h2>
+<ul><li>Printed venturi + ESP32: ~1.5% error vs 2 L pump</li>
+<li>Venturi home spirometer: r = 0.992 (FVC), 0.968 (FEV1)</li>
+<li>Frugal printed venturi, 30 people: ICC 0.97 for FEV1 (peak flow less accurate)</li></ul>
+<p>Confidence: HIGH measuring principle · MEDIUM straw mouthpiece · LOW-MEDIUM infection control without filter.</p></section>
+<section class="warn"><h2>7 · Honest limits</h2>
+<ul><li>Version 3 not yet printed, assembled or measured; K needs 3 L syringe calibration</li>
+<li>Firmware tail correction (FVC may read ~12% low without it) is unvalidated</li>
+<li>No clinical study, no regulatory approval. <b>Education and screening only, not for diagnosis.</b></li></ul></section>
+<section class="wide"><h2>8 · Next steps and impact</h2>
+<p>Calibrate with a 3 L syringe → compare 20+ volunteers with a hospital spirometer under supervision → mould and test pulp mouthpieces (resistance, leak, wet strength) → publish results whether favourable or not. Built on our SmartLung platform (WICO 2026 Gold Award, iCAN 2026 Silver Medal; awards were for SmartLung, not for a spirometer).</p></section>
+</main>
+<footer>Sources: WHO COPD fact sheet; Pathumthani spirometry survey; Frontiers Bioeng. Biotechnol. 2025 (printed venturi); Bangor Univ. straw-tray study; full reference list in the essay. Contact: Team MEDTHAI · Demo: medthai-spirometer.web.app</footer>
+</body></html>
