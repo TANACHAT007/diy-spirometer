@@ -5,8 +5,8 @@ Profile: 0.2 mm layer, 4 walls (≥1.6 mm), 20 % gyroid, 0.4 nozzle. Printed hol
 
 | Part | File | Orientation | Supports | Notes |
 |---|---|---|---|---|
-| Housing left | housing_left.stl | **outer face down** (seam face up) | none inside; tree supports only for the display window counter-bore if the slicer asks | blue; heat-set M3x5 inserts go into the **right** half only |
-| Housing right | housing_right.stl | outer face down | as above | 4 × M3x5x4.5 inserts at the seam bosses, 1 × 6x3 magnet pocket in the grip end |
+| Housing left | housing_left.stl | **seam face down** (open side on the bed; STL analysis 2026-10-21: outer flat face is 9 mm above the barrel tangent, so outer-down needs supports under the visible face) | **auto tree supports inside the open cavity**, Z gap 0.25-0.3 mm (PETG sticks); remove by hand/pliers through the open side | blue; heat-set M3x5 inserts go into the **right** half only |
+| Housing right | housing_right.stl | seam face down | as above | 4 × M3x5x4.5 inserts at the seam bosses, 1 × 6x3 magnet pocket in the grip end |
 | Flow tube | flow_tube.stl | **vertical, mouth end down** | exit ring (flat 3 mm lip) + the manifold block's horizontal channel need small supports/bridging; mouth ring is 45° (no support) | white; the venturi cone prints at 10.5° from vertical = clean. Do NOT print lying down (venturi would be oval). Test the channel with a Ø2 mm wire before use |
 | Top cover | top_cover.stl | flat side (z=0) down | none | 4 × 5x2 magnets glued, polarity checked against the housing seats |
 | Mouthpiece (DISPOSABLE) | mouthpiece.stl | wide end down | none | **PETG (prototype; later replace with agri-waste pulp/paper).** 0.2 mm layers, 2 walls, 10 % infill, ~11 g ≈ 5 THB, ~40 min. Print a batch of 10. One per person; replace after 20 blows or 7 days (the device counts; hold button 4 s after fitting a new one). PETG is not biodegradable; do not wash and reuse across people (it is not a bacterial filter). |

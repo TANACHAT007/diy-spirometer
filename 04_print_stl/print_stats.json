@@ -1,5 +1,5 @@
 {
- "model_hash": "e8473a03ba18",
+ "model_hash": "c7f7aa12d717",
  "parts": [
   {
    "file": "housing_left.stl",
@@ -8,8 +8,8 @@
     153.6,
     169.1
    ],
-   "grams": 71.6,
-   "hours": 4.06,
+   "grams": 71.1,
+   "hours": 4.03,
    "fits_bed": true
   },
   {
@@ -19,8 +19,8 @@
     153.6,
     169.1
    ],
-   "grams": 76.2,
-   "hours": 4.31,
+   "grams": 75.7,
+   "hours": 4.28,
    "fits_bed": true
   },
   {
@@ -112,8 +112,8 @@
    "fits_bed": true
   }
  ],
- "total_grams": 428,
- "total_hours": 24.6,
+ "total_grams": 427,
+ "total_hours": 24.5,
  "spools_1kg": 0.47,
  "filament_thb": 329,
  "note": "estimate: PETG 1.27 g/cm3, infill 30%, 4 walls, +10 % waste; slice in Bambu Studio to confirm"

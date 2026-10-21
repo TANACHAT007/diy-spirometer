@@ -309,6 +309,8 @@ def housing_half(side):
         cut_with(c, b, gcyl(c, 'tmp_mag', GRIP_L - 3.2, MAG_GRIP[1], MAG_GRIP[0], 6.2, 4, None))
     cut_with(c, b, gbox(c, 'tmp_usb', 196.0, USB_Y - 2.0, USB_W - 4.9, 6, 4.0, 9.8, None))
     cut_with(c, b, gbox(c, 'tmp_usbcb', XIAO_U1 + 1.3, USB_Y - 3.75, USB_W - 6.5, 4, 7.5, 13, None))
+    # v11 anti-slip pad seat: 70 x 34 mm, 0.8 mm deep on the grip's outer face (wall 2.4 -> 1.6 left); 1.5 mm silicone pad stands 0.7 proud
+    cut_with(c, b, gbox(c, 'tmp_gripad', 120.0, (-BODY_T / 2 - 0.5) if side < 0 else (BODY_T / 2 - 0.8), 8.0, 70.0, 1.3, 34.0, None))
     if side < 0:
         # round display: window 32.6 + inside counterbore 36.0 x 1.4; 3 clip blocks with lips over the pcb
         drill(c, b, 'y', DISP_C[0], DISP_C[1], -BODY_T / 2 - 1, -YI + 0.1, 32.6)
