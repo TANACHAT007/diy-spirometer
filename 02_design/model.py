@@ -9,6 +9,7 @@ exec(open(os.path.join(SK, 'fusion_lib.py'), encoding='utf-8').read())
 exec(open(os.path.join(SK, 'fusion_parts.py'), encoding='utf-8').read())
 exec(open(os.path.join(SK, 'fusion_fasteners.py'), encoding='utf-8').read())
 exec(open(os.path.join(SK, 'fusion_wearable.py'), encoding='utf-8').read())     # cut_with, drill, round_*, place_cs, lipo
+exec(open(os.path.join(SK, 'fusion_detail.py'), encoding='utf-8').read())     # hex_grille (v9 dock honeycomb)
 PROJECT = 'diy-spirometer'
 PP = project_paths(PROJECT)
 new_design(PROJECT, [('D_PIPE', 28, 'venturi pipe bore'), ('D_THROAT', 23, 'venturi throat'),
@@ -620,6 +621,7 @@ for y_ in (-29.0, 27.0):
     cut_with(DK, slab, box(DK, 'tmp_led', 150, y_, -181.0, 62, 2.0, 1.2, None))
     box(DK, 'led_strip', 150, y_, -181.0, 62, 2.0, 1.0, 'blue')
 cut_with(DK, slab, cyl_z(DK, 'tmp_ledd', 98, -27, -181.0, 8, 1.2, None))
+hex_grille(DK, slab, 'xy', -180.0, 124, -31, 15, 62, 1.0, cell=4.5, wall=1.4)    # v9 honeycomb panel, 1 mm engraved
 cyl_z(DK, 'led_status', 98, -27, -181.0, 8, 1.0, 'blue')
 DB = new_comp('Dock_Bottom')
 plate = box(DB, 'print_dock_bottom', 140, -31, -200.4, 85, 62, 2.4, 'white')

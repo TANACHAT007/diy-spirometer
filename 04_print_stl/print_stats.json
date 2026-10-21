@@ -1,5 +1,5 @@
 {
- "model_hash": "6bab4968cc85",
+ "model_hash": "32213e5c8aef",
  "parts": [
   {
    "file": "housing_left.stl",
@@ -85,8 +85,8 @@
     72.0,
     145.0
    ],
-   "grams": 136.8,
-   "hours": 7.68,
+   "grams": 137.0,
+   "hours": 7.69,
    "fits_bed": true
   },
   {
@@ -101,7 +101,7 @@
    "fits_bed": true
   }
  ],
- "total_grams": 420,
+ "total_grams": 421,
  "total_hours": 24.1,
  "spools_1kg": 0.46,
  "filament_thb": 324,
