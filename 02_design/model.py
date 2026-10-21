@@ -600,15 +600,18 @@ slab = rbox(DK, 'print_dock', 80, -36, -198, 145, 72, 18, 8, 'white')
 col_ = gbox(DK, 'collar', 180, -21, -6, 34, 42, 62, 'white')
 round_all(DK, col_, 4)
 wedge = rbox(DK, 'wedge', 140, -21, -190, 62, 42, 38, 4, 'white')
-join(DK, slab, col_, wedge)
+join(DK, wedge, col_)                      # v10: cradle (wedge + collar) is its own print, bolted to the base slab
+cradle = wedge
+cradle.name = 'print_dock_cradle'
+cut_with(DK, cradle, rbox(DK, 'tmp_slabcopy', 80, -36, -198, 145, 72, 18, 8, None))    # cradle starts at the slab top
 for tx_, ty_, th_, tt_ in ((108.0, 12.0, 6.5, 'MEDTHAI'), (108.0, -3.0, 3.0, 'DIY IoT SPIROMETER'), (108.0, -12.0, 2.2, 'NOT A MEDICAL DEVICE')):
     f_ = text_z(DK, 'tmp_text', tt_, tx_, ty_, -180.5, th_, 'white', depth=1.0)       # engraved 0.5 mm into the top face
     if f_:
         cut_with(DK, slab, *[f_.bodies.item(i_) for i_ in range(f_.bodies.count)])
-cut_with(DK, slab, gbox(DK, 'tmp_pocket', 170, -BODY_T / 2 - 0.2, -0.2, 30.4, BODY_T + 0.4, GRIP_W + 2.0 + 0.6, None))
+cut_with(DK, cradle, gbox(DK, 'tmp_pocket', 170, -BODY_T / 2 - 0.2, -0.2, 30.4, BODY_T + 0.4, GRIP_W + 2.0 + 0.6, None))
 for (w, cy), uend in zip(CONTACTS, (232.0, 247.0)):
-    cut_with(DK, slab, gcyl(DK, 'tmp_pogo', GRIP_L, cy, w, 2.2, uend - GRIP_L, None))    # 2.0 pogo barrel + 0.2
-cut_with(DK, slab, gcyl(DK, 'tmp_magd', GRIP_L + 0.4, MAG_GRIP[1], MAG_GRIP[0], 6.2, 3.2, None))
+    cut_with(DK, cradle, gcyl(DK, 'tmp_pogo', GRIP_L, cy, w, 2.2, uend - GRIP_L, None))    # 2.0 pogo barrel + 0.2
+cut_with(DK, cradle, gcyl(DK, 'tmp_magd', GRIP_L + 0.4, MAG_GRIP[1], MAG_GRIP[0], 6.2, 3.2, None))
 cut_with(DK, slab, box(DK, 'tmp_cav', 150, -20, -200, 68, 40, 12, None))
 cut_with(DK, slab, box(DK, 'tmp_usb', 216, -4.9, -196.8, 12, 9.8, 4.0, None))
 cut_with(DK, slab, box(DK, 'tmp_usbcb', 221, -6.5, -198.5, 6, 13, 7.5, None))
@@ -622,6 +625,9 @@ for y_ in (-29.0, 27.0):
     box(DK, 'led_strip', 150, y_, -181.0, 62, 2.0, 1.0, 'blue')
 cut_with(DK, slab, cyl_z(DK, 'tmp_ledd', 98, -27, -181.0, 8, 1.2, None))
 hex_grille(DK, slab, 'xy', -180.0, 124, -31, 15, 62, 1.0, cell=4.5, wall=1.4)    # v9 honeycomb panel, 1 mm engraved
+for x_ in (160.0, 196.0):
+    for y_ in (-12.0, 12.0):
+        bolt_joint([(DK, slab), (DK, cradle)], (x_, y_, -188.0), (0, 0, 1), M=3, end='insert', head='csk')   # from the cavity ceiling up into cradle inserts
 cyl_z(DK, 'led_status', 98, -27, -181.0, 8, 1.0, 'blue')
 DB = new_comp('Dock_Bottom')
 plate = box(DB, 'print_dock_bottom', 140, -31, -200.4, 85, 62, 2.4, 'white')
