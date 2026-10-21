@@ -18,7 +18,7 @@ if _fp.exists():
 STATS = {p["file"]: p for p in json.loads((STL / "print_stats.json").read_text())["parts"]}
 NAMES = {"housing_left": "Housing, left half", "housing_right": "Housing, right half", "top_cover": "Top cover (magnetic)",
          "flow_tube": "Venturi flow tube D28/d23", "mouthpiece": "Mouthpiece (single use)", "bezel": "Display bezel",
-         "button_cap": "Button cap", "dock": "Charging dock, base", "dock_cradle": "Charging dock, cradle", "dock_bottom": "Charging dock, base plate"}
+         "button_cap": "Button cap", "dock_left": "Charging dock, left half", "dock_right": "Charging dock, right half"}
 # view = (name, axis to look along (drop), horizontal axis, vertical axis)
 VIEWS = [("Front (XZ)", 1, 0, 2), ("Top (XY)", 2, 0, 1), ("Right (YZ)", 0, 1, 2)]
 

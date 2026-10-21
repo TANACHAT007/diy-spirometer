@@ -1,5 +1,5 @@
 {
- "model_hash": "c7f7aa12d717",
+ "model_hash": "19ffddcc31b9",
  "parts": [
   {
    "file": "housing_left.stl",
@@ -79,42 +79,31 @@
    "fits_bed": true
   },
   {
-   "file": "dock.stl",
+   "file": "dock_left.stl",
    "dims_mm": [
-    18.0,
-    72.0,
+    36.0,
+    70.5,
     145.0
    ],
-   "grams": 92.1,
-   "hours": 5.2,
+   "grams": 78.8,
+   "hours": 4.46,
    "fits_bed": true
   },
   {
-   "file": "dock_cradle.stl",
+   "file": "dock_right.stl",
    "dims_mm": [
-    42.0,
-    52.5,
-    74.8
+    36.0,
+    70.5,
+    145.0
    ],
-   "grams": 51.9,
-   "hours": 2.96,
-   "fits_bed": true
-  },
-  {
-   "file": "dock_bottom.stl",
-   "dims_mm": [
-    2.4,
-    62.0,
-    85.0
-   ],
-   "grams": 15.9,
-   "hours": 0.96,
+   "grams": 78.1,
+   "hours": 4.42,
    "fits_bed": true
   }
  ],
- "total_grams": 427,
- "total_hours": 24.5,
+ "total_grams": 424,
+ "total_hours": 24.2,
  "spools_1kg": 0.47,
- "filament_thb": 329,
+ "filament_thb": 326,
  "note": "estimate: PETG 1.27 g/cm3, infill 30%, 4 walls, +10 % waste; slice in Bambu Studio to confirm"
 }

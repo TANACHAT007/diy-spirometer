@@ -597,47 +597,45 @@ for x, z in SCREWS:
     bolt_joint([(HL, hl), (HR, hr)], (x, -BODY_T / 2, z), (0, 1, 0), M=3, end='insert', head='csk', insert='M3x5x4.5')
 
 # ---------------------------------------------------------------- charging dock
-DK = new_comp('Dock')
-slab = rbox(DK, 'print_dock', 80, -36, -198, 145, 72, 18, 8, 'white')
-col_ = gbox(DK, 'collar', 180, -21, -6, 34, 42, 62, 'white')
-round_all(DK, col_, 4)
-wedge = rbox(DK, 'wedge', 140, -21, -190, 62, 42, 38, 4, 'white')
-join(DK, wedge, col_)                      # v10: cradle (wedge + collar) is its own print, bolted to the base slab
-cradle = wedge
-cradle.name = 'print_dock_cradle'
-cut_with(DK, cradle, rbox(DK, 'tmp_slabcopy', 80, -36, -198, 145, 72, 18, 8, None))    # cradle starts at the slab top
-for tx_, ty_, th_, tt_ in ((108.0, 12.0, 6.5, 'MEDTHAI'), (108.0, -3.0, 3.0, 'DIY IoT SPIROMETER'), (108.0, -12.0, 2.2, 'NOT A MEDICAL DEVICE')):
-    f_ = text_z(DK, 'tmp_text', tt_, tx_, ty_, -180.5, th_, 'white', depth=1.0)       # engraved 0.5 mm into the top face
-    if f_:
-        cut_with(DK, slab, *[f_.bodies.item(i_) for i_ in range(f_.bodies.count)])
-cut_with(DK, cradle, gbox(DK, 'tmp_pocket', 170, -BODY_T / 2 - 0.2, -0.2, 30.4, BODY_T + 0.4, GRIP_W + 2.0 + 0.6, None))
-for (w, cy), uend in zip(CONTACTS, (232.0, 247.0)):
-    cut_with(DK, cradle, gcyl(DK, 'tmp_pogo', GRIP_L, cy, w, 2.2, uend - GRIP_L, None))    # 2.0 pogo barrel + 0.2
-cut_with(DK, cradle, gcyl(DK, 'tmp_magd', GRIP_L + 0.4, MAG_GRIP[1], MAG_GRIP[0], 6.2, 3.2, None))
-cut_with(DK, slab, box(DK, 'tmp_cav', 150, -20, -200, 68, 40, 12, None))
-cut_with(DK, slab, box(DK, 'tmp_usb', 216, -4.9, -196.8, 12, 9.8, 4.0, None))
-cut_with(DK, slab, box(DK, 'tmp_usbcb', 221, -6.5, -198.5, 6, 13, 7.5, None))
-# v8 'wow': floating-plinth shadow reveal + glowing light-guide strips + status LED
-ring_o = rbox(DK, 'tmp_ring_o', 75, -41, -195.2, 155, 82, 1.6, 10, None)
-ring_i = rbox(DK, 'tmp_ring_i', 81.4, -34.6, -195.2, 142.2, 69.2, 1.6, 6.6, None)
-cut_with(DK, ring_o, ring_i)
-cut_with(DK, slab, ring_o)
+# v12: the dock is a clamshell like the device: two halves split at y=0 (left y<0 / right y>0), electronics sit in the internal cavity,
+# halves are closed with M3x40 csk screws from the left (brass inserts in the right half). No bottom plate, no separate cradle.
+DOCK_R = 4.0
+def dock_half(side):
+    nm = 'left' if side < 0 else 'right'
+    c = new_comp('Dock_' + nm.capitalize())
+    body = rbox(c, 'print_dock_' + nm, 80, -36, -198, 145, 72, 18, DOCK_R, 'white')
+    col_ = gbox(c, 'collar', 180, -21, -6, 34, 42, 62, 'white')
+    round_all(c, col_, 4)
+    wedge = rbox(c, 'wedge', 140, -21, -190, 62, 42, 38, 4, 'white')
+    join(c, body, col_, wedge)
+    for tx_, ty_, th_, tt_ in ((108.0, 12.0, 6.5, 'MEDTHAI'), (108.0, -3.0, 3.0, 'DIY IoT SPIROMETER'), (108.0, -12.0, 2.2, 'NOT A MEDICAL DEVICE')):
+        f_ = text_z(c, 'tmp_text', tt_, tx_, ty_, -180.5, th_, 'white', depth=1.0)       # engraved 0.5 mm into the top face
+        if f_:
+            cut_with(c, body, *[f_.bodies.item(i_) for i_ in range(f_.bodies.count)])
+    cut_with(c, body, gbox(c, 'tmp_pocket', 170, -BODY_T / 2 - 0.2, -0.2, 30.4, BODY_T + 0.4, GRIP_W + 2.0 + 0.6, None))
+    for (w, cy), uend in zip(CONTACTS, (232.0, 247.0)):
+        cut_with(c, body, gcyl(c, 'tmp_pogo', GRIP_L, cy, w, 2.2, uend - GRIP_L, None))    # 2.0 pogo barrel + 0.2
+    cut_with(c, body, gcyl(c, 'tmp_magd', GRIP_L + 0.4, MAG_GRIP[1], MAG_GRIP[0], 6.2, 3.2, None))
+    cut_with(c, body, box(c, 'tmp_cav', 150, -20, -195.6, 68, 40, 12, None))                # closed internal cavity (USB-C board + wires)
+    cut_with(c, body, box(c, 'tmp_usb', 216, -4.9, -194.4, 12, 9.8, 4.0, None))
+    cut_with(c, body, box(c, 'tmp_usbcb', 221, -6.5, -196.0, 6, 13, 7.5, None))
+    ly = -29.0 if side < 0 else 27.0
+    cut_with(c, body, box(c, 'tmp_led', 150, ly, -181.0, 62, 2.0, 1.2, None))               # light-guide strip seat
+    if side < 0:
+        cut_with(c, body, cyl_z(c, 'tmp_ledd', 98, -27, -181.0, 8, 1.2, None))             # status LED seat
+    hex_grille(c, body, 'xy', -180.0, 124, -31, 15, 62, 1.0, cell=4.5, wall=1.4)
+    cut_with(c, body, box(c, 'tmp_other', 60, 0.0 if side < 0 else -60.0, -215, 190, 60, 110, None))    # remove the other half
+    return c, body
+DKL, dkl = dock_half(-1)
+DKR, dkr = dock_half(1)
+INL = new_comp('Dock_Inlays')
 for y_ in (-29.0, 27.0):
-    cut_with(DK, slab, box(DK, 'tmp_led', 150, y_, -181.0, 62, 2.0, 1.2, None))
-    box(DK, 'led_strip', 150, y_, -181.0, 62, 2.0, 1.0, 'blue')
-cut_with(DK, slab, cyl_z(DK, 'tmp_ledd', 98, -27, -181.0, 8, 1.2, None))
-hex_grille(DK, slab, 'xy', -180.0, 124, -31, 15, 62, 1.0, cell=4.5, wall=1.4)    # v9 honeycomb panel, 1 mm engraved
-for x_ in (160.0, 196.0):
-    for y_ in (-12.0, 12.0):
-        bolt_joint([(DK, slab), (DK, cradle)], (x_, y_, -188.0), (0, 0, 1), M=3, end='insert', head='csk')   # from the cavity ceiling up into cradle inserts
-cyl_z(DK, 'led_status', 98, -27, -181.0, 8, 1.0, 'blue')
-DB = new_comp('Dock_Bottom')
-plate = box(DB, 'print_dock_bottom', 140, -31, -200.4, 85, 62, 2.4, 'white')
-for x in (146.0, 220.5):
-    for y in (-26.0, 26.0):
-        bolt_joint([(DB, plate), (DK, slab)], (x, y, -200.4), (0, 0, 1), M=3, end='insert', head='csk')
+    box(INL, 'led_strip', 150, y_, -181.0, 62, 2.0, 1.0, 'blue')
+cyl_z(INL, 'led_status', 98, -27, -181.0, 8, 1.0, 'blue')
+for x_, z_ in ((100.0, -189.0), (125.0, -189.0), (221.5, -189.0)):
+    bolt_joint([(DKL, dkl), (DKR, dkr)], (x_, -36.0, z_), (0, 1, 0), M=3, end='insert', head='csk', insert='M3x5x4.5')
 FEET = new_comp('Rubber_Feet')
-for x in (94, 132):
+for x in (100, 205):
     for y in (-28, 28):
         cyl_z(FEET, 'foot_10x3', x, y, -201.0, 10, 3.0, 'black')
 PG = new_comp('Pogo_Pins')
@@ -646,8 +644,8 @@ for w, cy in CONTACTS:
     gcyl(PG, 'pogo_barrel', GRIP_L + 2.0, cy, w, 2.0, 10.0, 'brass')
 gcyl(PG, 'magnet_6x3_dock', GRIP_L + 0.4, MAG_GRIP[1], MAG_GRIP[0], 6.0, 3.0, 'steel')
 UC = new_comp('E7_USB_C_Breakout_Dock')
-box(UC, 'E7_pcb', 204, -6, -198.0, 14, 12, 1.6, 'pcb')
-box(UC, 'E7_usbc_receptacle', 212, -4.47, -196.4, 7.35, 8.94, 3.2, 'steel')
+box(UC, 'E7_pcb', 204, -6, -195.6, 14, 12, 1.6, 'pcb')
+box(UC, 'E7_usbc_receptacle', 212, -4.47, -194.0, 7.35, 8.94, 3.2, 'steel')
 
 # ---------------------------------------------------------------- checks + views + exports
 fasteners_finish(os.path.join(PP['bom'], 'fasteners_bom.csv'))
