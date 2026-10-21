@@ -102,7 +102,7 @@ def sheet(pdf, stl, idx, total):
         tb.plot([x, x], [0, 1], "k", lw=0.8)
     tb.plot([0.55, 1], [0.5, 0.5], "k", lw=0.8)
     tb.text(0.01, 0.62, NAMES.get(key, key), fontsize=20, weight="bold")
-    tb.text(0.01, 0.2, "Spiro - DIY IoT spirometer (v6)   file: " + stl.name, fontsize=10)
+    tb.text(0.01, 0.2, "Spiro - DIY IoT spirometer (v8)   file: " + stl.name, fontsize=10)
     tb.text(0.56, 0.68, "Team MEDTHAI", fontsize=11); tb.text(0.56, 0.18, "Drawn by Claude (auto) from CAD", fontsize=9)
     tb.text(0.73, 0.68, "Scale: fit", fontsize=11); tb.text(0.73, 0.18, "Educational prototype", fontsize=9)
     tb.text(0.87, 0.68, f"Sheet {idx}/{total}", fontsize=11); tb.text(0.87, 0.18, "Rev. A", fontsize=9)

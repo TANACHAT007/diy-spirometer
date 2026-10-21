@@ -595,12 +595,12 @@ for x, z in SCREWS:
 
 # ---------------------------------------------------------------- charging dock
 DK = new_comp('Dock')
-slab = rbox(DK, 'print_dock', 50, -45, -198, 175, 90, 18, 8, 'white')
+slab = rbox(DK, 'print_dock', 80, -36, -198, 145, 72, 18, 8, 'white')
 col_ = gbox(DK, 'collar', 180, -21, -6, 34, 42, 62, 'white')
 round_all(DK, col_, 4)
 wedge = rbox(DK, 'wedge', 140, -21, -190, 62, 42, 38, 4, 'white')
 join(DK, slab, col_, wedge)
-for tx_, ty_, th_, tt_ in ((92.0, 12.0, 6.5, 'MEDTHAI'), (92.0, -3.0, 3.0, 'DIY IoT SPIROMETER'), (92.0, -12.0, 2.2, 'NOT A MEDICAL DEVICE')):
+for tx_, ty_, th_, tt_ in ((86.0, 12.0, 6.5, 'MEDTHAI'), (86.0, -3.0, 3.0, 'DIY IoT SPIROMETER'), (86.0, -12.0, 2.2, 'NOT A MEDICAL DEVICE')):
     f_ = text_z(DK, 'tmp_text', tt_, tx_, ty_, -180.5, th_, 'white', depth=1.0)       # engraved 0.5 mm into the top face
     if f_:
         cut_with(DK, slab, *[f_.bodies.item(i_) for i_ in range(f_.bodies.count)])
@@ -611,14 +611,24 @@ cut_with(DK, slab, gcyl(DK, 'tmp_magd', GRIP_L + 0.4, MAG_GRIP[1], MAG_GRIP[0], 
 cut_with(DK, slab, box(DK, 'tmp_cav', 150, -20, -200, 68, 40, 12, None))
 cut_with(DK, slab, box(DK, 'tmp_usb', 216, -4.9, -196.8, 12, 9.8, 4.0, None))
 cut_with(DK, slab, box(DK, 'tmp_usbcb', 221, -6.5, -198.5, 6, 13, 7.5, None))
+# v8 'wow': floating-plinth shadow reveal + glowing light-guide strips + status LED
+ring_o = rbox(DK, 'tmp_ring_o', 75, -41, -195.2, 155, 82, 1.6, 10, None)
+ring_i = rbox(DK, 'tmp_ring_i', 81.4, -34.6, -195.2, 142.2, 69.2, 1.6, 6.6, None)
+cut_with(DK, ring_o, ring_i)
+cut_with(DK, slab, ring_o)
+for y_ in (-29.0, 27.0):
+    cut_with(DK, slab, box(DK, 'tmp_led', 150, y_, -181.0, 62, 2.0, 1.2, None))
+    box(DK, 'led_strip', 150, y_, -181.0, 62, 2.0, 1.0, 'blue')
+cut_with(DK, slab, cyl_z(DK, 'tmp_ledd', 98, -27, -181.0, 8, 1.2, None))
+cyl_z(DK, 'led_status', 98, -27, -181.0, 8, 1.0, 'blue')
 DB = new_comp('Dock_Bottom')
 plate = box(DB, 'print_dock_bottom', 140, -31, -200.4, 85, 62, 2.4, 'white')
 for x in (146.0, 220.5):
     for y in (-26.0, 26.0):
         bolt_joint([(DB, plate), (DK, slab)], (x, y, -200.4), (0, 0, 1), M=3, end='insert', head='csk')
 FEET = new_comp('Rubber_Feet')
-for x in (62, 213):
-    for y in (-38, 38):
+for x in (94, 132):
+    for y in (-28, 28):
         cyl_z(FEET, 'foot_10x3', x, y, -201.0, 10, 3.0, 'black')
 PG = new_comp('Pogo_Pins')
 for w, cy in CONTACTS:
