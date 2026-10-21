@@ -67,3 +67,4 @@ Takeaways: printed Venturi/orifice + SDP8xx (or MXP5010DP) + ESP32 USB/BLE; past
 - 2026-10-21 v7: dock base smaller (slab 175x90 -> 145x72, feet moved in); backup model_v7_backup.py = v6 before the change.
 - v8 (2026-10-21): dock slab 145x72 (smaller), rear feet moved to x132, shadow-reveal groove, 2 blue light-guide strips + status LED inlays (model_v8_backup.py = before)
 - v9 (2026-10-21): dock honeycomb panel (17 cells, 1 mm engraved) on top face x124-139; fusion_detail loaded in model.py
+- v9b (2026-10-21): dock text recentred x=108 (was 86, clipped at slab edge)

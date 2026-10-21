@@ -601,7 +601,7 @@ col_ = gbox(DK, 'collar', 180, -21, -6, 34, 42, 62, 'white')
 round_all(DK, col_, 4)
 wedge = rbox(DK, 'wedge', 140, -21, -190, 62, 42, 38, 4, 'white')
 join(DK, slab, col_, wedge)
-for tx_, ty_, th_, tt_ in ((86.0, 12.0, 6.5, 'MEDTHAI'), (86.0, -3.0, 3.0, 'DIY IoT SPIROMETER'), (86.0, -12.0, 2.2, 'NOT A MEDICAL DEVICE')):
+for tx_, ty_, th_, tt_ in ((108.0, 12.0, 6.5, 'MEDTHAI'), (108.0, -3.0, 3.0, 'DIY IoT SPIROMETER'), (108.0, -12.0, 2.2, 'NOT A MEDICAL DEVICE')):
     f_ = text_z(DK, 'tmp_text', tt_, tx_, ty_, -180.5, th_, 'white', depth=1.0)       # engraved 0.5 mm into the top face
     if f_:
         cut_with(DK, slab, *[f_.bodies.item(i_) for i_ in range(f_.bodies.count)])

@@ -1,5 +1,5 @@
 {
- "model_hash": "32213e5c8aef",
+ "model_hash": "fe16c28bb27d",
  "parts": [
   {
    "file": "housing_left.stl",
@@ -85,8 +85,8 @@
     72.0,
     145.0
    ],
-   "grams": 137.0,
-   "hours": 7.69,
+   "grams": 137.2,
+   "hours": 7.7,
    "fits_bed": true
   },
   {
