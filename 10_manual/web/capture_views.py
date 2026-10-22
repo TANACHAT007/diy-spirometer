@@ -32,7 +32,7 @@ for(const k in INT){const g=ld.parse(dec(INT[k]));g.computeVertexNormals();
 const box=new THREE.Box3().setFromObject(pivot), ctr=box.getCenter(new THREE.Vector3()), size=box.getSize(new THREE.Vector3()); root.position.sub(ctr);
 const R=Math.max(size.x,size.y,size.z);
 function shot(name,pos,look,o){o=o||{};
-  const hide=o.hide||[]; for(const k in parts){parts[k].m.visible=!hide.includes(k); parts[k].m.material=o.ghost&&k!=='dock'&&k!=='dock_bottom'?parts[k].ghost:parts[k].solid}
+  const hide=o.hide||[]; for(const k in parts){parts[k].m.visible=!hide.includes(k); parts[k].m.material=o.ghost&&k!=='dock_left'&&k!=='dock_right'?parts[k].ghost:parts[k].solid}
   inner.forEach(m=>m.visible=!!o.ghost);
   cam.fov=o.fov||26; cam.updateProjectionMatrix(); cam.position.set(...pos.map(v=>v*R)); cam.lookAt(...look.map(v=>v*R)); ren.render(scene,cam);
   const im=document.createElement('img'); im.id=name; im.setAttribute('data-u',cv.toDataURL('image/png')); document.body.appendChild(im)}

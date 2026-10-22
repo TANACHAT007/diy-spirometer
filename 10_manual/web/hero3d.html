@@ -47,7 +47,7 @@
     scene.add(new THREE.HemisphereLight(0xffffff,0x9db8d8,.55));
     const key=new THREE.DirectionalLight(0xffffff,.6);key.position.set(250,400,300);scene.add(key);
     const rim=new THREE.DirectionalLight(0xbfe0ff,.35);rim.position.set(-300,150,-250);scene.add(rim);
-    const COL={housing_left:0x5fb0f0,housing_right:0x5fb0f0,top_cover:0x78bff5,flow_tube:0xf4f9ff,mouthpiece:0xcdaa78,dock:0xeaf1fa,dock_bottom:0xdbe6f3};
+    const COL={housing_left:0x5fb0f0,housing_right:0x5fb0f0,top_cover:0x78bff5,flow_tube:0xf4f9ff,mouthpiece:0xcdaa78,dock_left:0xeaf1fa,dock_right:0xeaf1fa};
     const root=new THREE.Group();root.rotation.x=-Math.PI/2;           // CAD is Z-up
     const pivot=new THREE.Group();pivot.add(root);scene.add(pivot);
     const items=[];
