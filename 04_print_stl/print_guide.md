@@ -12,9 +12,8 @@ Profile: 0.2 mm layer, 4 walls (≥1.6 mm), 20 % gyroid, 0.4 nozzle. Printed hol
 | Mouthpiece (DISPOSABLE) | mouthpiece.stl | wide end down | none | **PETG (prototype; later replace with agri-waste pulp/paper).** 0.2 mm layers, 2 walls, 10 % infill, ~11 g ≈ 5 THB, ~40 min. Print a batch of 10. One per person; replace after 20 blows or 7 days (the device counts; hold button 4 s after fitting a new one). PETG is not biodegradable; do not wash and reuse across people (it is not a bacterial filter). |
 | Display bezel | bezel.stl | flat | none | **white**, glue into the 0.6 mm rebate around the display window (CA gel, keep glue off the glass) |
 | Button cap | button_cap.stl | domed side down? **flat side (socket) up** | none | **white**, press onto the tact stem + one tiny drop of glue |
-| Dock base | dock.stl | **bottom face down** | none | 4 × M3x4x4.5 inserts in the underside for the bottom plate, 2 pogo holes Ø2.2, magnet pocket Ø6.2 |
-| Dock cradle | dock_cradle.stl | **flat face down** (the face that meets the base) | none | 4 × M3x4x4.5 inserts in the underside; bolted to the base with 4 × M3x12 csk from inside the cavity |
-| Dock bottom | dock_bottom.stl | flat | none | M3x6 countersunk ×4 |
+| Dock left | dock_left.stl | **split face (y=0) down** | none; cavity is closed at the top, tree supports only if the slicer asks | cavity for USB-C board, 1 pogo hole Ø2.2 (y−6) in the cradle wall, light-guide strip + status LED seat; 3 × M3x40 csk heads on the outer face |
+| Dock right | dock_right.stl | **split face (y=0) down** | as above | 3 × M3x5x4.5 heat-set inserts at the seam, 1 pogo hole Ø2.2 (y+6) + 6x3 magnet pocket in the cradle wall, light-guide strip seat |
 
 ## Post-print
 1. Heat-set inserts at 220 °C with the iron tip straight; insert flush. Brass **contact** inserts (M3x4x4.5) go into the grip end of each half *before* closing (contacts are NOT on the seam: left half w=13, right half w=37).
